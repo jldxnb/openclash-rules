@@ -1,5 +1,8 @@
 # 直连补充列表(国内域名不解析时，防止走代理使用)
 
+# 测速的一些域名
+DOMAIN-SUFFIX,gstatic.com
+
 # 漫画的一些域名
 DOMAIN-KEYWORD,18comic-
 DOMAIN-KEYWORD,baozimh
