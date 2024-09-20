@@ -1,0 +1,27 @@
+# 内容：默认这些使用一分机场
+#匹配路由自身进程(curl直连)
+PROCESS-NAME,curl
+
+#匹配域名后缀
+DOMAIN-SUFFIX,google.com
+
+#匹配域名关键字
+DOMAIN-KEYWORD,google
+
+#匹配域名
+DOMAIN,google.com
+
+#匹配域名后缀
+DOMAIN-SUFFIX,ad.com
+
+#匹配数据目标IP
+IP-CIDR,127.0.0.0/8
+
+#匹配数据发起IP
+SRC-IP-CIDR,192.168.1.201/32
+
+#匹配数据目标端口
+DST-PORT,80
+
+#匹配数据源端口
+SRC-PORT,7777
