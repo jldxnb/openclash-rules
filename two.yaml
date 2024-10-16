@@ -161,14 +161,15 @@ proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动选择, ♻️ 便宜节点], include-all: true}
   - {name: 🎮 日美等节点, type: select, proxies: [🔯 自动选择|日美等], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
   - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 自动选择|非日], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
-  - {name: 🍀 流媒体, type: select, proxies: [🚀 节点选择, ♻️ 便宜节点], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🍀 便宜节点, type: select, proxies: [♻️ 便宜节点, 🚀 节点选择], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
 
 
   - {name: ♻️ 便宜节点, type: url-test, use: [cheap], include-all: true, tolerance: 20, interval: 300}
   - {name: 🔯 自动选择, type: url-test, use: [stable], include-all: true, tolerance: 20, interval: 300}
   - {name: 🔯 自动选择|日美等, type: url-test, use: [stable], tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
   - {name: 🔯 自动选择|非日, type: url-test, use: [stable], tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
-  
+
+  - {name: ✈️ Speedtest, type: select, proxies: [🔯 自动选择, ♻️ 便宜节点], include-all: true}
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
 rules:
@@ -180,20 +181,22 @@ rules:
   - RULE-SET,private_domain,DIRECT
   - RULE-SET,apple_domain,🎯 全球直连
   - RULE-SET,github_domain,🚀 节点选择
-  - RULE-SET,youtube_domain,🚀 节点选择
-  - RULE-SET,google_domain,🚀 节点选择
+  - RULE-SET,youtube_domain,🍀 便宜节点
+  - RULE-SET,twitter_domain,🍀 便宜节点
+  - RULE-SET,google_domain,🍀 便宜节点
   - RULE-SET,onedrive_domain,🚀 节点选择
   - RULE-SET,microsoft_domain,🚀 节点选择
   - RULE-SET,tiktok_domain,🚀 节点选择
-  - RULE-SET,speedtest_domain,🚀 节点选择
-  - RULE-SET,telegram_domain,🚀 节点选择
+  - RULE-SET,speedtest_domain,✈️ Speedtest
+  - RULE-SET,telegram_domain,🍀 便宜节点
   - RULE-SET,netflix_domain,🚀 节点选择
   - RULE-SET,paypal_domain,🚀 节点选择
   - RULE-SET,geolocation-!cn,🚀 节点选择
   - RULE-SET,cn_domain,🎯 全球直连
-  - RULE-SET,google_ip,🚀 节点选择,no-resolve
+  - RULE-SET,google_ip,🍀 便宜节点,no-resolve
+  - RULE-SET,twitter_ip,🍀 便宜节点,no-resolve
   - RULE-SET,netflix_ip,🚀 节点选择,no-resolve
-  - RULE-SET,telegram_ip,🚀 节点选择,no-resolve
+  - RULE-SET,telegram_ip,🍀 便宜节点,no-resolve
   - RULE-SET,cn_ip,🎯 全球直连
   - MATCH,🐟 漏网之鱼
 rule-anchor:
@@ -209,6 +212,7 @@ rule-providers:
 
   
   youtube_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs" }
+  twitter_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.mrs" }
   private_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs" }
   google_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs" }
   github_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs" }
@@ -227,4 +231,5 @@ rule-providers:
   cn_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs" }
   google_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs" }
   telegram_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs" }
+  twitter_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/twitter.mrs" }
   netflix_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/netflix.mrs" }
