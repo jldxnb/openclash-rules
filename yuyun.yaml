@@ -1,32 +1,23 @@
 # 锚点
-pr: &pr {type: select, proxies: [🚀 节点选择, 🔯 香港故转, 🔯 日本故转, ♻️ 香港自动, ♻️ 日本自动, ♻️ 美国自动, ♻️ 自动选择, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇺🇲 美国节点, 🌐 全部节点, ⭕ 自建节点, 🔗 链式代理, 🟢 直连]}
+pr: &pr {type: select, proxies: [🚀 节点选择, 🤖 AI, 🎞️ 非日本节点, ♻️ 自动选择, 🔯 自动选择|日美等, ⭐ 自动选择|非日, 🟢 直连, 🐟 漏网之鱼]}
 
 # 机场订阅，名称不能重复
 proxy-providers:
-  Airport_01:
+  yuyun:
     type: http
-    interval: 1800
+    interval: 3600
+    proxy: 🟢 直连
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
+      timeout: 5000
       interval: 300
-    proxy: 🟢 直连
-    url: "订阅"
-  Airport_02:
-    type: http
-    interval: 1800
-    health-check:
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 300
-    proxy: 🟢 直连
-    url: "订阅"
     override:
       skip-cert-verify: true
-      udp: true
-      down: "50 Mbps"
-      up: "10 Mbps"
-      
+      additional-prefix: "渔云|"
+    url: "订阅"
+    exclude-filter: "(?!)超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+
 # 用于下载订阅时指定UA
 global-ua: clash.meta
     
@@ -36,9 +27,9 @@ socks-port: 7891
 redir-port: 7892
 mixed-port: 7893
 tproxy-port: 7894
-ipv6: false
+ipv6: true
 allow-lan: true
-unified-delay: true
+#unified-delay: true
 tcp-concurrent: true
 # interface-name: eth0  （路由器下根据情况指定出站接口）
 authentication:
@@ -76,6 +67,8 @@ profile:
 # 流量嗅探
 sniffer:
   enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
   sniff:
     HTTP:
       ports: [80, 8080-8880]
@@ -86,6 +79,10 @@ sniffer:
       ports: [443, 8443]
   force-domain:
     - +.v2ex.com
+    - "+.netflix.com"
+    - "+.nflxvideo.net"
+    - "+.amazonaws.com"
+    - "+.media.dssott.com"
   skip-domain:
     - "Mijia Cloud"
     - "dlg.io.mi.com"
@@ -97,6 +94,9 @@ tun:
   enable: true
   stack: mixed
   mtu: 9000
+  gso: true
+  gso-max-size: 65536
+  endpoint-independent-nat: false
   dns-hijack:
     - "any:53"
     - "tcp://any:53"
@@ -108,7 +108,7 @@ tun:
 dns:
   enable: true
   listen: 0.0.0.0:1053
-  ipv6: false
+  ipv6: true
   respect-rules: true
   # 模式切换 redir-host / fake-ip
   enhanced-mode: fake-ip
@@ -123,20 +123,24 @@ dns:
     - geosite:cn
   default-nameserver:
     - 223.5.5.5
-    - 119.29.29.29
+    - 114.114.114.114
   proxy-server-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - 127.0.0.1:5225
   nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
+    - 127.0.0.1:5225
+  fallback:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
   nameserver-policy:
-    "rule-set:private_domain,cn_domain":
-    - 223.5.5.5
-    - 119.29.29.29
-    "rule-set:geolocation-!cn":
-      - "https://dns.cloudflare.com/dns-query"
-      - "https://dns.google/dns-query"
+    geosite:cn,private:
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    geosite:geolocation-!cn:
+      - https://dns.cloudflare.com/dns-query
+      - https://dns.google/dns-query
  
    
 proxies:
