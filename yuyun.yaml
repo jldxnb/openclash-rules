@@ -3,7 +3,7 @@ pr: &pr {type: select, proxies: [🚀 节点选择, 🤖 AI, 🎞️ 非日本�
 
 # 机场订阅，名称不能重复
 proxy-providers:
-  yuyun:
+  provider1:
     type: http
     interval: 3600
     proxy: 🟢 直连
@@ -14,9 +14,9 @@ proxy-providers:
       interval: 300
     override:
       skip-cert-verify: true
-      additional-prefix: "渔云|"
-    url: "订阅"
+      #additional-prefix: "渔云|"
     exclude-filter: "(?!)超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
 
 # 用于下载订阅时指定UA
 global-ua: clash.meta
@@ -176,13 +176,19 @@ proxy-groups:
   - {name: ♻️ 香港自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$"}
   - {name: ♻️ 日本自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$" }
   - {name: ♻️ 美国自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$"}
-  - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(直连)).)*$"}
+  
   - {name: 🌐 全部节点, type: select, include-all: true}
+  
+  - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300}
+  - {name: 🔯 自动选择|日美等, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 自动选择|非日, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🎯 全球直连, type: select, proxies: [🟢 直连, 🚀 节点选择]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🤖 AI, 🎞️ 非日本节点, ♻️ 自动选择, 🔯 自动选择|日美等, ⭐ 自动选择|非日, 🟢 直连, 🐟 漏网之鱼]}
 rules:
   - RULE-SET,private_domain,🟢 直连
   - RULE-SET,direct1,🟢 直连
   - RULE-SET,apple_domain,🍎 Apple
-  - RULE-SET,free,🔗 链式代理
+  #- RULE-SET,free,🔗 链式代理
   - RULE-SET,proxylite,🚀 节点选择
   - RULE-SET,ai,🤖 ChatGPT
   - RULE-SET,github_domain,👨🏿‍💻 GitHub
