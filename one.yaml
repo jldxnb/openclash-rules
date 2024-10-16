@@ -142,11 +142,13 @@ dns:
   
 # 策略组
 proxy-groups:
-  - {name: 🚀 节点选择, type: select, proxies: [♻️ 自动选择], use: [provider1]}
-  - {name: 🎮 日美等节点, type: select, proxies: [🔯 自动选择|日美等], use: [provider1], filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 自动选择|非日], use: [provider1], filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动选择], include-all: true}
+  - {name: 🎮 日美等节点, type: select, proxies: [🔯 自动选择|日美等], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 自动选择|非日], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: ✈️ Speedtest, type: select, proxies: [🔯 自动选择], include-all: true}
   
-  - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300}
+  
+  - {name: 🔯 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300}
   - {name: 🔯 自动选择|日美等, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
   - {name: 🔯 自动选择|非日, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
   
@@ -166,7 +168,7 @@ rules:
   - RULE-SET,onedrive_domain,🚀 节点选择
   - RULE-SET,microsoft_domain,🚀 节点选择
   - RULE-SET,tiktok_domain,🚀 节点选择
-  - RULE-SET,speedtest_domain,🚀 节点选择
+  - RULE-SET,speedtest_domain,✈️ Speedtest
   - RULE-SET,telegram_domain,🚀 节点选择
   - RULE-SET,netflix_domain,🚀 节点选择
   - RULE-SET,paypal_domain,🚀 节点选择
