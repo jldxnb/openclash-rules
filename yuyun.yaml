@@ -3,7 +3,7 @@ proxy-providers:
   provider1:
     type: http
     interval: 3600
-    proxy: 🟢 直连
+    proxy: DIRECT
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
@@ -139,12 +139,6 @@ dns:
       - https://dns.cloudflare.com/dns-query
       - https://dns.google/dns-query
  
-   
-proxies:
-- name: "🟢 直连"
-  type: direct
-  udp: true
-
   
 # 策略组
 proxy-groups:
@@ -156,15 +150,15 @@ proxy-groups:
   - {name: 🔯 自动选择|日美等, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
   - {name: 🔯 自动选择|非日, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
   
-  - {name: 🎯 全球直连, type: select, proxies: [🟢 直连, 🚀 节点选择]}
+  - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
 rules:
   # 自定义
-  - RULE-SET,direct1,🟢 直连
+  - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🎮 日美等节点
   - RULE-SET,no_jp,🎞️ 非日本节点
   
-  - RULE-SET,private_domain,🟢 直连
+  - RULE-SET,private_domain,DIRECT
   - RULE-SET,apple_domain,🎯 全球直连
   - RULE-SET,github_domain,🚀 节点选择
   - RULE-SET,youtube_domain,🚀 节点选择
