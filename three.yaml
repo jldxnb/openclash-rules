@@ -2,7 +2,7 @@
 proxy-providers:
   stable:
     type: http
-    interval: 3600
+    interval: 86400
     proxy: DIRECT
     health-check:
       enable: true
@@ -17,7 +17,7 @@ proxy-providers:
 
   stable1:
     type: http
-    interval: 3600
+    interval: 86400
     proxy: DIRECT
     health-check:
       enable: true
@@ -32,7 +32,7 @@ proxy-providers:
 
   cheap:
     type: http
-    interval: 3600
+    interval: 86400
     proxy: DIRECT
     health-check:
       enable: true
