@@ -178,6 +178,10 @@ proxy-groups:
   - {name: ♻️ 美国自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$"}
   
   - {name: 🌐 全部节点, type: select, include-all: true}
+
+  - {name: 🚀 节点选择, type: select, proxies: [♻️ 自动选择], use: [provider1]}
+  - {name: 🎮 日美等节点, type: select, proxies: [🔯 自动选择|日美等], use: [provider1], filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  
   
   - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300}
   - {name: 🔯 自动选择|日美等, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
