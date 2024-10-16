@@ -1,6 +1,22 @@
 # 机场订阅，名称不能重复
 proxy-providers:
-  provider1:
+  stable:
+    type: http
+    interval: 3600
+    proxy: DIRECT
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 5000
+      interval: 300
+    override:
+      skip-cert-verify: true
+      #additional-prefix: "渔云|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+proxy-providers:
+  cheap:
     type: http
     interval: 3600
     proxy: DIRECT
@@ -142,13 +158,16 @@ dns:
   
 # 策略组
 proxy-groups:
-  - {name: 🚀 节点选择, type: select, proxies: [♻️ 自动选择], use: [provider1]}
-  - {name: 🎮 日美等节点, type: select, proxies: [🔯 自动选择|日美等], use: [provider1], filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 自动选择|非日], use: [provider1], filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
-  
-  - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300}
-  - {name: 🔯 自动选择|日美等, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🔯 自动选择|非日, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动选择, ♻️ 便宜节点], include-all: true}
+  - {name: 🎮 日美等节点, type: select, proxies: [🔯 自动选择|日美等], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 自动选择|非日], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🍀 流媒体, type: select, proxies: [🚀 节点选择, ♻️ 便宜节点], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+
+
+  - {name: ♻️ 便宜节点, type: url-test, use: [cheap], include-all: true, tolerance: 20, interval: 300}
+  - {name: 🔯 自动选择, type: url-test, use: [stable], include-all: true, tolerance: 20, interval: 300}
+  - {name: 🔯 自动选择|日美等, type: url-test, use: [stable], tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 自动选择|非日, type: url-test, use: [stable], tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
   
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
