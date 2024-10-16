@@ -184,7 +184,7 @@ rule-anchor:
   class: &class {type: http, interval: 86400, behavior: classical, format: text}
 rule-providers: 
   #自己添加
-  direct1: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rule/Direct.list" }
+  direct1: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rule/DirectOwn.list" }
   ai: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rule/AI.list" }
   no_jp: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rule/NoJP.list" }
 
