@@ -1,0 +1,9 @@
+#匹配域名后缀
+DOMAIN-SUFFIX,mcdn.bilivideo.cn
+
+#匹配域名
+DOMAIN,upos-sz-estghw.bilivideo.com
+DOMAIN,upos-sz-mirrorcos.bilivideo.com
+DOMAIN,upos-sz-mirror08c.bilivideo.com
+DOMAIN,upos-sz-mirrorcosdisp.bilivideo.com
+DOMAIN,upos-sz-mirrorbd.bilivideo.com
