@@ -1,15 +1,17 @@
 # 直连补充列表(国内域名不解析时，防止走代理使用)
 IP-CIDR,127.0.0.1/32,no-resolve
 SRC-IP-CIDR,127.0.0.1/32,no-resolve
+IP-CIDR,5.5.5.5/32,no-resolve
+SRC-IP-CIDR,5.5.5.5/32,no-resolve
 
-# 测速的一些域名
-# DOMAIN-SUFFIX,gstatic.com
+
+# 域名
+DOMAIN-SUFFIX,program-test.eu.org
 
 # 漫画的一些域名
 DOMAIN-KEYWORD,18comic-
 DOMAIN-KEYWORD,baozimh
-IP-CIDR,5.5.5.5/32,no-resolve
-SRC-IP-CIDR,5.5.5.5/32,no-resolve
+
 
 # 555电影
 DOMAIN-SUFFIX,55jok.com
