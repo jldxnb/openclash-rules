@@ -4,14 +4,12 @@ SRC-IP-CIDR,127.0.0.1/32,no-resolve
 IP-CIDR,5.5.5.5/32,no-resolve
 SRC-IP-CIDR,5.5.5.5/32,no-resolve
 
-
 # 域名
 DOMAIN-SUFFIX,program-test.eu.org
 
 # 漫画的一些域名
 DOMAIN-KEYWORD,18comic-
 DOMAIN-KEYWORD,baozimh
-
 
 # 555电影
 DOMAIN-SUFFIX,55jok.com
