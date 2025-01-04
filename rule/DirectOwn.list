@@ -9,6 +9,7 @@ DOMAIN-SUFFIX,program-test.eu.org
 
 # 漫画的一些域名
 DOMAIN-KEYWORD,18comic-
+DOMAIN-KEYWORD,jmcomic-
 DOMAIN-KEYWORD,baozimh
 
 # 555电影
