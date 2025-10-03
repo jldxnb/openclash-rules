@@ -6,7 +6,13 @@ SRC-IP-CIDR,5.5.5.5/32,no-resolve
 
 # 域名
 DOMAIN-SUFFIX,program-test.eu.org
-DOMAIN-SUFFIX,mirrors.vsean.net
+
+#immortalwrt源
+DOMAIN,mirrors.vsean.net
+DOMAIN,mirrors.ustc.edu.cn
+DOMAIN-SUFFIX,vsean.net
+DOMAIN-SUFFIX,ustc.edu.cn
+DOMAIN,downloads.openwrt.org
 
 # 漫画的一些域名
 #DOMAIN-KEYWORD,18comic-
