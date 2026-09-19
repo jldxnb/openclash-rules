@@ -15,6 +15,8 @@ configs/
   mihomo/          完整的 mihomo 配置，直接给 OpenClash 用
     one.yaml         单机场版（一个 proxy-provider，靠 include-all + filter 分日/非日）
     three.yaml       多机场版（stable / stable1 / cheap 三个订阅，便宜节点分流）
+    three-redir-host.yaml  three.yaml 的副本，仅 DNS 用 redir-host 而非 fake-ip，
+                      用于排查 fake-ip 相关问题；两个文件需同步维护
   subconverter/    subconverter 转换模板（ACL4SSR 语法）
     acl4ssr-one.ini  主力模板
     acl4ssr-two.ini  多机场 + 流媒体走便宜节点

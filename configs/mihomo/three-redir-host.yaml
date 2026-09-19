@@ -1,0 +1,276 @@
+# three.yaml 的 redir-host 变体：除 DNS 模式外，策略组 / 规则 / 订阅结构与 three.yaml 完全一致。
+# 用途：排查与 fake-ip 相关的问题（例如 Windows「手机连接」配对失败）。
+# 注意：两个文件需要同步维护，改了一个记得改另一个，改完跑 python scripts/validate.py。
+#
+# 机场订阅，名称不能重复
+proxy-providers:
+  stable:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 5000
+      interval: 300
+    override:
+      skip-cert-verify: true
+      additional-prefix: "渔云|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+  stable1:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 5000
+      interval: 300
+    override:
+      skip-cert-verify: true
+      additional-prefix: "猫咪|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+  cheap:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 5000
+      interval: 300
+    override:
+      skip-cert-verify: true
+      additional-prefix: "一分|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+# 用于下载订阅时指定UA
+global-ua: clash.meta
+    
+# 全局配置
+port: 7890
+socks-port: 7891
+redir-port: 7892
+mixed-port: 7893
+tproxy-port: 7894
+ipv6: true
+allow-lan: true
+#unified-delay: true
+tcp-concurrent: true
+# interface-name: eth0  （路由器下根据情况指定出站接口）
+authentication:
+  - name:passwd
+  
+geodata-mode: false
+# GEO 文件加载模式（standard：标准加载器/memconservative：专为内存受限 (小内存) 设备优化的加载器 (默认值)）
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 48
+geox-url:
+  geosite: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+  mmdb: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.metadb"
+  geoip: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  asn: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb"
+  
+# 控制面板
+external-controller: 0.0.0.0:9090
+secret: ""
+external-ui: ui
+external-ui-url: "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+# 下载面板地址可更换：https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip
+
+# 匹配进程 always/strict/off
+find-process-mode: strict
+keep-alive-idle: 600
+keep-alive-interval: 30
+
+# 策略组选择和fakeip缓存
+profile:
+  store-selected: true
+  # redir-host 模式没有 fake-ip 映射需要持久化
+  store-fake-ip: false
+  
+# 流量嗅探
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain:
+    - +.v2ex.com
+    - "+.netflix.com"
+    - "+.nflxvideo.net"
+    - "+.amazonaws.com"
+    - "+.media.dssott.com"
+  skip-domain:
+    - "Mijia Cloud"
+    - "dlg.io.mi.com"
+    - "+.push.apple.com"
+    - "+.apple.com"
+    
+# 代理模式
+tun:
+  enable: true
+  stack: mixed
+  mtu: 9000
+  gso: true
+  gso-max-size: 65536
+  endpoint-independent-nat: false
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+  
+# DNS模块
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: true
+  respect-rules: true
+  # 模式：redir-host（本文件）/ fake-ip（见 three.yaml）
+  enhanced-mode: redir-host
+  # 以下三项只在 fake-ip 模式生效，redir-host 下无意义，保留备查，切回 fake-ip 时取消注释即可
+  # fake-ip-range: 28.0.0.1/8
+  # fake-ip-filter-mode: blacklist
+  # 黑名单模式表示如果匹配成功则不返回 Fake-IP, 白名单模式时只有匹配成功才返回 Fake-IP
+  # fake-ip-filter:
+  #   - "+.lan"
+  #   - "+.local"
+  #   - geosite:private
+  #   - geosite:cn
+  default-nameserver:
+    - 223.5.5.5
+    - 114.114.114.114
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - 127.0.0.1:5225
+  nameserver:
+    - 127.0.0.1:5225
+  fallback:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+  nameserver-policy:
+    geosite:cn,private:
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    geosite:geolocation-!cn:
+      - https://dns.cloudflare.com/dns-query
+      - https://dns.google/dns-query
+ 
+  
+# 策略组
+proxy-groups:
+  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
+  - {name: 🎮 日美等节点, type: select, proxies: [🔯 主备切换|日美等, 🔯 主备切换|日美等1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 主备切换|非日, 🔯 主备切换|非日1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🍀 便宜节点, type: select, proxies: [♻️ 便宜主备], use: [cheap]}
+  - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
+  - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
+  
+
+  # 以下自动组均为 fallback：默认用列表里第一个健康的节点，可以在面板里手动指定节点
+  # （选择会随 store-selected 持久化），指定的节点失效时自动切到下一个健康的节点。
+  # 与 url-test 的区别：不会再为了"快几毫秒"频繁换节点，连接更稳定；代价是失效检测
+  # 依赖健康检查周期（interval），切换不是瞬时的。
+  # 跨机场兜底：stable 整体不可用时自动切到 stable1，再不行才用 cheap
+  - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换|日美等, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 主备切换|非日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换|日美等1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 主备切换|非日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+
+
+  - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
+rules:
+  # 自定义
+  - RULE-SET,direct1,DIRECT
+  - RULE-SET,ai,🎮 日美等节点
+  - RULE-SET,no_jp,🎞️ 非日本节点
+
+  # 广告拦截（把「🛑 广告拦截」组切到 DIRECT 即全部放行）
+  - RULE-SET,adblock,🛑 广告拦截
+  - RULE-SET,ad_program,🛑 广告拦截
+  - RULE-SET,ad_cn,🛑 广告拦截
+  
+  - RULE-SET,private_domain,DIRECT
+  - RULE-SET,apple_domain,🎯 全球直连
+  # 国内可直连的 Google 域名，必须排在 google_domain 之前，否则不会生效
+  - RULE-SET,google_cn,🎯 全球直连
+  - RULE-SET,github_domain,🚀 节点选择
+  - RULE-SET,youtube_domain,🍀 便宜节点
+  - RULE-SET,twitter_domain,🍀 便宜节点
+  - RULE-SET,google_domain,🍀 便宜节点
+  - RULE-SET,onedrive_domain,🚀 节点选择
+  - RULE-SET,microsoft_domain,🚀 节点选择
+  - RULE-SET,tiktok_domain,🚀 节点选择
+  - RULE-SET,speedtest_domain,✈️ Speedtest
+  - RULE-SET,telegram_domain,🍀 便宜节点
+  - RULE-SET,netflix_domain,🚀 节点选择
+  - RULE-SET,paypal_domain,🚀 节点选择
+  - RULE-SET,geolocation-!cn,🚀 节点选择
+  - RULE-SET,cn_domain,🎯 全球直连
+  - RULE-SET,google_ip,🍀 便宜节点,no-resolve
+  - RULE-SET,twitter_ip,🍀 便宜节点,no-resolve
+  - RULE-SET,netflix_ip,🚀 节点选择,no-resolve
+  - RULE-SET,telegram_ip,🍀 便宜节点,no-resolve
+  - RULE-SET,cn_ip,🎯 全球直连
+  - MATCH,🐟 漏网之鱼
+rule-anchor:
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+  zgb: &zgb {type: http, interval: 86400, behavior: domain, format: text}
+  class: &class {type: http, interval: 86400, behavior: classical, format: text}
+rule-providers: 
+  #自己添加
+  direct1: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/DirectOwn.list" }
+  ai: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.list" }
+  no_jp: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/NoJP.list" }
+  # 广告拦截（classical 文本规则集，约 6600 条）
+  adblock:    { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list" }
+  ad_program: { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list" }
+  ad_cn:      { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanEasyListChina.list" }
+
+  
+  youtube_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs" }
+  twitter_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.mrs" }
+  private_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs" }
+  google_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs" }
+  github_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs" }
+  telegram_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs" }
+  netflix_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs" }
+  paypal_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/paypal.mrs" }
+  onedrive_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs" }
+  microsoft_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs" }
+  apple_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs" }
+  google_cn: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google-cn.mrs" }
+  speedtest_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ookla-speedtest.mrs" }
+  tiktok_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs" }
+  gfw_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gfw.mrs" }
+  geolocation-!cn: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs" }
+  cn_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs" }
+  
+  cn_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs" }
+  google_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs" }
+  telegram_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs" }
+  twitter_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/twitter.mrs" }
+  netflix_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/netflix.mrs" }
