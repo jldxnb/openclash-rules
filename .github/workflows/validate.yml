@@ -1,0 +1,36 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # 每周一 03:00 UTC 探测上游规则集/订阅模板是否失效（上游改名、删库时能提前发现）
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: 引用与规则集校验
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: 安装依赖
+        run: python -m pip install --quiet pyyaml
+      - name: 运行校验（离线：引用完整性 / 规则集格式 / 配置一致性）
+        run: python scripts/validate.py
+
+  upstream-links:
+    name: 上游链接可达性
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: 探测所有外部 URL
+        run: python scripts/validate.py --online
