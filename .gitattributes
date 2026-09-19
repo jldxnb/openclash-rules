@@ -1,0 +1,14 @@
+# 换行策略：仓库内一律存 LF，检出到工作区时按下面的规则决定格式。
+# 这样无论谁用什么系统 clone，diff 都不会因为换行符产生噪音。
+
+* text=auto
+
+# mihomo 配置与 subconverter 模板沿用 CRLF（历史内容如此，改动会变成整文件 diff）
+*.ini  text eol=crlf
+*.list text eol=crlf
+*.yaml text eol=crlf
+
+# 文档与脚本用 LF
+*.md  text eol=lf
+*.py  text eol=lf
+*.yml text eol=lf
