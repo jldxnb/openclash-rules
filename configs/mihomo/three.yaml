@@ -171,11 +171,11 @@ dns:
   
 # 策略组
 proxy-groups:
-  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 自动选择, 🔯 自动选择1, ♻️ 便宜节点], include-all: true}
-  - {name: 🎮 日美等节点, type: select, proxies: [🔯 自动选择|日美等, 🔯 自动选择|日美等1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 自动选择|非日, 🔯 自动选择|非日1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
-  - {name: 🍀 便宜节点, type: select, proxies: [♻️ 便宜节点], use: [cheap]}
-  - {name: ✈️ Speedtest, type: select, proxies: [🔯 自动选择, 🔯 自动选择1, ♻️ 便宜节点], include-all: true}
+  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
+  - {name: 🎮 日美等节点, type: select, proxies: [🔯 主备切换|日美等, 🔯 主备切换|日美等1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 主备切换|非日, 🔯 主备切换|非日1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🍀 便宜节点, type: select, proxies: [♻️ 便宜主备], use: [cheap]}
+  - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
   - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
   
 
@@ -184,14 +184,14 @@ proxy-groups:
   # 与 url-test 的区别：不会再为了"快几毫秒"频繁换节点，连接更稳定；代价是失效检测
   # 依赖健康检查周期（interval），切换不是瞬时的。
   # 跨机场兜底：stable 整体不可用时自动切到 stable1，再不行才用 cheap
-  - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 自动选择, 🔯 自动选择1, ♻️ 便宜节点], url: "https://www.gstatic.com/generate_204", interval: 300}
-  - {name: ♻️ 便宜节点, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300}
-  - {name: 🔯 自动选择, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300}
-  - {name: 🔯 自动选择|日美等, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🔯 自动选择|非日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
-  - {name: 🔯 自动选择1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300}
-  - {name: 🔯 自动选择|日美等1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🔯 自动选择|非日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换|日美等, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 主备切换|非日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换|日美等1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 主备切换|非日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
 
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
