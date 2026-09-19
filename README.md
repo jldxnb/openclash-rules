@@ -100,8 +100,8 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 
 | 位置 | 问题 |
 |---|---|
-| `rules/NoJP.list` 与 `rules/JapanAnime.list` | 都含 `DOMAIN-KEYWORD,hanime1`，但一个走"非日本节点"、一个走日本，语义相反，需要二选一 |
-| `rules/ForYiFen.list` | 只有被注释的一行，等于空规则集；引用它的 `🍀 流媒体`、`🌍 默认用一分` 组目前不会命中任何流量 |
+| `rules/NoJP.list` | 从建立到删除始终只有 1 条 `DOMAIN-KEYWORD,hanime1`（考证见 [docs/migration.md](docs/migration.md) 第四节），撑不起"非日本节点"这个用途，需要按实际需求补充或删掉该组；而且 `rules/JapanAnime.list` 里也有 `hanime1`（那份走日本节点），**语义相反，需二选一** |
+| `rules/ForYiFen.list` | 从建立起就是空集（唯一一行被注释），引用它的 `🍀 流媒体`、`🌍 默认用一分` 组不会命中任何流量 |
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` 是旧写法，新版 mihomo 更推荐 `nameserver-policy`（文件里两套都写了） |
