@@ -57,6 +57,7 @@ rule-providers:
 |---|---|
 | `🛑 广告拦截` | 默认 `REJECT`（拦截广告域名）；切到 `DIRECT` 即全部放行 |
 | `🔯 自动兜底` | 跨机场故障转移：`stable` 整体不可用时自动切到 `stable1`，再不行才用 `cheap` |
+| `🔯 自动选择*`、`♻️ 便宜节点` | 都是 `fallback` 类型：默认用列表里第一个健康的节点，**也可以在面板里手动点选一个首选节点**（选择会持久化），该节点失效时自动切到下一个健康的 |
 | `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
 | `🐟 漏网之鱼` | 兜底流量，默认走节点选择，可切成直连 |
 
@@ -74,7 +75,6 @@ rule-providers:
 | `configs/mihomo/*.yaml` | `authentication: - name:passwd` | 真实 `用户名:密码`；同时建议 `allow-lan: false` |
 | `configs/mihomo/*.yaml` | `external-controller: 0.0.0.0:9090` + `secret: ""` | 改为 `127.0.0.1:9090` 并设置非空 `secret`（当前等于把控制面板无密码开放给整个局域网） |
 | `configs/mihomo/*.yaml` | DNS `127.0.0.1:5225` | 设备上确有本地 DNS 服务时保留，否则改公共 DNS |
-| `configs/mihomo/*.yaml` | `mirror.ghproxy.com` | 该第三方镜像不稳定，建议换官方地址 |
 
 ## 日常维护
 
@@ -118,7 +118,6 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` **未废弃**（此前误记为旧写法；官方废弃的是 `fallback-filter.geosite`，文件里没用它）。但它与 `nameserver-policy` 并存会让两套 DNS 并行查询，官方提供 `fallback-lazy-query: true` 可避免 |
-| `configs/mihomo/*.yaml` | `global-client-fingerprint` 官方已弃用（全局 TLS 指纹），建议改为在各 proxy 内设置 `client-fingerprint` |
 | `configs/mihomo/three.yaml` | `rule-anchor` 不在官方规范内（mihomo 用标准 yaml.v3 解析、未开严格模式，会静默忽略，不报错），其中 `zgb` 锚点全场 0 次引用；`geodata-loader: standard` 也非默认值（源码默认 `memconservative`，官方定位是低内存设备用） |
 | `configs/mihomo/three.yaml` | `gfw_domain` 这个 rule-provider 定义了但 `rules` 从未引用，仍会周期性下载并常驻内存 |
 
