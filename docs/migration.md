@@ -90,9 +90,41 @@ git rev-parse refactor/project-structure:rules/NoJP.list   # 同上
    原因是"哪些站点不能用日本节点"高度个人化，取决于机场和具体服务；社区通行做法是
    按地区建节点组 + 按服务维护域名列表。
 
-结论：引用已修好（不再 404），但 `rules/NoJP.list` 只有 1 条，**撑不起"非日本节点"这个用途**。
-本次没有替你编内容，也没有替你决定 `hanime1` 该走哪边（它同时出现在 `rules/JapanAnime.list`，
-那份是走日本节点的，语义相反）。需要按 "已知问题" 里的说明自行取舍。
+结论：引用已修好（不再 404）。`rules/NoJP.list` 只有 1 条**不是残缺，而是设计如此**——
+它是一份"例外清单"，靠规则顺序提前命中来做特殊分流，详见下一节。
+
+## 五、NoJP 这类列表是怎么生效的（顺序优先）
+
+`rules/` 下的自建列表在配置里都排在**最前面**，作用是抢在通用规则之前把特定域名捞出来改道：
+
+```
+configs/mihomo/one.yaml（three.yaml 同）
+  159  RULE-SET,direct1,DIRECT              ← 自建，第 1 条
+  160  RULE-SET,ai,🎮 日美等节点             ← 自建
+  161  RULE-SET,no_jp,🎞️ 非日本节点          ← 自建，第 3 条
+  ...  各种 geosite 服务规则
+  175  RULE-SET,geolocation-!cn,🚀 节点选择   ← 通用：几乎所有非中国域名
+  181  MATCH,🐟 漏网之鱼                     ← 兜底：默认也是节点选择
+
+configs/subconverter/acl4ssr-one.ini（同理）
+  13  ruleset=🎯 全球直连,.../DirectOwn.list
+  14  ruleset=🤖 AI,.../AI.list
+  15  ruleset=🎞️ 非日本节点,.../NoJP.list     ← 第 3 条
+  ...
+  38  ruleset=🐟 漏网之鱼,[]FINAL             ← 兜底
+```
+
+规则是**顺序匹配、首个命中即生效**，所以前面命中之后，后面的通用规则不会再看到这个域名。
+`hanime1` 若不在 `no_jp` 里，就会落到 `geolocation-!cn`（目标"节点选择"）或兜底的
+`MATCH`/`FINAL`（目标"漏网之鱼"，默认同样是节点选择），而这两处都可能选到日本节点——
+提前捞出来正是为了避开这一点。
+
+因此这类列表**短是正常的**：它记录的是"我特别指定要改道的站点"，不是"所有非日本站点"。
+要加新的例外站点，直接追加到对应 `rules/*.list` 即可，位置不需要动（配置里已经排在前面）。
+
+顺带修正一条此前的判断：`hanime1` 虽然同时出现在 `rules/JapanAnime.list`（走日本节点），
+但 `JapanAnime.list` 目前没有被任何配置引用（`scripts/validate.py` 会提示），
+所以眼下不存在真实冲突，属于备用件；将来真要引用它时再决定 `hanime1` 归属即可。
 
 ## 五、重构后如何自查
 

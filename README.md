@@ -92,6 +92,10 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 
 - `rules/*.list`：classical 文本格式，每行 `类型,内容[,参数]`，`#` 或 `;` 开头是注释；
   不要写 YAML 的 `- ` 前缀，不要放 `MATCH` / `RULE-SET` 这类规则（classical 规则集不允许）
+- **自建列表排在前面 = 优先级更高**：`configs/` 里的自建 rule-provider / ruleset 都排在通用规则
+  （`geolocation-!cn`、`MATCH` / `FINAL`）之前，顺序匹配、首个命中即生效。要给某些站点做特殊分流
+  （比如"这个站不能走日本节点"），直接往对应 `rules/*.list` 里追加即可——这类列表是**例外清单**，
+  只有一两条是正常的，不需要凑成完整清单
 - 新增规则集后，记得在 `configs/` 里引用它，否则 `validate.py` 会提示未被引用
 - 文件编码 UTF-8（无 BOM），换行沿用 CRLF（见 `.editorconfig`）
 - 命名：自建规则集用能一眼看懂的名字；外部上游规则集不要复制进本仓库，直接引用上游 URL
@@ -100,8 +104,8 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 
 | 位置 | 问题 |
 |---|---|
-| `rules/NoJP.list` | 从建立到删除始终只有 1 条 `DOMAIN-KEYWORD,hanime1`（考证见 [docs/migration.md](docs/migration.md) 第四节），撑不起"非日本节点"这个用途，需要按实际需求补充或删掉该组；而且 `rules/JapanAnime.list` 里也有 `hanime1`（那份走日本节点），**语义相反，需二选一** |
-| `rules/ForYiFen.list` | 从建立起就是空集（唯一一行被注释），引用它的 `🍀 流媒体`、`🌍 默认用一分` 组不会命中任何流量 |
+| `rules/NoJP.list` | 只有 1 条 `DOMAIN-KEYWORD,hanime1`——这是**例外清单**，靠顺序提前命中做分流，短是正常的；考证见 [docs/migration.md](docs/migration.md) 第四、五节 |
+| `rules/ForYiFen.list` | 从建立起就是空集（唯一一行被注释），引用它的 `🍀 流媒体`、`🌍 默认用一分` 组不会命中任何流量，需要填域名或删掉引用 |
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` 是旧写法，新版 mihomo 更推荐 `nameserver-policy`（文件里两套都写了） |
