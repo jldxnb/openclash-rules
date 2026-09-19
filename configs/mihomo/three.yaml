@@ -177,6 +177,7 @@ proxy-groups:
   - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 自动选择|非日, 🔯 自动选择|非日1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
   - {name: 🍀 便宜节点, type: select, proxies: [♻️ 便宜节点], use: [cheap]}
   - {name: ✈️ Speedtest, type: select, proxies: [🔯 自动选择, 🔯 自动选择1, ♻️ 便宜节点], include-all: true}
+  - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
   
 
   # 跨机场兜底：stable 整体不可用时自动切到 stable1，再不行才用 cheap
@@ -197,9 +198,16 @@ rules:
   - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🎮 日美等节点
   - RULE-SET,no_jp,🎞️ 非日本节点
+
+  # 广告拦截（把「🛑 广告拦截」组切到 DIRECT 即全部放行）
+  - RULE-SET,adblock,🛑 广告拦截
+  - RULE-SET,ad_program,🛑 广告拦截
+  - RULE-SET,ad_cn,🛑 广告拦截
   
   - RULE-SET,private_domain,DIRECT
   - RULE-SET,apple_domain,🎯 全球直连
+  # 国内可直连的 Google 域名，必须排在 google_domain 之前，否则不会生效
+  - RULE-SET,google_cn,🎯 全球直连
   - RULE-SET,github_domain,🚀 节点选择
   - RULE-SET,youtube_domain,🍀 便宜节点
   - RULE-SET,twitter_domain,🍀 便宜节点
@@ -229,6 +237,10 @@ rule-providers:
   direct1: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/DirectOwn.list" }
   ai: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.list" }
   no_jp: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/NoJP.list" }
+  # 广告拦截（classical 文本规则集，约 6600 条）
+  adblock:    { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list" }
+  ad_program: { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list" }
+  ad_cn:      { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanEasyListChina.list" }
 
   
   youtube_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs" }
@@ -242,6 +254,7 @@ rule-providers:
   onedrive_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs" }
   microsoft_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs" }
   apple_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs" }
+  google_cn: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google-cn.mrs" }
   speedtest_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ookla-speedtest.mrs" }
   tiktok_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs" }
   gfw_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gfw.mrs" }

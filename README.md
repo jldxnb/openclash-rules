@@ -51,6 +51,15 @@ rule-providers:
 把 `configs/mihomo/one.yaml`（或 `three.yaml`）的内容喂给 OpenClash。
 **必须先替换占位符**（见下一节），否则订阅拉不下来。
 
+`three.yaml` 里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
+
+| 组 | 作用 |
+|---|---|
+| `🛑 广告拦截` | 默认 `REJECT`（拦截广告域名）；切到 `DIRECT` 即全部放行 |
+| `🔯 自动兜底` | 跨机场故障转移：`stable` 整体不可用时自动切到 `stable1`，再不行才用 `cheap` |
+| `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
+| `🐟 漏网之鱼` | 兜底流量，默认走节点选择，可切成直连 |
+
 ### 3. 用 subconverter 模板转换
 
 在 subconverter / OpenClash 的"订阅转换"里把 `configs/subconverter/acl4ssr-*.ini`
