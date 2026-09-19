@@ -180,15 +180,19 @@ proxy-groups:
   - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
   
 
+  # 以下自动组均为 fallback：默认用列表里第一个健康的节点，可以在面板里手动指定节点
+  # （选择会随 store-selected 持久化），指定的节点失效时自动切到下一个健康的节点。
+  # 与 url-test 的区别：不会再为了"快几毫秒"频繁换节点，连接更稳定；代价是失效检测
+  # 依赖健康检查周期（interval），切换不是瞬时的。
   # 跨机场兜底：stable 整体不可用时自动切到 stable1，再不行才用 cheap
   - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 自动选择, 🔯 自动选择1, ♻️ 便宜节点], url: "https://www.gstatic.com/generate_204", interval: 300}
-  - {name: ♻️ 便宜节点, type: url-test, use: [cheap], tolerance: 20, interval: 300}
-  - {name: 🔯 自动选择, type: url-test, use: [stable], tolerance: 20, interval: 300}
-  - {name: 🔯 自动选择|日美等, type: url-test, use: [stable], tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🔯 自动选择|非日, type: url-test, use: [stable], tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
-  - {name: 🔯 自动选择1, type: url-test, use: [stable1], tolerance: 20, interval: 300}
-  - {name: 🔯 自动选择|日美等1, type: url-test, use: [stable1], tolerance: 20, interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🔯 自动选择|非日1, type: url-test, use: [stable1], tolerance: 20, interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: ♻️ 便宜节点, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 自动选择, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 自动选择|日美等, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 自动选择|非日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🔯 自动选择1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 自动选择|日美等1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🔯 自动选择|非日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
 
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
