@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import struct
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -332,22 +333,40 @@ def collect_external_urls(files: list[Path]) -> list[str]:
     return sorted(urls)
 
 
+def _dns_query_packet(name: str = "example.com") -> bytes:
+    """构造一个最小的 DNS 查询报文（A 记录），用于探测 DoH 端点。"""
+    header = struct.pack(">HHHHHH", 0x1234, 0x0100, 1, 0, 0, 0)
+    qname = b"".join(bytes([len(p)]) + p.encode() for p in name.split(".")) + b"\x00"
+    return header + qname + struct.pack(">HH", 1, 1)
+
+
 def probe(url: str, timeout: int = 20) -> tuple[str, int | str]:
-    req = Request(url, method="HEAD", headers={"User-Agent": "validate.py"})
+    original = url
+    headers = {"User-Agent": "validate.py"}
+    method, data = "HEAD", None
+    # DoH 端点（…/dns-query）是 DNS 查询 API：直接 GET/HEAD 会返回 400，
+    # 必须发一个真正的查询报文（各家 JSON API 路径不统一，线格式才是通用做法）
+    if url.rstrip("/").endswith("/dns-query"):
+        headers = {"User-Agent": "validate.py",
+                   "content-type": "application/dns-message",
+                   "accept": "application/dns-message"}
+        method, data = "POST", _dns_query_packet()
+
+    req = Request(url, method=method, headers=headers, data=data)
     try:
         with urlopen(req, timeout=timeout) as resp:
-            return url, resp.status
+            return original, resp.status
     except HTTPError as exc:
         if exc.code in (403, 405):  # 部分 CDN 不允许 HEAD，退回 Range GET
             try:
                 req = Request(url, headers={"User-Agent": "validate.py", "Range": "bytes=0-0"})
                 with urlopen(req, timeout=timeout) as resp:
-                    return url, resp.status
+                    return original, resp.status
             except Exception as exc2:  # noqa: BLE001
-                return url, str(exc2)
-        return url, exc.code
+                return original, str(exc2)
+        return original, exc.code
     except (URLError, TimeoutError) as exc:
-        return url, str(exc.reason if isinstance(exc, URLError) else exc)
+        return original, str(exc.reason if isinstance(exc, URLError) else exc)
 
 
 def check_online(files: list[Path]) -> None:
@@ -355,9 +374,13 @@ def check_online(files: list[Path]) -> None:
     print(f"探测 {len(urls)} 个外部 URL …")
     with ThreadPoolExecutor(max_workers=8) as pool:
         for url, status in pool.map(probe, urls):
-            ok = status in (200, 206)
-            level = "INFO" if ok else "ERROR"
-            add(level, "外部链接", 0, f"[{status}] {url}")
+            if isinstance(status, int) and 200 <= status < 300:
+                # 注意：健康检查用的 generate_204 按设计返回 204，属于正常
+                add("INFO", "外部链接", 0, f"[{status}] {url}")
+            elif isinstance(status, int) and 400 <= status < 500:
+                add("ERROR", "外部链接", 0, f"[{status}] {url}（链接已失效，需要更换来源）")
+            else:
+                add("WARN", "外部链接", 0, f"[{status}] {url}（可能是临时故障，下次再确认）")
 
 
 # --------------------------------------------------------------------------
