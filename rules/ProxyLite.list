@@ -1,4 +1,5 @@
-# 代理补充列表
+# 机场官网（渔云 cloudfisher.net / 一分机场 一分机场.com）
+# 用途：直连 —— 代理故障时也要能打开机场官网续费、看公告
 
 # 域名匹配
 DOMAIN,cloudfisher.net

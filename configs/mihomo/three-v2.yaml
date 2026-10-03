@@ -212,10 +212,10 @@ rules:
   - RULE-SET,japan_anime,🇯🇵 日本节点          # 日本动画站（hanime1 / animeh.to 等）
   - RULE-SET,japan_manga,🇯🇵 日本节点          # 日本漫画站（pixiv / hitomi / nhentai 等）
   - RULE-SET,bluearchive,🎮 日美等节点         # 蔚蓝档案
-  - RULE-SET,comic18,🚀 节点选择              # 18comic
+  - RULE-SET,comic18,🎞️ 非日本节点             # 18comic（走非日本节点）
   - RULE-SET,media,🚀 节点选择                # 影视站（missav / xvideos）
   - RULE-SET,bilibili,🎯 全球直连             # B 站 CDN 直连加速
-  - RULE-SET,proxylite,🚀 节点选择            # 代理补充域名
+  - RULE-SET,proxylite,DIRECT                # 机场官网（渔云 / 一分机场）直连，代理挂了也能打开
   - RULE-SET,download,🎯 全球直连             # 下载器进程直连（需进程匹配，移动端可能不生效）
 
   # ══ 成熟上游规则 ══
