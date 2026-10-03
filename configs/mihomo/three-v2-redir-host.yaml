@@ -1,0 +1,352 @@
+# three-v2-redir-host.yaml
+# 三机场 + 自建规则 + MetaCubeX/217heidai 上游规则的桌面稳定版。
+# 本文件保留 three-v2.yaml 的三个 proxy-provider 和日本/日美/非日本/便宜节点组，
+# 采用 redir-host，不依赖本机 127.0.0.1:5225 DNS。
+# 使用前必须把下面三个 url: "订阅" 替换为真实订阅地址。
+
+proxy-providers:
+  stable:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    header:
+      User-Agent:
+        - clash.meta
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 5000
+      interval: 300
+    override:
+      additional-prefix: "渔云|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+  stable1:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    header:
+      User-Agent:
+        - clash.meta
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 5000
+      interval: 300
+    override:
+      additional-prefix: "猫咪|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+  cheap:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    header:
+      User-Agent:
+        - clash.meta
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 5000
+      interval: 300
+    override:
+      additional-prefix: "一分|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+global-ua: clash.meta
+
+port: 7890
+socks-port: 7891
+redir-port: 7892
+mixed-port: 7893
+tproxy-port: 7894
+ipv6: false
+allow-lan: false
+tcp-concurrent: true
+
+geodata-mode: false
+geo-auto-update: true
+geo-update-interval: 48
+geox-url:
+  geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip-lite.metadb"
+  geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip-lite.dat"
+  asn: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb"
+
+# Clash Party 使用自己的面板；控制接口只监听本机，避免无密码暴露到局域网。
+external-controller: 127.0.0.1:9090
+secret: ""
+
+find-process-mode: strict
+keep-alive-idle: 600
+keep-alive-interval: 30
+
+profile:
+  store-selected: true
+  store-fake-ip: false
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain:
+    - "+.v2ex.com"
+    - "+.netflix.com"
+    - "+.nflxvideo.net"
+    - "+.media.dssott.com"
+  skip-domain:
+    - "Mijia Cloud"
+    - "dlg.io.mi.com"
+    - "+.push.apple.com"
+    - "+.apple.com"
+
+# 保留 TUN，但使用常见 MTU；Clash Party 也可以只用系统代理，不需要手动改规则。
+tun:
+  enable: true
+  stack: mixed
+  mtu: 1500
+  gso: false
+  endpoint-independent-nat: false
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: redir-host
+  respect-rules: true
+  default-nameserver:
+    - 223.5.5.5
+    - 114.114.114.114
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver-follow-policy: false
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+  fallback-lazy-query: true
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "geosite:geolocation-!cn":
+      - https://dns.cloudflare.com/dns-query
+      - https://dns.google/dns-query
+
+proxy-groups:
+  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
+  - {name: 🎮 日美等节点, type: select, proxies: [🔯 主备切换|日美等, 🔯 主备切换|日美等1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$"}
+  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 主备切换|非日, 🔯 主备切换|非日1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$"}
+  - {name: 🇯🇵 日本节点, type: select, proxies: [🔯 主备切换|日, 🔯 主备切换|日1], include-all: true, filter: "(?=.*(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan))^((?!(家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$"}
+  - {name: 🍀 便宜节点, type: select, proxies: [♻️ 便宜主备], use: [cheap]}
+  - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
+  - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
+
+  - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换|日美等, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$"}
+  - {name: 🔯 主备切换|非日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$"}
+  - {name: 🔯 主备切换|日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?=.*(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan))^((?!(家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$"}
+  - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300}
+  - {name: 🔯 主备切换|日美等1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$"}
+  - {name: 🔯 主备切换|非日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$"}
+  - {name: 🔯 主备切换|日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?=.*(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan))^((?!(家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$"}
+
+  - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
+
+rules:
+  # 先放行虎牙官方域名，避免通用广告清单误拦直播页面或播放器资源。
+  - RULE-SET,huya,DIRECT
+
+  # 自建规则：顺序是例外优先；NoJP 必须早于 JapanAnime。
+  - RULE-SET,direct1,DIRECT
+  - RULE-SET,ai,🎮 日美等节点
+  - RULE-SET,no_jp,🎞️ 非日本节点
+  - RULE-SET,japan_anime,🇯🇵 日本节点
+  - RULE-SET,japan_manga,🇯🇵 日本节点
+  - RULE-SET,bluearchive,🎮 日美等节点
+  - RULE-SET,comic18,🎞️ 非日本节点
+  - RULE-SET,media,🚀 节点选择
+  - RULE-SET,bilibili,🎯 全球直连
+  - RULE-SET,proxylite,DIRECT
+  - RULE-SET,download,🎯 全球直连
+
+  # 去广告放在自建例外之后；默认拦截，也可以在面板切到 DIRECT 排查误伤。
+  - RULE-SET,adblock,🛑 广告拦截
+  - RULE-SET,ai_all,🎮 日美等节点
+
+  - RULE-SET,private_domain,DIRECT
+  - RULE-SET,apple_domain,🎯 全球直连
+  - RULE-SET,google_cn,🎯 全球直连
+  - RULE-SET,github_domain,🚀 节点选择
+  - RULE-SET,youtube_domain,🍀 便宜节点
+  - RULE-SET,twitter_domain,🍀 便宜节点
+  - RULE-SET,google_domain,🍀 便宜节点
+  - RULE-SET,onedrive_domain,🚀 节点选择
+  - RULE-SET,microsoft_domain,🚀 节点选择
+  - RULE-SET,tiktok_domain,🚀 节点选择
+  - RULE-SET,speedtest_domain,✈️ Speedtest
+  - RULE-SET,telegram_domain,🍀 便宜节点
+  - RULE-SET,netflix_domain,🚀 节点选择
+  - RULE-SET,paypal_domain,🚀 节点选择
+  - RULE-SET,geolocation-!cn,🚀 节点选择
+  - RULE-SET,cn_domain,🎯 全球直连
+  - RULE-SET,google_ip,🍀 便宜节点,no-resolve
+  - RULE-SET,twitter_ip,🍀 便宜节点,no-resolve
+  - RULE-SET,netflix_ip,🚀 节点选择,no-resolve
+  - RULE-SET,telegram_ip,🍀 便宜节点,no-resolve
+  - RULE-SET,cn_ip,🎯 全球直连
+  - MATCH,🐟 漏网之鱼
+
+rule-providers:
+  direct1: &class
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/DirectOwn.list"
+  ai:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AI.list"
+  no_jp:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/NoJP.list"
+  japan_anime:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/JapanAnime.list"
+  japan_manga:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/JapanManga.list"
+  bluearchive:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BlueArchive.list"
+  comic18:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/18comic.list"
+  media:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/Media.list"
+  bilibili:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BiliBili.list"
+  proxylite:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/ProxyLite.list"
+  download:
+    <<: *class
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
+  huya:
+    type: inline
+    behavior: classical
+    format: text
+    payload:
+      - DOMAIN-SUFFIX,huya.com
+      - DOMAIN-SUFFIX,huyagame.cn
+      - DOMAIN-SUFFIX,peiwanlu.com
+      - DOMAIN-SUFFIX,snapplay.com
+
+  adblock:
+    type: http
+    interval: 28800
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/217heidai/adblockfilters@main/rules/adblockclashlite.list"
+
+  ai_all: &domain
+    type: http
+    interval: 86400
+    behavior: domain
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-ai-!cn.mrs"
+  youtube_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs"
+  twitter_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/twitter.mrs"
+  private_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/private.mrs"
+  google_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google.mrs"
+  github_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/github.mrs"
+  telegram_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs"
+  netflix_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/netflix.mrs"
+  paypal_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/paypal.mrs"
+  onedrive_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/onedrive.mrs"
+  microsoft_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft.mrs"
+  apple_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/apple-cn.mrs"
+  google_cn:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google-cn.mrs"
+  speedtest_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/ookla-speedtest.mrs"
+  tiktok_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/tiktok.mrs"
+  geolocation-!cn:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/geolocation-!cn.mrs"
+  cn_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs"
+
+  google_ip: &ip
+    type: http
+    interval: 86400
+    behavior: ipcidr
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/google.mrs"
+  twitter_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/twitter.mrs"
+  netflix_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/netflix.mrs"
+  telegram_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs"
+  cn_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs"
