@@ -15,6 +15,9 @@ configs/
   mihomo/          完整的 mihomo 配置，直接给 OpenClash 用
     one.yaml         单机场版（一个 proxy-provider，靠 include-all + filter 分日/非日）
     three.yaml       多机场版（stable / stable1 / cheap 三个订阅，便宜节点分流）
+    three-v2.yaml    three.yaml 的「成熟上游规则 + 自建规则」混合版：
+                      自建列表放最前做例外分流 + MetaCubeX mrs + 217heidai 去广告合并规则，
+                      并新增「🇯🇵 日本节点」组（供自建的日本动漫列表使用）
     three-redir-host.yaml  three.yaml 的副本，仅 DNS 用 redir-host 而非 fake-ip，
                       用于排查 fake-ip 相关问题；两个文件需同步维护
   subconverter/    subconverter 转换模板（ACL4SSR 语法）
