@@ -23,7 +23,7 @@ proxy-providers:
       lazy: false
     override:
       additional-prefix: "渔云|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0\\.1|0\\.5|5x|x8|x3"
     url: "订阅"
 
   stable1:
@@ -43,7 +43,7 @@ proxy-providers:
       lazy: false
     override:
       additional-prefix: "猫咪|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0\\.1|0\\.5|5x|x8|x3"
     url: "订阅"
 
   cheap:
@@ -63,7 +63,7 @@ proxy-providers:
       lazy: false
     override:
       additional-prefix: "一分|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0\\.1|0\\.5|5x|x8|x3"
     url: "订阅"
 
 global-ua: clash.meta
