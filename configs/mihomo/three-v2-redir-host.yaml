@@ -2,6 +2,7 @@
 # 三机场 + 自建规则 + MetaCubeX 上游规则的桌面稳定版。
 # 本文件保留 three-v2.yaml 的三个 proxy-provider，以及「AI」「游戏」「漫画动漫」「流媒体」等分流组，
 # 采用 redir-host，不依赖本机 127.0.0.1:5225 DNS。
+# 自建清单手工源是 rules/*.list，配置引用的是 mrs/*.mrs（生成物，见 scripts/gen_mrs.py）。
 # 使用前必须把下面三个 url: "订阅" 替换为真实订阅地址。
 
 proxy-providers:
@@ -203,12 +204,18 @@ proxy-groups:
 
 rules:
   # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
+  # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
   - RULE-SET,direct1,DIRECT
+  - RULE-SET,direct1_rest,DIRECT
   - RULE-SET,ai,🤖 AI
+  - RULE-SET,ai_rest,🤖 AI
   - RULE-SET,no_jp,🎌 漫画动漫
   - RULE-SET,bluearchive,🎮 游戏
+  - RULE-SET,bluearchive_rest,🎮 游戏
   - RULE-SET,manga_cn,🎯 全球直连
+  - RULE-SET,manga_cn_rest,🎯 全球直连
   - RULE-SET,manga_proxy,🎌 漫画动漫
+  - RULE-SET,manga_proxy_rest,🎌 漫画动漫
   - RULE-SET,media,🎌 漫画动漫
   - RULE-SET,bilibili,🎯 全球直连
   - RULE-SET,proxylite,DIRECT
@@ -239,45 +246,65 @@ rules:
   - MATCH,🐟 漏网之鱼
 
 rule-providers:
-  direct1: &class
-    type: http
-    interval: 86400
-    behavior: classical
-    format: text
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/DirectOwn.list"
-  ai:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AI.list"
-  no_jp:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/NoJP.list"
-  manga_cn:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaCN.list"
-  manga_proxy:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxy.list"
-  bluearchive:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BlueArchive.list"
-  media:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/Media.list"
-  bilibili:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BiliBili.list"
-  proxylite:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/ProxyLite.list"
-  download:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
-
-  ai_all: &domain
+  # ══ 自建清单：手工源是 rules/*.list（唯一手改的地方）══
+  # 每个清单拆成两半，都由 scripts/gen_mrs.py 从源清单生成：
+  #   mrs/<同名>.mrs       域名部分（DOMAIN / DOMAIN-SUFFIX）——走索引查找，不再逐条扫描
+  #   rules/<同名>.rest.list  mrs 表达不了的部分（DOMAIN-KEYWORD / IP-CIDR 等）——仍是 classical 文本
+  # `*_rest` 紧挨着它对应的 mrs、指向同一个组，所以拆开不改变命中结果。
+  ai: &domain
     type: http
     interval: 86400
     behavior: domain
     format: mrs
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/AI.mrs"
+  ai_rest: &self_text
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AI.rest.list"
+  no_jp:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/NoJP.list"
+  bluearchive:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BlueArchive.mrs"
+  bluearchive_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BlueArchive.rest.list"
+  manga_cn:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaCN.mrs"
+  manga_cn_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaCN.rest.list"
+  manga_proxy:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaProxy.mrs"
+  manga_proxy_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxy.rest.list"
+  media:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/Media.mrs"
+  bilibili:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BiliBili.mrs"
+  proxylite:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/ProxyLite.mrs"
+  direct1:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/DirectOwn.mrs"
+  direct1_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/DirectOwn.rest.list"
+  download:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
+
+  ai_all:
+    <<: *domain
     url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-ai-!cn.mrs"
   youtube_domain:
     <<: *domain

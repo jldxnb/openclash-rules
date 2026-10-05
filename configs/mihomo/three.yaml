@@ -208,7 +208,9 @@ proxy-groups:
 rules:
   # 自定义
   - RULE-SET,direct1,DIRECT
+  - RULE-SET,direct1_rest,DIRECT
   - RULE-SET,ai,🤖 AI 与游戏
+  - RULE-SET,ai_rest,🤖 AI 与游戏
   - RULE-SET,no_jp,🚫 日区受限
 
   # 广告拦截（把「🛑 广告拦截」组切到 DIRECT 即全部放行）
@@ -246,9 +248,11 @@ rule-anchor:
   class: &class {type: http, interval: 86400, behavior: classical, format: text}
 rule-providers: 
   #自己添加
-  direct1: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/DirectOwn.list" }
-  ai: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.list" }
-  no_jp: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/NoJP.list" }
+  direct1: { <<: *domain, url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/DirectOwn.mrs" }
+  direct1_rest: { <<: *class, url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/DirectOwn.rest.list" }
+  ai: { <<: *domain, url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/AI.mrs" }
+  ai_rest: { <<: *class, url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AI.rest.list" }
+  no_jp: { <<: *class, url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/NoJP.list" }
   # 广告拦截（classical 文本规则集，约 6600 条）
   adblock:    { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list" }
   ad_program: { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list" }

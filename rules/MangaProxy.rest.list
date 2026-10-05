@@ -1,0 +1,22 @@
+# 自动生成（scripts/gen_mrs.py）：从 rules/MangaProxy.list 拆出的非域名规则。
+# mrs 只能表达 DOMAIN / DOMAIN-SUFFIX，这些条目编不进去，仍以 classical 文本提供。
+# 不要手改本文件——改 rules/MangaProxy.list 后重新生成。
+DOMAIN-KEYWORD,18comic
+DOMAIN-KEYWORD,jmcomic
+DOMAIN-KEYWORD,jmapinode
+DOMAIN-KEYWORD,mangaraw
+DOMAIN-KEYWORD,rawkuma
+DOMAIN-KEYWORD,hachiraw
+DOMAIN-KEYWORD,raw1001
+DOMAIN-KEYWORD,nhentai
+DOMAIN-KEYWORD,hitomi
+DOMAIN-KEYWORD,e-hentai
+DOMAIN-KEYWORD,exhentai
+DOMAIN-KEYWORD,hentaifox
+DOMAIN-KEYWORD,imhentai
+DOMAIN-KEYWORD,mangadex
+DOMAIN-KEYWORD,webtoon
+DOMAIN-KEYWORD,copymanga
+DOMAIN-KEYWORD,mangacopy
+DOMAIN-KEYWORD,mangafunb
+DOMAIN-KEYWORD,hanime1
