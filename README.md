@@ -20,6 +20,8 @@ configs/
                       并新增「🇯🇵 日本节点」组（供自建的日本动漫列表使用）
     three-redir-host.yaml  three.yaml 的副本，仅 DNS 用 redir-host 而非 fake-ip，
                       用于排查 fake-ip 相关问题；两个文件需同步维护
+    three-v2-redir-host.yaml  three-v2 的 redir-host 桌面版：规则来源同上，
+                      但不依赖本机 127.0.0.1:5225、规则集走 jsDelivr、控制面板只监听本机
   subconverter/    subconverter 转换模板（ACL4SSR 语法）
     acl4ssr-one.ini  主力模板
     acl4ssr-two.ini  多机场 + 流媒体走便宜节点
