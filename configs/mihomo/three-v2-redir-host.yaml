@@ -165,11 +165,18 @@ dns:
       - https://dns.cloudflare.com/dns-query
       - https://dns.google/dns-query
 
+# ── 节点筛选词：只在这里定义一次，下面各策略组用 YAML 锚点引用 ──
+# （mihomo 不认识 x-node-filters 这个键，会忽略它；它只是给锚点一个落脚处。
+#   改筛选词只需改这里，7 处引用自动跟随，不会出现"链上过滤了、手动列表没过滤"的漂移。）
+x-node-filters:
+  no_hktw: &no_hktw "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
+  no_jp:   &no_jp   "(?i)^((?!(日|JP|Japan|Tokyo|Osaka|东京|大阪|名古屋|福冈|札幌|横滨|神户|京都|冲绳|埼玉|琦玉|家宽|游戏|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
+
 proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
-  - {name: 🤖 AI, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|倍|套餐|有效期|过期|试用|测试|维护|[0-9]x)).)*$"}
-  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|倍|套餐|有效期|过期|试用|测试|维护|[0-9]x)).)*$"}
-  - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|非日本, 🔯 主备切换|非日本1], include-all: true, filter: "(?i)^((?!(日|JP|Japan|Tokyo|Osaka|东京|大阪|名古屋|福冈|札幌|横滨|神户|京都|冲绳|埼玉|琦玉|家宽|游戏|剩余|流量|倍|套餐|有效期|过期|试用|测试|维护|[0-9]x)).)*$"}
+  - {name: 🤖 AI, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: *no_hktw}
+  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: *no_hktw}
+  - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|非日本, 🔯 主备切换|非日本1], include-all: true, filter: *no_jp}
   # 微软服务默认直连：Windows 更新 / Office 下载走直连更快，也避免影响「手机连接」的局域网配对
   - {name: 🪟 微软服务, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, 🚀 节点选择], use: [cheap]}
@@ -183,13 +190,13 @@ proxy-groups:
 
   # 机场一：stable —— 三条链，按地区区分（无限制 / 非港台 / 非日本）
   - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: 🔯 主备切换|非港台, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|倍|套餐|有效期|过期|试用|测试|维护|[0-9]x)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|非日本, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?i)^((?!(日|JP|Japan|Tokyo|Osaka|东京|大阪|名古屋|福冈|札幌|横滨|神户|京都|冲绳|埼玉|琦玉|家宽|游戏|剩余|流量|倍|套餐|有效期|过期|试用|测试|维护|[0-9]x)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|非港台, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
+  - {name: 🔯 主备切换|非日本, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
 
   # 机场二：stable1 —— 同上
   - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: 🔯 主备切换|非港台1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|倍|套餐|有效期|过期|试用|测试|维护|[0-9]x)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|非日本1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?i)^((?!(日|JP|Japan|Tokyo|Osaka|东京|大阪|名古屋|福冈|札幌|横滨|神户|京都|冲绳|埼玉|琦玉|家宽|游戏|剩余|流量|倍|套餐|有效期|过期|试用|测试|维护|[0-9]x)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|非港台1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
+  - {name: 🔯 主备切换|非日本1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
