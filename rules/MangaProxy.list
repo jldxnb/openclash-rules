@@ -95,6 +95,8 @@ DOMAIN-SUFFIX,cookmana56.com
 DOMAIN-SUFFIX,copymanga.site
 # cosplaytele.com：真站（Cloudflare 前置）；旧拼写 cosplaytale.com 已被抢注成跳转广告站
 DOMAIN-SUFFIX,cosplaytele.com
+# hentai.cafe：原 rules/JapanManga.list 的站点，新清单未收录，随淘汰一并迁入
+DOMAIN-SUFFIX,hentai.cafe
 DOMAIN-SUFFIX,cycomi.com
 DOMAIN-SUFFIX,daycomics.com
 DOMAIN-SUFFIX,dbook.docomo.ne.jp

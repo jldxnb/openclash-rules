@@ -218,10 +218,10 @@ rules:
   - RULE-SET,direct1,DIRECT                  # 直连补充（immortalwrt 源 / 漫画 / 555电影 / AGE动漫）
   - RULE-SET,ai,🎮 日美等节点                 # AI 清单（自建，优先于下面的 category-ai-!cn）
   - RULE-SET,no_jp,🎞️ 非日本节点              # 不能走日本节点的站点
-  - RULE-SET,japan_anime,🇯🇵 日本节点          # 日本动画站（hanime1 / animeh.to 等）
-  - RULE-SET,japan_manga,🇯🇵 日本节点          # 日本漫画站（pixiv / hitomi / nhentai 等）
   - RULE-SET,bluearchive,🎮 日美等节点         # 蔚蓝档案
-  - RULE-SET,comic18,🎞️ 非日本节点             # 18comic（走非日本节点）
+  - RULE-SET,comic18,🎞️ 非日本节点             # 18comic（带连字符的 18-comic.* 只有这个清单覆盖）
+  - RULE-SET,manga_cn,🎯 全球直连              # 漫画清单 MangaCN：国内可直连的漫画站
+  - RULE-SET,manga_proxy,🚀 节点选择           # 漫画清单 MangaProxy：需代理的漫画站（顶替原 japan_manga / japan_anime）
   - RULE-SET,media,🚀 节点选择                # 影视站（missav / xvideos）
   - RULE-SET,bilibili,🎯 全球直连             # B 站 CDN 直连加速
   - RULE-SET,proxylite,DIRECT                # 机场官网（渔云 / 一分机场）直连，代理挂了也能打开
@@ -264,8 +264,8 @@ rule-providers:
   direct1:     { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/DirectOwn.list" }
   ai:          { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.list" }
   no_jp:       { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/NoJP.list" }
-  japan_anime: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/JapanAnime.list" }
-  japan_manga: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/JapanManga.list" }
+  manga_cn:    { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaCN.list" }
+  manga_proxy: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxy.list" }
   bluearchive: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/BlueArchive.list" }
   comic18:     { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/18comic.list" }
   media:       { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/Media.list" }

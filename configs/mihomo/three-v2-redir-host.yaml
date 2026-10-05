@@ -192,14 +192,14 @@ rules:
   # 先放行虎牙官方域名，避免通用广告清单误拦直播页面或播放器资源。
   - RULE-SET,huya,DIRECT
 
-  # 自建规则：顺序是例外优先；NoJP 必须早于 JapanAnime。
+  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落非日本节点）。
   - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🎮 日美等节点
   - RULE-SET,no_jp,🎞️ 非日本节点
-  - RULE-SET,japan_anime,🇯🇵 日本节点
-  - RULE-SET,japan_manga,🇯🇵 日本节点
   - RULE-SET,bluearchive,🎮 日美等节点
   - RULE-SET,comic18,🎞️ 非日本节点
+  - RULE-SET,manga_cn,🎯 全球直连
+  - RULE-SET,manga_proxy,🚀 节点选择
   - RULE-SET,media,🚀 节点选择
   - RULE-SET,bilibili,🎯 全球直连
   - RULE-SET,proxylite,DIRECT
@@ -245,12 +245,12 @@ rule-providers:
   no_jp:
     <<: *class
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/NoJP.list"
-  japan_anime:
+  manga_cn:
     <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/JapanAnime.list"
-  japan_manga:
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaCN.list"
+  manga_proxy:
     <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/JapanManga.list"
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxy.list"
   bluearchive:
     <<: *class
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BlueArchive.list"
