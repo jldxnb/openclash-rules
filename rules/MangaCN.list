@@ -1,0 +1,63 @@
+# MangaCN.list —— 漫画站域名清单 · 国内直连
+#
+# 内容：漫画/网漫/同人站点中「用国内网络可以直接访问」的域名（按域名分，不按站点分——
+#       同一站点的直连域与需代理域会分别落在本清单与 MangaProxy.list）。
+# 用法：RULE-SET 指到直连策略组，例：
+#         - RULE-SET,manga_cn,🎯 全球直连
+# 来源：manga-sites.md（根目录，729 域名调研 + 实测）；自动同步区来自 v2fly/domain-list-community。
+# 维护：手工条目写在「手工维护区」（脚本不动）；「自动同步区」由 scripts/gen_manga_rules.py
+#       每日重写（CI: .github/workflows/update-manga-rules.yml），会随上游增删，勿手改。
+#       想固定某条不被上游影响，把它挪到手工区。
+# 注意：暂未在 configs/ 里引用时，validate.py 会提示「未被引用」，属正常提示而非错误。
+#
+# 已知取舍（要改就是改分流语义，留意）：
+#   - 拷贝漫画：按官方公告，大陆入口 copy4000.com 等 copy 系别名收录在本清单；
+#     主域 mangacopy.com / copymanga.site 与图片 CDN mangafunb.fun 归 MangaProxy.list。
+#     若你在大陆实测 mangafunb.fun 直连也正常，把它挪进本清单手工区。
+#   - 漫画柜 / 漫画DB / 包子漫画 系为境外托管但国内常用的站，按「国内可直连」收录；
+#     若实测直连不通，把它们挪到 MangaProxy.list 手工区。
+# ===== 手工维护区开始（脚本原样保留，按行增删即可）=====
+DOMAIN-SUFFIX,1kkk.com
+DOMAIN-SUFFIX,2025copy.com
+DOMAIN-SUFFIX,321mh.com
+DOMAIN-SUFFIX,ac.qq.com
+DOMAIN-SUFFIX,baozicomic.cc
+DOMAIN-SUFFIX,baozimh.com
+DOMAIN-SUFFIX,bzmgcn.com
+DOMAIN-SUFFIX,cdndm5.com
+DOMAIN-SUFFIX,copy-manga.com
+DOMAIN-SUFFIX,copy20.com
+DOMAIN-SUFFIX,copy2000.online
+DOMAIN-SUFFIX,copy4000.com
+DOMAIN-SUFFIX,dm5.cn
+DOMAIN-SUFFIX,dm5.com
+DOMAIN-SUFFIX,dm9.com
+DOMAIN-SUFFIX,dongmanmanhua.cn
+DOMAIN-SUFFIX,fanqienovel.com
+DOMAIN-SUFFIX,gmanhua.com
+DOMAIN-SUFFIX,hkmanga.com
+DOMAIN-SUFFIX,i.hamreus.com
+DOMAIN-SUFFIX,i0.hdslb.com
+DOMAIN-SUFFIX,kanman.com
+DOMAIN-SUFFIX,kkmh.com
+DOMAIN-SUFFIX,kuaikanmanhua.com
+DOMAIN-SUFFIX,manben.com
+DOMAIN-SUFFIX,manbenapi.com
+DOMAIN-SUFFIX,manga.bilibili.com
+DOMAIN-SUFFIX,manga.hdslb.com
+DOMAIN-SUFFIX,manhua.acimg.cn
+DOMAIN-SUFFIX,manhuadb.com
+DOMAIN-SUFFIX,manhuagui.com
+DOMAIN-SUFFIX,manhuaren.com
+DOMAIN-SUFFIX,mhgui.com
+DOMAIN-SUFFIX,mhxk.com
+DOMAIN-SUFFIX,qimao.com
+DOMAIN-SUFFIX,s1.hdslb.com
+DOMAIN-SUFFIX,samanlehua.com
+DOMAIN-SUFFIX,short.tiankongshuyu.cn
+DOMAIN-SUFFIX,wtzw.com
+DOMAIN-SUFFIX,yqmh.com
+# ===== 手工维护区结束 =====
+
+# ===== 自动同步区开始（由 scripts/gen_manga_rules.py 重写，勿手改）=====
+# ===== 自动同步区结束 =====

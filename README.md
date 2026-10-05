@@ -30,11 +30,14 @@ configs/
     qichiyu.ini      基于骑秋雨的上游模板，未做本地改动
     qichiyu-custom.ini  上面的本地改版
 rules/              自建规则集（classical 文本格式，被上面两类配置通过 raw URL 引用）
+  MangaCN.list        漫画站·国内直连（手工区 + 自动同步区，见「漫画规则集」节）
+  MangaProxy.list     漫画站·海外代理（同上）
 docs/
   migration.md      路径迁移对照表（重构前后的位置与 URL 变化）
   examples/         规则语法示例
 scripts/
   validate.py       仓库自检脚本，见下文
+  gen_manga_rules.py  漫画规则集同步脚本（每日由 CI 自动运行，见「漫画规则集」节）
 archive/            历史文件，不要使用
 ```
 
@@ -73,6 +76,45 @@ rule-providers:
 
 在 subconverter / OpenClash 的"订阅转换"里把 `configs/subconverter/acl4ssr-*.ini`
 填为外部配置（`&config=` 参数指向该文件的 raw 地址）。
+
+## 漫画规则集（MangaCN / MangaProxy）
+
+`rules/MangaCN.list`（国内直连）与 `rules/MangaProxy.list`（海外代理）是漫画 / 网漫 / 同人站的
+两份域名清单，按「用国内网络能否直接访问」划分——**按域名分，不按站点分**（同一个站的直连域
+和需代理域会分别落在两个清单里，典型如拷贝漫画：`copy4000.com` 在国内集、`mangacopy.com`
+在代理集）。域名来源与逐条实测记录见根目录 [manga-sites.md](manga-sites.md)。
+
+每份清单分两区：
+
+- **手工维护区**：随手改，脚本永远不动它；想固定某条不被上游增删影响，把它挪到这里。
+- **自动同步区**：由 `scripts/gen_manga_rules.py` 从
+  [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community/tree/master/data)
+  的漫画相关 data 文件合并增量，**每天自动重写**（CI：`.github/workflows/update-manga-rules.yml`，
+  北京时间 06:30；有变化才提交，拉上游失败时不写不提交，避免误删条目）。
+
+在配置里引用：
+
+```yaml
+rule-providers:
+  manga_cn:
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaCN.list"
+  manga_proxy:
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxy.list"
+rules:
+  - RULE-SET,manga_cn,🎯 全球直连
+  - RULE-SET,manga_proxy,🚀 节点选择
+```
+
+本地手动同步：`python scripts/gen_manga_rules.py`（只报告变化，不写文件）、加 `--apply` 写入。
+这两份清单暂未被 `configs/` 引用时，`validate.py` 的「未被引用」提示属正常（不是错误）。
 
 ## 使用前必须替换的占位符
 
