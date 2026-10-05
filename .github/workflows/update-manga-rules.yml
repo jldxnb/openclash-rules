@@ -58,4 +58,6 @@ jobs:
             echo '```'
           } > "$RUNNER_TEMP/commit-msg.txt"
           git commit -F "$RUNNER_TEMP/commit-msg.txt"
+          # 万一有人在任务运行期间推送过，先 rebase 再推，避免 non-fast-forward 失败
+          git pull --rebase --autostash
           git push
