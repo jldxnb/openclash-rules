@@ -32,10 +32,22 @@ ROOT = Path(__file__).resolve().parent.parent
 REPO = "jldxnb/openclash-rules"
 BRANCH = "main"
 
-# 指向本仓库自身的 raw URL，例如
-# https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.list
-SELF_RE = re.compile(rf"raw\.githubusercontent\.com/{re.escape(REPO)}/([^/\s\"`,)]+)/([^\s\"`,)]+)")
+# 指向本仓库自身的 URL，两种写法都要认（历史上只认 raw，jsDelivr 的自引用被漏检）：
+#   https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.list
+#   https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/AI.mrs
+SELF_RES = (
+    re.compile(rf"raw\.githubusercontent\.com/{re.escape(REPO)}/([^/\s\"`,)]+)/([^\s\"`,)]+)"),
+    re.compile(rf"cdn\.jsdelivr\.net/gh/{re.escape(REPO)}(?:@([^/\s\"`,)]+))?/([^\s\"`,)]+)"),
+)
 URL_RE = re.compile(r"https?://[^\s\"`,)]+")
+
+
+def self_refs(line: str) -> list[tuple[str | None, str]]:
+    """从一行文本里取出所有指向本仓库的引用 [(分支或 None, 仓库内相对路径)]。"""
+    out: list[tuple[str | None, str]] = []
+    for pattern in SELF_RES:
+        out += pattern.findall(line)
+    return out
 
 # mihomo classical 文本规则集支持的规则类型（用于抓笔误和格式错误）
 RULE_TYPES = {
@@ -90,8 +102,8 @@ def source_files() -> list[Path]:
 def check_self_references(files: list[Path]) -> None:
     for path in files:
         for lineno, line in enumerate(read_text(path).splitlines(), 1):
-            for ref, rel in SELF_RE.findall(line):
-                if ref != BRANCH:
+            for ref, rel in self_refs(line):
+                if ref is not None and ref != BRANCH:
                     add("WARN", path.relative_to(ROOT), lineno,
                         f"引用了非 {BRANCH} 分支（{ref}）：{rel}")
                 if not (ROOT / rel).is_file():
@@ -100,7 +112,7 @@ def check_self_references(files: list[Path]) -> None:
 
 
 def referenced_rule_files(files: list[Path]) -> set[str]:
-    """收集被 configs/ 真正引用（未被注释掉）的 rules/ 文件相对路径。"""
+    """收集被 configs/ 真正引用（未被注释掉）的 rules/ 与 mrs/ 文件相对路径。"""
     used: set[str] = set()
     for path in files:
         if path.suffix not in (".ini", ".yaml", ".yml"):
@@ -109,16 +121,18 @@ def referenced_rule_files(files: list[Path]) -> set[str]:
             stripped = line.lstrip()
             if stripped.startswith(("#", ";", "//")):
                 continue  # 注释掉的引用不算使用
-            for _, rel in SELF_RE.findall(line):
+            for _, rel in self_refs(line):
                 used.add(rel)
     return used
 
 
 def check_unused_rule_files(used: set[str]) -> None:
-    for path in sorted((ROOT / "rules").glob("*.list")):
+    for path in source_lists():
         rel = f"rules/{path.name}"
-        if rel not in used:
-            add("INFO", rel, 0, "未被 configs/ 中任何配置引用（保留备用可以忽略）")
+        # 配置引用的是 mrs 产物时，源清单也算"被使用"
+        if rel in used or f"mrs/{path.stem}.mrs" in used:
+            continue
+        add("INFO", rel, 0, "未被 configs/ 中任何配置引用（保留备用可以忽略）")
 
 
 # --------------------------------------------------------------------------
@@ -176,6 +190,74 @@ def check_rule_lists() -> None:
 
 
 # --------------------------------------------------------------------------
+# 2b. mrs 产物与源清单一一对应（内容是否同步由 scripts/gen_mrs.py --check 负责，
+#     这里只做离线能做的：文件在不在、有没有孤儿、配置有没有配错格式）
+# --------------------------------------------------------------------------
+MRS_TYPES = {"DOMAIN", "DOMAIN-SUFFIX"}
+REST_SUFFIX = ".rest.list"
+
+
+def effective_rules(path: Path) -> list[tuple[str, str]]:
+    out: list[tuple[str, str]] = []
+    for raw in read_text(path).splitlines():
+        line = raw.strip()
+        if not line or line.startswith(("#", ";", "//")):
+            continue
+        rule_type, _, payload = line.partition(",")
+        out.append((rule_type.strip().upper(), payload.strip()))
+    return out
+
+
+def source_lists() -> list[Path]:
+    """手工源清单：rules/*.list 里去掉自己生成的 *.rest.list。"""
+    return sorted(p for p in (ROOT / "rules").glob("*.list")
+                  if not p.name.endswith(REST_SUFFIX))
+
+
+def mrs_expected_stems() -> set[str]:
+    """应当有 mrs 产物的清单：含至少一条 DOMAIN / DOMAIN-SUFFIX。
+    mrs 只认精确域名与后缀，DOMAIN-KEYWORD 编不进去（见 scripts/gen_mrs.py 的文件头）。"""
+    out: set[str] = set()
+    for path in source_lists():
+        if any(t in MRS_TYPES for t, _ in effective_rules(path)):
+            out.add(path.stem)
+    return out
+
+
+def check_mrs_files(used: set[str]) -> None:
+    src_dir, mrs_dir = ROOT / "rules", ROOT / "mrs"
+    lists = {p.stem: p for p in source_lists()}
+    mrs_files = {p.stem: p for p in mrs_dir.glob("*.mrs")} if mrs_dir.is_dir() else {}
+
+    for stem in sorted(mrs_expected_stems()):
+        if stem not in mrs_files:
+            add("ERROR", f"mrs/{stem}.mrs", 0,
+                f"缺少 {stem}.list 的 mrs 产物（跑 python scripts/gen_mrs.py 生成）")
+    for stem, path in sorted(mrs_files.items()):
+        if stem not in lists:
+            add("ERROR", path.relative_to(ROOT), 0,
+                f"没有对应的 rules/{stem}.list（源清单已删？请一并删掉 mrs）")
+
+    # rules/<同名>.rest.list 是 gen_mrs.py 拆出来的"非域名部分"（关键词 / IP-CIDR / 进程名）
+    for path in sorted(src_dir.glob(f"*{REST_SUFFIX}")):
+        stem = path.name[: -len(REST_SUFFIX)]
+        rel = f"rules/{path.name}"
+        src = lists.get(stem)
+        if src is None:
+            add("ERROR", rel, 0, f"没有对应的 rules/{stem}.list（源清单已删？请一并删掉）")
+            continue
+        if not any(t not in MRS_TYPES for t, _ in effective_rules(src)):
+            add("ERROR", rel, 0, f"{stem}.list 里已无非域名规则，这个生成文件应当删除")
+        # 引用了 mrs 却没引用 rest：关键词/IP 那部分规则会静默失效
+        if f"mrs/{stem}.mrs" in used and rel not in used:
+            add("ERROR", rel, 0,
+                f"configs/ 引用了 mrs/{stem}.mrs 却没引用 {rel}——"
+                f"该清单里 mrs 表达不了的规则会失效")
+
+
+
+
+# --------------------------------------------------------------------------
 # 3. mihomo 配置（configs/mihomo/*.yaml）
 # --------------------------------------------------------------------------
 def check_mihomo_configs() -> None:
@@ -214,6 +296,19 @@ def check_mihomo_configs() -> None:
             for field in ("type", "behavior", "format"):
                 if field not in spec:
                     add("ERROR", rel, 0, f"rule-provider {name} 缺少 {field} 字段")
+            # mrs 只支持 domain / ipcidr 两种 behavior，配错会静默失效
+            if str(spec.get("format")) == "mrs" and str(spec.get("behavior")) not in ("domain", "ipcidr"):
+                add("ERROR", rel, 0,
+                    f"rule-provider {name} 是 format: mrs，behavior 必须是 domain 或 ipcidr"
+                    f"（当前 {spec.get('behavior')}）")
+            # 反向：mrs 能表达的纯域名清单不该再走 classical 文本（逐条线性扫描）
+            url = str(spec.get("url", ""))
+            ref = re.search(r"/rules/([^/\"']+)\.list$", url)
+            if (ref and str(spec.get("behavior")) == "classical"
+                    and ref.group(1) in mrs_expected_stems()):
+                add("WARN", rel, 0,
+                    f"rule-provider {name} 引用的是纯域名清单 {ref.group(1)}.list，"
+                    f"可改走 mrs/{ref.group(1)}.mrs（索引查找，不再逐条扫描）")
             url = str(spec.get("url", ""))
             if url and not url.startswith("http"):
                 add("INFO", rel, 0, f"rule-provider {name} 的 url 是占位符：{url}")
@@ -397,9 +492,11 @@ def main() -> int:
     args = parser.parse_args()
 
     files = source_files()
+    used = referenced_rule_files(files)
     check_self_references(files)
-    check_unused_rule_files(referenced_rule_files(files))
+    check_unused_rule_files(used)
     check_rule_lists()
+    check_mrs_files(used)
     check_mihomo_configs()
     check_subconverter_templates(files)
     if args.online:

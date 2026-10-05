@@ -12,3 +12,6 @@
 *.md  text eol=lf
 *.py  text eol=lf
 *.yml text eol=lf
+
+# mrs 是 zstd 压缩的二进制规则集，禁止任何换行/编码转换
+*.mrs binary

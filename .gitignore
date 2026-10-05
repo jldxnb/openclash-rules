@@ -1,0 +1,6 @@
+# scripts/gen_mrs.py 自动下载的 mihomo 二进制缓存
+.cache/
+
+# Python
+__pycache__/
+*.pyc
