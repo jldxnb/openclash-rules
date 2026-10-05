@@ -1,0 +1,399 @@
+# three-v2-fake-ip.yaml
+# 三机场 + 自建规则 + MetaCubeX 上游规则的 fake-ip 版，与 three-v2-redir-host.yaml
+# **只有 DNS 模式不同**（其余策略组/规则/规则集完全一致，改动要两份同步）。
+# 手机（FlClash / ClashMetaForAndroid）与 TUN 场景推荐用这一份：
+# fake-ip 下客户端拿到的假 IP 不会带任何污染信息，连接时 mihomo 用域名出站、由节点解析，
+# 因此不依赖"境外 DoH 能否直连"；redir-host 那份在代理不可用时会导致境外域名解析失败。
+# 使用前必须把下面三个 url: "订阅" 替换为真实订阅地址。
+
+proxy-providers:
+  stable:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    header:
+      User-Agent:
+        - clash.meta
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 3000
+      # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
+      interval: 120
+      # 不使用该机场时也要测：否则切到久未使用的机场时，节点"存活状态"是过期的
+      lazy: false
+    override:
+      additional-prefix: "渔云|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+  stable1:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    header:
+      User-Agent:
+        - clash.meta
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 3000
+      # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
+      interval: 120
+      # 不使用该机场时也要测：否则切到久未使用的机场时，节点"存活状态"是过期的
+      lazy: false
+    override:
+      additional-prefix: "猫咪|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+  cheap:
+    type: http
+    interval: 86400
+    proxy: DIRECT
+    header:
+      User-Agent:
+        - clash.meta
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      timeout: 3000
+      # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
+      interval: 120
+      # 不使用该机场时也要测：否则切到久未使用的机场时，节点"存活状态"是过期的
+      lazy: false
+    override:
+      additional-prefix: "一分|"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    url: "订阅"
+
+global-ua: clash.meta
+
+port: 7890
+socks-port: 7891
+redir-port: 7892
+mixed-port: 7893
+tproxy-port: 7894
+ipv6: false
+allow-lan: false
+tcp-concurrent: true
+
+geodata-mode: false
+geo-auto-update: true
+geo-update-interval: 48
+geox-url:
+  geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip-lite.metadb"
+  geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip-lite.dat"
+  asn: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb"
+
+# Clash Party 使用自己的面板；控制接口只监听本机，避免无密码暴露到局域网。
+external-controller: 127.0.0.1:9090
+secret: ""
+
+find-process-mode: strict
+keep-alive-idle: 600
+keep-alive-interval: 30
+
+profile:
+  store-selected: true
+  # fake-ip 模式下把「假 IP ↔ 域名」的映射持久化：重启后应用手里缓存的旧假 IP 仍能对上域名
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain:
+    - "+.v2ex.com"
+    - "+.netflix.com"
+    - "+.nflxvideo.net"
+    - "+.media.dssott.com"
+  skip-domain:
+    - "Mijia Cloud"
+    - "dlg.io.mi.com"
+    - "+.push.apple.com"
+    - "+.apple.com"
+
+# 保留 TUN，但使用常见 MTU；Clash Party 也可以只用系统代理，不需要手动改规则。
+tun:
+  enable: true
+  stack: mixed
+  mtu: 1500
+  gso: false
+  endpoint-independent-nat: false
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: fake-ip
+  # 用 IANA 保留的测试段（198.18.0.0/15 的前半）。不要写 28.0.0.1/8 之类——
+  # 那是真实公网段，真实目标撞进来会被当成假 IP 处理。
+  fake-ip-range: 198.18.0.1/16
+  # blacklist：下面列表里的域名发真实 IP，其余全部发假 IP（假 IP 不需要解析，也就没有污染问题）
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "+.lan"
+    - "+.local"
+    - geosite:private
+    - geosite:cn                 # 国内域名必须真实 IP 才能直连
+    # 下面这些"必须拿到真实 IP"的常见例外：连通性检测 / 推送 / 联机游戏 / 时间同步
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.push.apple.com"
+    - "+.ntp.org"
+    - "+.stun.playstation.net"
+    - "+.srv.nintendo.net"
+    - "+.xboxlive.com"
+    - localhost.ptlogin2.qq.com
+  respect-rules: true
+  default-nameserver:
+    - 223.5.5.5
+    - 114.114.114.114
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver-follow-policy: false
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+  fallback-lazy-query: true
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "geosite:geolocation-!cn":
+      - https://dns.cloudflare.com/dns-query
+      - https://dns.google/dns-query
+
+# ── 节点筛选词：只在这里定义一次，下面各策略组用 YAML 锚点引用 ──
+# （mihomo 不认识 x-node-filters 这个键，会忽略它；它只是给锚点一个落脚处。
+#   改筛选词只需改这里，7 处引用自动跟随，不会出现"链上过滤了、手动列表没过滤"的漂移。）
+x-node-filters:
+  no_hktw: &no_hktw "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
+  no_jp:   &no_jp   "(?i)^((?!(日|JP|Japan|Tokyo|Osaka|东京|大阪|名古屋|福冈|札幌|横滨|神户|京都|冲绳|埼玉|琦玉|家宽|游戏|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
+
+proxy-groups:
+  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
+  - {name: 🤖 AI, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: *no_hktw}
+  # 游戏不做地区限制：港澳台节点延迟低，打游戏反而更合适，所以候选直接用不限地区的链
+  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换, 🔯 主备切换1], include-all: true}
+  - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|非日本, 🔯 主备切换|非日本1], include-all: true, filter: *no_jp}
+  # 微软服务默认直连：Windows 更新 / Office 下载走直连更快，也避免影响「手机连接」的局域网配对
+  - {name: 🪟 微软服务, type: select, proxies: [DIRECT, 🚀 节点选择]}
+  - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, 🚀 节点选择], use: [cheap]}
+  - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
+
+  # 跨机场自动：stable → stable1 → cheap。想指定某个机场就别选它，
+  # 在上一行的「🚀 节点选择」里改选对应的单机场链：🔯 主备切换 / 🔯 主备切换1 / ♻️ 便宜主备
+  - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
+  - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
+
+  # 机场一：stable —— 三条链，按地区区分（无限制 / 非港台 / 非日本）
+  - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
+  - {name: 🔯 主备切换|非港台, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
+  - {name: 🔯 主备切换|非日本, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
+
+  # 机场二：stable1 —— 同上
+  - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
+  - {name: 🔯 主备切换|非港台1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
+  - {name: 🔯 主备切换|非日本1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
+
+  - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
+
+rules:
+  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
+  # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
+  - RULE-SET,direct1,DIRECT
+  - RULE-SET,direct1_rest,DIRECT
+  - RULE-SET,ai,🤖 AI
+  - RULE-SET,ai_rest,🤖 AI
+  - RULE-SET,no_jp,🎌 漫画动漫
+  - RULE-SET,bluearchive,🎮 游戏
+  - RULE-SET,bluearchive_rest,🎮 游戏
+  - RULE-SET,manga_cn,🎯 全球直连
+  - RULE-SET,manga_cn_rest,🎯 全球直连
+  - RULE-SET,manga_proxy,🎌 漫画动漫
+  - RULE-SET,manga_proxy_rest,🎌 漫画动漫
+  - RULE-SET,media,🎌 漫画动漫
+  - RULE-SET,bilibili,🎯 全球直连
+  - RULE-SET,proxylite,DIRECT
+  - RULE-SET,download,🎯 全球直连
+  - RULE-SET,ai_all,🤖 AI
+
+  - RULE-SET,private_domain,DIRECT
+  - RULE-SET,apple_domain,🎯 全球直连
+  - RULE-SET,google_cn,🎯 全球直连
+  - RULE-SET,github_domain,🚀 节点选择
+  - RULE-SET,youtube_domain,🎬 流媒体
+  - RULE-SET,twitter_domain,🎬 流媒体
+  - RULE-SET,google_domain,🤖 AI
+  - RULE-SET,onedrive_domain,🪟 微软服务
+  - RULE-SET,microsoft_domain,🪟 微软服务
+  - RULE-SET,tiktok_domain,🚀 节点选择
+  - RULE-SET,speedtest_domain,✈️ Speedtest
+  - RULE-SET,telegram_domain,🎬 流媒体
+  - RULE-SET,netflix_domain,🚀 节点选择
+  - RULE-SET,paypal_domain,🚀 节点选择
+  - RULE-SET,geolocation-!cn,🚀 节点选择
+  - RULE-SET,cn_domain,🎯 全球直连
+  - RULE-SET,google_ip,🤖 AI,no-resolve
+  - RULE-SET,twitter_ip,🎬 流媒体,no-resolve
+  - RULE-SET,netflix_ip,🚀 节点选择,no-resolve
+  - RULE-SET,telegram_ip,🎬 流媒体,no-resolve
+  - RULE-SET,cn_ip,🎯 全球直连
+  - MATCH,🐟 漏网之鱼
+
+rule-providers:
+  # ══ 自建清单：手工源是 rules/*.list（唯一手改的地方）══
+  # 每个清单拆成两半，都由 scripts/gen_mrs.py 从源清单生成：
+  #   mrs/<同名>.mrs       域名部分（DOMAIN / DOMAIN-SUFFIX）——走索引查找，不再逐条扫描
+  #   rules/<同名>.rest.list  mrs 表达不了的部分（DOMAIN-KEYWORD / IP-CIDR 等）——仍是 classical 文本
+  # `*_rest` 紧挨着它对应的 mrs、指向同一个组，所以拆开不改变命中结果。
+  ai: &domain
+    proxy: DIRECT
+    type: http
+    interval: 86400
+    behavior: domain
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/AI.mrs"
+  ai_rest: &self_text
+    proxy: DIRECT
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AI.rest.list"
+  no_jp:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/NoJP.list"
+  bluearchive:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BlueArchive.mrs"
+  bluearchive_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BlueArchive.rest.list"
+  manga_cn:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaCN.mrs"
+  manga_cn_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaCN.rest.list"
+  manga_proxy:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaProxy.mrs"
+  manga_proxy_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxy.rest.list"
+  media:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/Media.mrs"
+  bilibili:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BiliBili.mrs"
+  proxylite:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/ProxyLite.mrs"
+  direct1:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/DirectOwn.mrs"
+  direct1_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/DirectOwn.rest.list"
+  download:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
+
+  ai_all:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-ai-!cn.mrs"
+  youtube_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs"
+  twitter_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/twitter.mrs"
+  private_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/private.mrs"
+  google_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google.mrs"
+  github_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/github.mrs"
+  telegram_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs"
+  netflix_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/netflix.mrs"
+  paypal_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/paypal.mrs"
+  onedrive_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/onedrive.mrs"
+  microsoft_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft.mrs"
+  apple_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/apple-cn.mrs"
+  google_cn:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google-cn.mrs"
+  speedtest_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/ookla-speedtest.mrs"
+  tiktok_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/tiktok.mrs"
+  geolocation-!cn:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/geolocation-!cn.mrs"
+  cn_domain:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs"
+
+  google_ip: &ip
+    proxy: DIRECT
+    type: http
+    interval: 86400
+    behavior: ipcidr
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/google.mrs"
+  twitter_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/twitter.mrs"
+  netflix_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/netflix.mrs"
+  telegram_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs"
+  cn_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs"

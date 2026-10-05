@@ -16,13 +16,16 @@ configs/
   mihomo/          完整的 mihomo 配置，直接给 OpenClash 用
     one.yaml         单机场版（一个 proxy-provider，靠 include-all + filter 分日/非日）
     three.yaml       多机场版（stable / stable1 / cheap 三个订阅，便宜节点分流）
-    three-v2.yaml    three.yaml 的「成熟上游规则 + 自建规则」混合版：
+    three-v2.yaml    three.yaml 的「成熟上游规则 + 自建规则」混合版（旧策略组结构）：
                       自建列表放最前做例外分流 + MetaCubeX mrs + 217heidai 去广告合并规则，
                       并接线成熟漫画清单（MangaCN 走直连 / MangaProxy 走代理）顶替原 japan_manga 等自建小清单
     three-redir-host.yaml  three.yaml 的副本，仅 DNS 用 redir-host 而非 fake-ip，
                       用于排查 fake-ip 相关问题；两个文件需同步维护
-    three-v2-redir-host.yaml  three-v2 的 redir-host 桌面版：规则来源同上，
-                      但不依赖本机 127.0.0.1:5225、规则集走 jsDelivr、控制面板只监听本机
+    three-v2-fake-ip.yaml     three-v2-redir-host.yaml 的 fake-ip 版，**策略组/规则完全一致，只有 DNS 模式不同**
+                      （手机 FlClash / TUN 场景推荐这一份：假 IP 不携带污染信息，连接时用域名出站、由节点解析）
+    three-v2-redir-host.yaml  three-v2.yaml 那套规则的新策略组结构 + redir-host：
+                      不依赖本机 127.0.0.1:5225、规则集走 jsDelivr、控制面板只监听本机；
+                      注意它的境外域名解析依赖"代理可用"，代理不通时境外域名会解析失败
   subconverter/    subconverter 转换模板（ACL4SSR 语法）
     acl4ssr-one.ini  主力模板
     acl4ssr-two.ini  多机场 + 流媒体走便宜节点
@@ -171,7 +174,7 @@ rules:
 | 位置 | 当前值 | 要改成 |
 |---|---|---|
 | `configs/mihomo/one.yaml` | `url: "订阅"` | 真实机场订阅链接 |
-| `configs/mihomo/three.yaml` | `url: "订阅"` ×3（stable / stable1 / cheap） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
+| `configs/mihomo/three*.yaml` | `url: "订阅"` ×3（stable / stable1 / cheap） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
 | `configs/mihomo/*.yaml` | `authentication: - name:passwd` | 真实 `用户名:密码`；同时建议 `allow-lan: false` |
 | `configs/mihomo/*.yaml` | `external-controller: 0.0.0.0:9090` + `secret: ""` | 改为 `127.0.0.1:9090` 并设置非空 `secret`（当前等于把控制面板无密码开放给整个局域网） |
 | `configs/mihomo/*.yaml` | DNS `127.0.0.1:5225` | 设备上确有本地 DNS 服务时保留，否则改公共 DNS |
