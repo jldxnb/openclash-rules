@@ -155,6 +155,13 @@ def check_rule_lists() -> None:
                     f"未知规则类型 {rule_type}（若确认 mihomo 支持，请加入脚本白名单）")
             if not payload:
                 add("ERROR", rel, lineno, f"{rule_type} 缺少匹配内容")
+            # mihomo 解析文本规则集时只把「整行以 # 开头」当注释（源码 rules/provider/
+            # provider.go 的 rulesParse：if str[0] == '#' { continue }），行内 # 不会被剥掉，
+            # 会被算进匹配内容 → 该条规则永远不命中。REGEX 类型的 payload 可能合法含 #
+            if "#" in line and not rule_type.endswith("REGEX"):
+                add("ERROR", rel, lineno,
+                    "规则行内有 '#'（行内注释无效）：会被当成匹配内容，该条规则实际不会命中；"
+                    "请把注释挪到单独一行")
             if " " in payload.split(",")[0] and rule_type.startswith("DOMAIN"):
                 add("WARN", rel, lineno, f"域名含空格：{payload}")
 

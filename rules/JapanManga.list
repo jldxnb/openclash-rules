@@ -12,7 +12,8 @@ DOMAIN-SUFFIX,nhentai.net
 
 DOMAIN-SUFFIX,hentai-cosplay-xxx.com
 
-DOMAIN-SUFFIX,cosplaytale.com
+# 注意：旧拼写 cosplaytale.com 已被抢注成跳转广告站（302 → survey-smiles.com），不要写回去
+DOMAIN-SUFFIX,cosplaytele.com
 
 DOMAIN-SUFFIX,3hentai.net
 

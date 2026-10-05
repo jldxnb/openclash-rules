@@ -93,6 +93,8 @@ DOMAIN-SUFFIX,comix.ws
 DOMAIN-SUFFIX,comizy.io
 DOMAIN-SUFFIX,cookmana56.com
 DOMAIN-SUFFIX,copymanga.site
+# cosplaytele.com：真站（Cloudflare 前置）；旧拼写 cosplaytale.com 已被抢注成跳转广告站
+DOMAIN-SUFFIX,cosplaytele.com
 DOMAIN-SUFFIX,cycomi.com
 DOMAIN-SUFFIX,daycomics.com
 DOMAIN-SUFFIX,dbook.docomo.ne.jp
@@ -437,6 +439,8 @@ DOMAIN-KEYWORD,webtoon
 DOMAIN-KEYWORD,copymanga
 DOMAIN-KEYWORD,mangacopy
 DOMAIN-KEYWORD,mangafunb
+# hanime1：备用条目 —— 正常情况下会被更靠前的 rules/NoJP.list（→ 非日本节点）先命中
+DOMAIN-KEYWORD,hanime1
 # ===== 手工维护区结束 =====
 
 # ===== 自动同步区开始（由 scripts/gen_manga_rules.py 重写，勿手改）=====
