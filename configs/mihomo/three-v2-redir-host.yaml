@@ -1,5 +1,5 @@
 # three-v2-redir-host.yaml
-# 三机场 + 自建规则 + MetaCubeX/217heidai 上游规则的桌面稳定版。
+# 三机场 + 自建规则 + MetaCubeX 上游规则的桌面稳定版。
 # 本文件保留 three-v2.yaml 的三个 proxy-provider，以及「AI」「游戏」「漫画动漫」「流媒体」等分流组，
 # 采用 redir-host，不依赖本机 127.0.0.1:5225 DNS。
 # 使用前必须把下面三个 url: "订阅" 替换为真实订阅地址。
@@ -182,7 +182,6 @@ proxy-groups:
   - {name: 🪟 微软服务, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, 🚀 节点选择], use: [cheap]}
   - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
-  - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
 
   # 跨机场自动：stable → stable1 → cheap。想指定某个机场就别选它，
   # 在上一行的「🚀 节点选择」里改选对应的单机场链：🔯 主备切换 / 🔯 主备切换1 / ♻️ 便宜主备
@@ -214,9 +213,6 @@ rules:
   - RULE-SET,bilibili,🎯 全球直连
   - RULE-SET,proxylite,DIRECT
   - RULE-SET,download,🎯 全球直连
-
-  # 去广告放在自建例外之后；默认拦截，也可以在面板切到 DIRECT 排查误伤。
-  - RULE-SET,adblock,🛑 广告拦截
   - RULE-SET,ai_all,🤖 AI
 
   - RULE-SET,private_domain,DIRECT
@@ -276,13 +272,6 @@ rule-providers:
   download:
     <<: *class
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
-
-  adblock:
-    type: http
-    interval: 28800
-    behavior: classical
-    format: text
-    url: "https://cdn.jsdelivr.net/gh/217heidai/adblockfilters@main/rules/adblockclashlite.list"
 
   ai_all: &domain
     type: http
