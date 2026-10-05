@@ -1,0 +1,65 @@
+name: build-mrs
+
+# rules/*.list 是手工维护的源，mrs/ 与 rules/*.rest.list 是生成物（配置引用的是生成物）。
+# 任何人改动 rules/ 下的清单后，这个任务自动重新生成并提交，
+# 避免出现「改了 list、产物还是旧内容」的漂移。
+# 注意：用 GITHUB_TOKEN 推送的提交不会再触发其它 workflow（GitHub 的防递归规则），
+# 所以这里不会自己触发自己。
+# 本地等价命令：python scripts/gen_mrs.py
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rules/**.list"
+      - "scripts/gen_mrs.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-mrs
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: 由 list 重建 mrs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 生成 mrs
+        run: |
+          set -o pipefail
+          python scripts/gen_mrs.py | tee "$RUNNER_TEMP/mrs-report.txt"
+
+      - name: 自检（0 错误才继续）
+        run: |
+          python -m pip install --quiet pyyaml
+          python scripts/validate.py
+          python scripts/gen_mrs.py --check
+
+      - name: 有变化才提交推送
+        run: |
+          if git diff --quiet -- mrs/ rules/; then
+            echo "产物已是最新，跳过提交"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mrs/ rules/
+          {
+            echo "chore(mrs): 按 rules/*.list 重建 mrs（$(date -u +%F)）"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/mrs-report.txt"
+            echo '```'
+          } > "$RUNNER_TEMP/commit-msg.txt"
+          git commit -F "$RUNNER_TEMP/commit-msg.txt"
+          git pull --rebase --autostash
+          git push

@@ -29,32 +29,68 @@ configs/
     acl4ssr-cys.ini  带特定机场前缀的版本
     qichiyu.ini      基于骑秋雨的上游模板，未做本地改动
     qichiyu-custom.ini  上面的本地改版
-rules/              自建规则集（classical 文本格式，被上面两类配置通过 raw URL 引用）
-  MangaCN.list        漫画站·国内直连（手工区 + 自动同步区，见「漫画规则集」节）
-  MangaProxy.list     漫画站·海外代理（同上）
+rules/              自建规则集**手工源**（classical 文本，见「list 与 mrs」节）
+  *.list              手工维护的清单；配置不直接用它，而是用下面两个生成物
+  *.rest.list         生成物：清单里 mrs 表达不了的部分（DOMAIN-KEYWORD / IP-CIDR 等）
+mrs/                生成物：清单的域名部分（mihomo 二进制规则集，索引查找，见「list 与 mrs」节）
 docs/
   migration.md      路径迁移对照表（重构前后的位置与 URL 变化）
   examples/         规则语法示例
 scripts/
   validate.py       仓库自检脚本，见下文
   gen_manga_rules.py  漫画规则集同步脚本（每日由 CI 自动运行，见「漫画规则集」节）
+  gen_mrs.py        由 rules/*.list 生成 mrs/ 与 rules/*.rest.list（见「list 与 mrs」节）
 archive/            历史文件，不要使用
 ```
+
+## list 与 mrs
+
+`rules/*.list` 是**唯一手工维护的地方**（classical 文本，`类型,内容` 一行一条）；配置里引用的
+却是两个自动生成物，各自放一个文件夹：
+
+| 位置 | 内容 | 谁生成 |
+|---|---|---|
+| `mrs/<同名>.mrs` | 清单的域名部分（`DOMAIN` / `DOMAIN-SUFFIX`） | `python scripts/gen_mrs.py` |
+| `rules/<同名>.rest.list` | mrs 表达不了的部分（`DOMAIN-KEYWORD` / `IP-CIDR` / `PROCESS-NAME` 等） | 同上 |
+
+为什么不直接引用 `.list`：classical 文本规则集是**逐条线性扫描**，清单越大每个连接越慢；
+`mrs` 走索引查找，代价与条目数基本无关。为什么还要留 `rest.list`：mrs 是域名前缀树，
+只能表达"精确域名 / 后缀"，**表达不了 `DOMAIN-KEYWORD`**（关键词是"包含即可"），
+把关键词硬塞进去只会变成永远匹配不到的死条目，所以清单必须拆成两半，
+配置里用相邻的两条 `RULE-SET` 引用（指向同一个策略组，顺序不影响结果）。
+
+改完清单后跑一次生成（有变化才会写文件）：
+
+```bash
+python scripts/gen_mrs.py            # 生成/更新 mrs/ 与 rules/*.rest.list
+python scripts/gen_mrs.py --check    # 只校验产物与源清单是否一致（CI 用）
+```
+
+生成时会用 `mihomo convert-ruleset` 转出 mrs，再**转回文本逐条比对**，
+任何条目对不上都会报错退出——防止"静默丢弃"这类看不见的行为变化。
+CI（`.github/workflows/build-mrs.yml`）会在 `rules/**` 变更后自动重跑并提交产物；
+漫画清单则由每日同步任务（见下）连带生成。mihomo 二进制会自动下载到 `.cache/`（已 gitignore）。
 
 ## 怎么用
 
 ### 1. 单独引用某个规则集
 
-在任意 mihomo 配置里加 rule-provider：
+在任意 mihomo 配置里加 rule-provider（域名清单用 mrs；含关键词/IP 类的用 classical 文本）：
 
 ```yaml
 rule-providers:
   ai:
     type: http
     interval: 86400
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/mrs/AI.mrs"
+  ai_rest:            # 同一清单里 mrs 编不进去的关键词部分
+    type: http
+    interval: 86400
     behavior: classical
     format: text
-    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.list"
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/AI.rest.list"
 ```
 
 ### 2. 直接使用完整配置
@@ -92,29 +128,43 @@ rule-providers:
   的漫画相关 data 文件合并增量，**每天自动重写**（CI：`.github/workflows/update-manga-rules.yml`，
   北京时间 06:30；有变化才提交，拉上游失败时不写不提交，避免误删条目）。
 
-在配置里引用：
+在配置里引用（沿用「list 与 mrs」的做法：域名部分用 mrs，关键词部分用 rest 文本）：
 
 ```yaml
 rule-providers:
   manga_cn:
     type: http
     interval: 86400
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaCN.list"
-  manga_proxy:
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/mrs/MangaCN.mrs"
+  manga_cn_rest:
     type: http
     interval: 86400
     behavior: classical
     format: text
-    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxy.list"
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaCN.rest.list"
+  manga_proxy:
+    type: http
+    interval: 86400
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/mrs/MangaProxy.mrs"
+  manga_proxy_rest:
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxy.rest.list"
 rules:
   - RULE-SET,manga_cn,🎯 全球直连
+  - RULE-SET,manga_cn_rest,🎯 全球直连
   - RULE-SET,manga_proxy,🚀 节点选择
+  - RULE-SET,manga_proxy_rest,🚀 节点选择
 ```
 
-本地手动同步：`python scripts/gen_manga_rules.py`（只报告变化，不写文件）、加 `--apply` 写入。
-这两份清单暂未被 `configs/` 引用时，`validate.py` 的「未被引用」提示属正常（不是错误）。
+本地手动同步：`python scripts/gen_manga_rules.py`（只报告变化，不写文件）、加 `--apply` 写入；
+写入后要再跑 `python scripts/gen_mrs.py` 重建 mrs 与 rest（CI 里这两步是连着做的）。
 
 ## 使用前必须替换的占位符
 
@@ -139,11 +189,14 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 
 `validate.py` 查这些：
 
-- **引用完整性**：`configs/` 里所有指向本仓库的 raw URL 是否都能在仓库里找到对应文件
-  （历史上这里翻过车：文件改名/删除后引用没跟着改，导致规则集全部 404）
+- **引用完整性**：`configs/` 里所有指向本仓库的 URL（raw 与 jsDelivr 两种写法都认）是否都能
+  在仓库里找到对应文件（历史上这里翻过车：文件改名/删除后引用没跟着改，导致规则集全部 404）
 - **规则集格式**：未知规则类型、缺失匹配内容、YAML 列表前缀 `- `、重复行、空规则集、UTF-8 BOM
-- **mihomo 配置**：YAML 语法、rule-provider 必填字段、`RULE-SET` 是否指向已定义的 provider、
-  策略组 `use` 是否指向已定义的订阅、未替换的占位符、控制面板与局域网的暴露风险
+- **mrs 与源清单的对应**：纯域名清单有没有 mrs 产物、有没有孤儿 mrs、配置引用了 mrs 却漏引
+  对应的 `*.rest.list`（内容层面的"是否同步"由 `gen_mrs.py --check` 负责）
+- **mihomo 配置**：YAML 语法、rule-provider 必填字段（`format: mrs` 必须是 `domain`/`ipcidr`）、
+  `RULE-SET` 是否指向已定义的 provider、策略组 `use` 是否指向已定义的订阅、未替换的占位符、
+  控制面板与局域网的暴露风险
 - **subconverter 模板**：`ruleset=` 指向的策略组是否在 `custom_proxy_group=` 中有定义
 - **未引用文件**：`rules/` 下有哪些规则集没被任何配置使用（提示，不算错误）
 
@@ -151,20 +204,23 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 
 - `rules/*.list`：classical 文本格式，每行 `类型,内容[,参数]`，`#` 或 `;` 开头是注释；
   不要写 YAML 的 `- ` 前缀，不要放 `MATCH` / `RULE-SET` 这类规则（classical 规则集不允许）
+- **只改 `rules/*.list`，别改 `mrs/` 与 `rules/*.rest.list`**：后两者是生成物（文件头也写了），
+  改完 list 跑 `python scripts/gen_mrs.py` 重新生成；配置引用生成物，不引用 `.list`
 - **自建列表排在前面 = 优先级更高**：`configs/` 里的自建 rule-provider / ruleset 都排在通用规则
   （`geolocation-!cn`、`MATCH` / `FINAL`）之前，顺序匹配、首个命中即生效。要给某些站点做特殊分流
   （比如"这个站不能走日本节点"），直接往对应 `rules/*.list` 里追加即可——这类列表是**例外清单**，
   只有一两条是正常的，不需要凑成完整清单
-- 新增规则集后，记得在 `configs/` 里引用它，否则 `validate.py` 会提示未被引用
-- 文件编码 UTF-8（无 BOM），换行沿用 CRLF（见 `.editorconfig`）
+- 新增规则集后，记得在 `configs/` 里引用它（并跑一次 `gen_mrs.py`），否则 `validate.py` 会报错/提示
+- 新增规则集时，若清单里既有域名条目又有 `DOMAIN-KEYWORD` 之类，配置里要引用成对的
+  `mrs/<名>.mrs` + `rules/<名>.rest.list` 两条 `RULE-SET`，指向同一个策略组、紧挨着写
+- 文件编码 UTF-8（无 BOM），换行沿用 CRLF（见 `.editorconfig`）；`mrs/` 是二进制（`.gitattributes` 已标 binary）
 - 命名：自建规则集用能一眼看懂的名字；外部上游规则集不要复制进本仓库，直接引用上游 URL
 
 ## 已知问题（未擅自修改，待决定）
 
 | 位置 | 问题 |
 |---|---|
-| `rules/NoJP.list` | 只有 1 条 `DOMAIN-KEYWORD,hanime1`——这是**例外清单**，靠顺序提前命中做分流，短是正常的；考证见 [docs/migration.md](docs/migration.md) 第四、五节 |
-| `rules/ForYiFen.list` | 从建立起就是空集（唯一一行被注释），引用它的 `🍀 流媒体`、`🌍 默认用一分` 组不会命中任何流量，需要填域名或删掉引用 |
+| `rules/NoJP.list` | 只有 1 条 `DOMAIN-KEYWORD,hanime1`——这是**例外清单**，靠顺序提前命中做分流，短是正常的；关键词编不进 mrs，所以它没有 mrs 产物，配置直接引用 `.list`（考证见 [docs/migration.md](docs/migration.md) 第四、五节） |
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` **未废弃**（此前误记为旧写法；官方废弃的是 `fallback-filter.geosite`，文件里没用它）。但它与 `nameserver-policy` 并存会让两套 DNS 并行查询，官方提供 `fallback-lazy-query: true` 可避免 |
