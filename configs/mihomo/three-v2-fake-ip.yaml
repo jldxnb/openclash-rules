@@ -1,6 +1,7 @@
 # three-v2-fake-ip.yaml
 # 三机场 + 自建规则 + MetaCubeX 上游规则的 fake-ip 版，与 three-v2-redir-host.yaml
-# **只有 DNS 模式不同**（其余策略组/规则/规则集完全一致，改动要两份同步）。
+# **只有 DNS 模式不同**（其余策略组/规则/规则集完全一致，改动要两份同步；
+# 2026-10-06 的两轮加固：排除正则转义、私网直连、DNS/嗅探显式化、lazy、proxy: DIRECT 都已同步）。
 # 手机（FlClash / ClashMetaForAndroid）与 TUN 场景推荐用这一份：
 # fake-ip 下客户端拿到的假 IP 不会带任何污染信息，连接时 mihomo 用域名出站、由节点解析，
 # 因此不依赖"境外 DoH 能否直连"；redir-host 那份在代理不可用时会导致境外域名解析失败。
@@ -20,11 +21,12 @@ proxy-providers:
       timeout: 3000
       # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
       interval: 120
-      # 不使用该机场时也要测：否则切到久未使用的机场时，节点"存活状态"是过期的
-      lazy: false
+      # lazy: true —— 只有该机场被实际使用时才做健康检查，省电省流量；
+      # 代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的
+      lazy: true
     override:
       additional-prefix: "渔云|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0\\.1|0\\.5|5x|x8|x3"
     url: "订阅"
 
   stable1:
@@ -40,11 +42,12 @@ proxy-providers:
       timeout: 3000
       # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
       interval: 120
-      # 不使用该机场时也要测：否则切到久未使用的机场时，节点"存活状态"是过期的
-      lazy: false
+      # lazy: true —— 只有该机场被实际使用时才做健康检查，省电省流量；
+      # 代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的
+      lazy: true
     override:
       additional-prefix: "猫咪|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0\\.1|0\\.5|5x|x8|x3"
     url: "订阅"
 
   cheap:
@@ -60,11 +63,12 @@ proxy-providers:
       timeout: 3000
       # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
       interval: 120
-      # 不使用该机场时也要测：否则切到久未使用的机场时，节点"存活状态"是过期的
-      lazy: false
+      # lazy: true —— 只有该机场被实际使用时才做健康检查，省电省流量；
+      # 代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的
+      lazy: true
     override:
       additional-prefix: "一分|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0.1|0.5|5x|x8|x3"
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗|0\\.1|0\\.5|5x|x8|x3"
     url: "订阅"
 
 global-ua: clash.meta
@@ -102,6 +106,8 @@ profile:
 
 sniffer:
   enable: true
+  # 用嗅探到的域名改写连接目标（默认值就是 true，这里写明；关掉则只参与规则匹配、出站仍用原 IP）
+  override-destination: true
   force-dns-mapping: true
   parse-pure-ip: true
   sniff:
@@ -139,7 +145,9 @@ tun:
 
 dns:
   enable: true
-  listen: 0.0.0.0:1053
+  # 只监听本机：TUN 的 dns-hijack 是把连接导入内部 DNS 模块，不依赖这个端口；
+  # 哪天要给局域网设备当 DNS 用，再改回 0.0.0.0
+  listen: 127.0.0.1:1053
   ipv6: false
   enhanced-mode: fake-ip
   # 用 IANA 保留的测试段（198.18.0.0/15 的前半）。不要写 28.0.0.1/8 之类——
@@ -178,6 +186,11 @@ dns:
   fallback:
     - https://dns.cloudflare.com/dns-query
     - https://dns.google/dns-query
+  # 显式写出（与默认值一致）：fake-ip 下只有「fake-ip-filter 放行的域名」（国内域名等）
+  # 才需要真实解析，这条判断管的是它们；境外域名走假 IP，根本不做本地解析
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
   fallback-lazy-query: true
   nameserver-policy:
     "geosite:cn,private":
@@ -224,6 +237,16 @@ proxy-groups:
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
 
 rules:
+  # 私网 / 组播地址一律直连：命不中前面任何规则的局域网 IP 会一路落到 MATCH → 🐟 漏网之鱼 →
+  # 被送进代理（路由器后台、打印机、NAS、投屏用的 mDNS/SSDP、「手机连接」都会受影响）。
+  # cn_ip 那份 GeoIP 里不含 RFC1918 网段，所以必须显式写。
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+  - IP-CIDR,224.0.0.0/4,DIRECT,no-resolve
+
   # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
   # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
   - RULE-SET,direct1,DIRECT
