@@ -219,7 +219,6 @@ rules:
   - RULE-SET,ai,🎮 日美等节点                 # AI 清单（自建，优先于下面的 category-ai-!cn）
   - RULE-SET,no_jp,🎞️ 非日本节点              # 不能走日本节点的站点
   - RULE-SET,bluearchive,🎮 日美等节点         # 蔚蓝档案
-  - RULE-SET,comic18,🎞️ 非日本节点             # 18comic（带连字符的 18-comic.* 只有这个清单覆盖）
   - RULE-SET,manga_cn,🎯 全球直连              # 漫画清单 MangaCN：国内可直连的漫画站
   - RULE-SET,manga_proxy,🚀 节点选择           # 漫画清单 MangaProxy：需代理的漫画站（顶替原 japan_manga / japan_anime）
   - RULE-SET,media,🚀 节点选择                # 影视站（missav / xvideos）
@@ -267,7 +266,6 @@ rule-providers:
   manga_cn:    { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaCN.list" }
   manga_proxy: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxy.list" }
   bluearchive: { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/BlueArchive.list" }
-  comic18:     { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/18comic.list" }
   media:       { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/Media.list" }
   bilibili:    { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/BiliBili.list" }
   proxylite:   { <<: *class, url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/ProxyLite.list" }

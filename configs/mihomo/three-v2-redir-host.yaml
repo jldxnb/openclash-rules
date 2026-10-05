@@ -197,7 +197,6 @@ rules:
   - RULE-SET,ai,🎮 日美等节点
   - RULE-SET,no_jp,🎞️ 非日本节点
   - RULE-SET,bluearchive,🎮 日美等节点
-  - RULE-SET,comic18,🎞️ 非日本节点
   - RULE-SET,manga_cn,🎯 全球直连
   - RULE-SET,manga_proxy,🚀 节点选择
   - RULE-SET,media,🚀 节点选择
@@ -254,9 +253,6 @@ rule-providers:
   bluearchive:
     <<: *class
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/BlueArchive.list"
-  comic18:
-    <<: *class
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/18comic.list"
   media:
     <<: *class
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/Media.list"

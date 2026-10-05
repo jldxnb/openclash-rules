@@ -57,6 +57,9 @@ DOMAIN-SUFFIX,samanlehua.com
 DOMAIN-SUFFIX,short.tiankongshuyu.cn
 DOMAIN-SUFFIX,wtzw.com
 DOMAIN-SUFFIX,yqmh.com
+# 18comic 的带连字符镜像：18-comic.com / .net / .vip（实测 Cloudflare 前置，
+# 国内 DNS 未被投毒，回到真实 CF 地址，因此按「国内可直连」收录）
+DOMAIN-KEYWORD,18-comic
 # ===== 手工维护区结束 =====
 
 # ===== 自动同步区开始（由 scripts/gen_manga_rules.py 重写，勿手改）=====
