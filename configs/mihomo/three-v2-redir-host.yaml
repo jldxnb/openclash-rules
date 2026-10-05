@@ -167,25 +167,25 @@ dns:
 
 proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
-  - {name: 🤖 AI, type: select, proxies: [🔯 主备切换|AI, 🔯 主备切换|AI1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$"}
-  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换|游戏, 🔯 主备切换|游戏1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$"}
-  - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|漫画动漫, 🔯 主备切换|漫画动漫1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$"}
+  - {name: 🤖 AI, type: select, proxies: [🔯 主备切换|AI, 🔯 主备切换|AI1], include-all: true}
+  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换|游戏, 🔯 主备切换|游戏1], include-all: true}
+  - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|漫画动漫, 🔯 主备切换|漫画动漫1], include-all: true}
   - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, 🚀 节点选择], use: [cheap]}
   - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
   - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
 
   # 跨机场自动：stable → stable1 → cheap。想指定某个机场就别选它，
-  # 在上一行的「🚀 节点选择」里改选 🔯 主备切换(渔云) / 🔯 主备切换1(猫咪) / ♻️ 便宜主备(一分)
+  # 在上一行的「🚀 节点选择」里改选对应的单机场链：🔯 主备切换 / 🔯 主备切换1 / ♻️ 便宜主备
   - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
 
-  # 机场一：stable（渔云）
+  # 机场一：stable
   - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: 🔯 主备切换|AI, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
   - {name: 🔯 主备切换|游戏, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
   - {name: 🔯 主备切换|漫画动漫, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$", max-failed-times: 1}
 
-  # 机场二：stable1（猫咪）
+  # 机场二：stable1
   - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: 🔯 主备切换|AI1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
   - {name: 🔯 主备切换|游戏1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
