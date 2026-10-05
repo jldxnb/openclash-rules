@@ -175,7 +175,8 @@ x-node-filters:
 proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
   - {name: 🤖 AI, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: *no_hktw}
-  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: *no_hktw}
+  # 游戏不做地区限制：港澳台节点延迟低，打游戏反而更合适，所以候选直接用不限地区的链
+  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换, 🔯 主备切换1], include-all: true}
   - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|非日本, 🔯 主备切换|非日本1], include-all: true, filter: *no_jp}
   # 微软服务默认直连：Windows 更新 / Office 下载走直连更快，也避免影响「手机连接」的局域网配对
   - {name: 🪟 微软服务, type: select, proxies: [DIRECT, 🚀 节点选择]}
