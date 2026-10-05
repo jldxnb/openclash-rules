@@ -11,6 +11,7 @@
 ## 目录结构
 
 ```
+manga-sites.md      漫画站点域名清单（2026-10-05，729 个域名逐条实测+来源，供自建分流规则参考）
 configs/
   mihomo/          完整的 mihomo 配置，直接给 OpenClash 用
     one.yaml         单机场版（一个 proxy-provider，靠 include-all + filter 分日/非日）
