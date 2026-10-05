@@ -193,9 +193,6 @@ proxy-groups:
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
 
 rules:
-  # 先放行虎牙官方域名，避免通用广告清单误拦直播页面或播放器资源。
-  - RULE-SET,huya,DIRECT
-
   # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
   - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🤖 AI
@@ -269,15 +266,6 @@ rule-providers:
   download:
     <<: *class
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
-  huya:
-    type: inline
-    behavior: classical
-    format: text
-    payload:
-      - DOMAIN-SUFFIX,huya.com
-      - DOMAIN-SUFFIX,huyagame.cn
-      - DOMAIN-SUFFIX,peiwanlu.com
-      - DOMAIN-SUFFIX,snapplay.com
 
   adblock:
     type: http
