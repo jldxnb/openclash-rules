@@ -1,6 +1,6 @@
 # three-v2-redir-host.yaml
 # 三机场 + 自建规则 + MetaCubeX/217heidai 上游规则的桌面稳定版。
-# 本文件保留 three-v2.yaml 的三个 proxy-provider 和日本/日美/非日本/便宜节点组，
+# 本文件保留 three-v2.yaml 的三个 proxy-provider，以及「AI 与游戏」「日区受限」「流媒体」等分流组，
 # 采用 redir-host，不依赖本机 127.0.0.1:5225 DNS。
 # 使用前必须把下面三个 url: "订阅" 替换为真实订阅地址。
 
@@ -167,9 +167,8 @@ dns:
 
 proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
-  - {name: 🎮 日美等节点, type: select, proxies: [🔯 主备切换|日美等, 🔯 主备切换|日美等1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$"}
-  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 主备切换|非日, 🔯 主备切换|非日1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$"}
-  - {name: 🇯🇵 日本节点, type: select, proxies: [🔯 主备切换|日, 🔯 主备切换|日1], include-all: true, filter: "(?=.*(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan))^((?!(家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$"}
+  - {name: 🤖 AI 与游戏, type: select, proxies: [🔯 主备切换|AI与游戏, 🔯 主备切换|AI与游戏1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$"}
+  - {name: 🚫 日区受限, type: select, proxies: [🔯 主备切换|日区受限, 🔯 主备切换|日区受限1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$"}
   - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, 🚀 节点选择], use: [cheap]}
   - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
   - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
@@ -177,13 +176,11 @@ proxy-groups:
   - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: 🔯 主备切换|日美等, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|非日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?=.*(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan))^((?!(家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|AI与游戏, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|日区受限, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
   - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: 🔯 主备切换|日美等1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|非日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "(?=.*(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan))^((?!(家宽|游戏|剩余|流量|2.0|3.0|4.0)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|AI与游戏1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|日区受限1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
@@ -192,11 +189,11 @@ rules:
   # 先放行虎牙官方域名，避免通用广告清单误拦直播页面或播放器资源。
   - RULE-SET,huya,DIRECT
 
-  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落非日本节点）。
+  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「日区受限」组）。
   - RULE-SET,direct1,DIRECT
-  - RULE-SET,ai,🎮 日美等节点
-  - RULE-SET,no_jp,🎞️ 非日本节点
-  - RULE-SET,bluearchive,🎮 日美等节点
+  - RULE-SET,ai,🤖 AI 与游戏
+  - RULE-SET,no_jp,🚫 日区受限
+  - RULE-SET,bluearchive,🤖 AI 与游戏
   - RULE-SET,manga_cn,🎯 全球直连
   - RULE-SET,manga_proxy,🚀 节点选择
   - RULE-SET,media,🚀 节点选择
@@ -206,7 +203,7 @@ rules:
 
   # 去广告放在自建例外之后；默认拦截，也可以在面板切到 DIRECT 排查误伤。
   - RULE-SET,adblock,🛑 广告拦截
-  - RULE-SET,ai_all,🎮 日美等节点
+  - RULE-SET,ai_all,🤖 AI 与游戏
 
   - RULE-SET,private_domain,DIRECT
   - RULE-SET,apple_domain,🎯 全球直连

@@ -18,7 +18,7 @@ configs/
     three.yaml       多机场版（stable / stable1 / cheap 三个订阅，便宜节点分流）
     three-v2.yaml    three.yaml 的「成熟上游规则 + 自建规则」混合版：
                       自建列表放最前做例外分流 + MetaCubeX mrs + 217heidai 去广告合并规则，
-                      并新增「🇯🇵 日本节点」组（供自建的日本动漫列表使用）
+                      并接线成熟漫画清单（MangaCN 走直连 / MangaProxy 走代理）顶替原 japan_manga 等自建小清单
     three-redir-host.yaml  three.yaml 的副本，仅 DNS 用 redir-host 而非 fake-ip，
                       用于排查 fake-ip 相关问题；两个文件需同步维护
     three-v2-redir-host.yaml  three-v2 的 redir-host 桌面版：规则来源同上，

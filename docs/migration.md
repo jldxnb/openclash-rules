@@ -100,7 +100,7 @@ git rev-parse refactor/project-structure:rules/NoJP.list   # 同上
 ```
 configs/mihomo/one.yaml（three.yaml 同）
   159  RULE-SET,direct1,DIRECT              ← 自建，第 1 条
-  160  RULE-SET,ai,🎮 日美等节点             ← 自建
+  160  RULE-SET,ai,🤖 AI 与游戏              ← 自建（当时叫「🎮 日美等节点」，后按分流用途改名）
   161  RULE-SET,no_jp,🎞️ 非日本节点          ← 自建，第 3 条
   ...  各种 geosite 服务规则
   175  RULE-SET,geolocation-!cn,🚀 节点选择   ← 通用：几乎所有非中国域名

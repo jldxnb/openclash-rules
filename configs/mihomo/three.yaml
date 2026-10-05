@@ -181,8 +181,8 @@ dns:
 # 策略组
 proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
-  - {name: 🎮 日美等节点, type: select, proxies: [🔯 主备切换|日美等, 🔯 主备切换|日美等1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
-  - {name: 🎞️ 非日本节点, type: select, proxies: [🔯 主备切换|非日, 🔯 主备切换|非日1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
+  - {name: 🤖 AI 与游戏, type: select, proxies: [🔯 主备切换|AI与游戏, 🔯 主备切换|AI与游戏1], include-all: true, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$" }
+  - {name: 🚫 日区受限, type: select, proxies: [🔯 主备切换|日区受限, 🔯 主备切换|日区受限1], include-all: true, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$" }
   - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, 🚀 节点选择], use: [cheap]}
   - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
   - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
@@ -196,11 +196,11 @@ proxy-groups:
   - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: 🔯 主备切换|日美等, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|非日, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|AI与游戏, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|日区受限, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
   - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: 🔯 主备切换|日美等1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
-  - {name: 🔯 主备切换|非日1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|AI与游戏1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(香港|HK|Hong Kong|🇭🇰|HongKong|台湾|TW)).)*$", max-failed-times: 1}
+  - {name: 🔯 主备切换|日区受限1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: "^((?!(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)).)*$", max-failed-times: 1}
 
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
@@ -208,8 +208,8 @@ proxy-groups:
 rules:
   # 自定义
   - RULE-SET,direct1,DIRECT
-  - RULE-SET,ai,🎮 日美等节点
-  - RULE-SET,no_jp,🎞️ 非日本节点
+  - RULE-SET,ai,🤖 AI 与游戏
+  - RULE-SET,no_jp,🚫 日区受限
 
   # 广告拦截（把「🛑 广告拦截」组切到 DIRECT 即全部放行）
   - RULE-SET,adblock,🛑 广告拦截
