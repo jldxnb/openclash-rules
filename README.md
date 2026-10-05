@@ -13,19 +13,16 @@
 ```
 manga-sites.md      漫画站点域名清单（2026-10-05，729 个域名逐条实测+来源，供自建分流规则参考）
 configs/
-  mihomo/          完整的 mihomo 配置，直接给 OpenClash 用
-    one.yaml         单机场版（一个 proxy-provider，靠 include-all + filter 分日/非日）
-    three.yaml       多机场版（stable / stable1 / cheap 三个订阅，便宜节点分流）
-    three-v2.yaml    three.yaml 的「成熟上游规则 + 自建规则」混合版（旧策略组结构）：
-                      自建列表放最前做例外分流 + MetaCubeX mrs + 217heidai 去广告合并规则，
-                      并接线成熟漫画清单（MangaCN 走直连 / MangaProxy 走代理）顶替原 japan_manga 等自建小清单
-    three-redir-host.yaml  three.yaml 的副本，仅 DNS 用 redir-host 而非 fake-ip，
-                      用于排查 fake-ip 相关问题；两个文件需同步维护
-    three-v2-fake-ip.yaml     three-v2-redir-host.yaml 的 fake-ip 版，**策略组/规则完全一致，只有 DNS 模式不同**
-                      （手机 FlClash / TUN 场景推荐这一份：假 IP 不携带污染信息，连接时用域名出站、由节点解析）
-    three-v2-redir-host.yaml  three-v2.yaml 那套规则的新策略组结构 + redir-host：
-                      不依赖本机 127.0.0.1:5225、规则集走 jsDelivr、控制面板只监听本机；
-                      注意它的境外域名解析依赖"代理可用"，代理不通时境外域名会解析失败
+  mihomo/          完整的 mihomo 配置，直接给 OpenClash / FlClash / Clash Party 用
+    three-v2-redir-host.yaml  主力配置（redir-host）：三机场 + 自建规则做例外分流 + MetaCubeX mrs；
+                      规则集走 jsDelivr、控制面板只监听本机、不依赖本机 127.0.0.1:5225。
+                      注意：redir-host 下境外域名的解析依赖"代理可用"，代理不通会表现为
+                      「国内正常、外站域名解析失败」
+    three-v2-fake-ip.yaml     上面那份的 fake-ip 版，**策略组/规则完全一致，只有 DNS 模式不同**
+                      （手机 FlClash / TUN 场景用这一份：假 IP 不携带污染信息，连接时用域名出站、
+                      由节点解析，既不依赖境外 DoH 也不怕污染）
+    两份是孪生配置，改一份要同步另一份；其余历史配置（one / three / three-redir-host / three-v2）
+    已于 2026-10-06 删除，需要时从 git 历史取回
   subconverter/    subconverter 转换模板（ACL4SSR 语法）
     acl4ssr-one.ini  主力模板
     acl4ssr-two.ini  多机场 + 流媒体走便宜节点
@@ -98,10 +95,10 @@ rule-providers:
 
 ### 2. 直接使用完整配置
 
-把 `configs/mihomo/one.yaml`（或 `three.yaml`）的内容喂给 OpenClash。
-**必须先替换占位符**（见下一节），否则订阅拉不下来。
+把 `configs/mihomo/three-v2-redir-host.yaml`（桌面）或 `three-v2-fake-ip.yaml`（手机 / TUN）
+的内容喂给客户端。**必须先替换占位符**（见下一节），否则订阅拉不下来。
 
-`three.yaml` 里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
+配置里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
 
 | 组 | 作用 |
 |---|---|
@@ -173,8 +170,7 @@ rules:
 
 | 位置 | 当前值 | 要改成 |
 |---|---|---|
-| `configs/mihomo/one.yaml` | `url: "订阅"` | 真实机场订阅链接 |
-| `configs/mihomo/three*.yaml` | `url: "订阅"` ×3（stable / stable1 / cheap） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
+| `configs/mihomo/*.yaml` | `url: "订阅"` ×3（stable / stable1 / cheap） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
 | `configs/mihomo/*.yaml` | `authentication: - name:passwd` | 真实 `用户名:密码`；同时建议 `allow-lan: false` |
 | `configs/mihomo/*.yaml` | `external-controller: 0.0.0.0:9090` + `secret: ""` | 改为 `127.0.0.1:9090` 并设置非空 `secret`（当前等于把控制面板无密码开放给整个局域网） |
 | `configs/mihomo/*.yaml` | DNS `127.0.0.1:5225` | 设备上确有本地 DNS 服务时保留，否则改公共 DNS |
@@ -227,7 +223,5 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` **未废弃**（此前误记为旧写法；官方废弃的是 `fallback-filter.geosite`，文件里没用它）。但它与 `nameserver-policy` 并存会让两套 DNS 并行查询，官方提供 `fallback-lazy-query: true` 可避免 |
-| `configs/mihomo/three.yaml` | `rule-anchor` 不在官方规范内（mihomo 用标准 yaml.v3 解析、未开严格模式，会静默忽略，不报错），其中 `zgb` 锚点全场 0 次引用；`geodata-loader: standard` 也非默认值（源码默认 `memconservative`，官方定位是低内存设备用） |
-| `configs/mihomo/three.yaml` | `gfw_domain` 这个 rule-provider 定义了但 `rules` 从未引用，仍会周期性下载并常驻内存 |
 
 重构前后的路径变化见 [docs/migration.md](docs/migration.md)。

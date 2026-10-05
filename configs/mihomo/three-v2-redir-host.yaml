@@ -1,6 +1,6 @@
 # three-v2-redir-host.yaml
 # 三机场 + 自建规则 + MetaCubeX 上游规则的桌面稳定版。
-# 本文件保留 three-v2.yaml 的三个 proxy-provider，以及「AI」「游戏」「漫画动漫」「流媒体」等分流组，
+# 三个 proxy-provider（stable / stable1 / cheap）+「AI」「游戏」「漫画动漫」「流媒体」等分流组，
 # 采用 redir-host，不依赖本机 127.0.0.1:5225 DNS。
 # 自建清单手工源是 rules/*.list，配置引用的是 mrs/*.mrs（生成物，见 scripts/gen_mrs.py）。
 # 注意：redir-host 下境外域名的解析要靠 fallback 的境外 DoH，而它们的连接是经规则、经代理发出的——
