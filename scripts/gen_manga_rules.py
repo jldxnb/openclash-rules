@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""漫画规则集同步（MangaCN / MangaProxy）：把 v2fly 上游的漫画域名增量合并进自动同步区。
+"""漫画规则集同步（MangaCN / MangaProxyNoEH）：把 v2fly 上游的漫画域名增量合并进自动同步区。
 
 用法：
     python scripts/gen_manga_rules.py            # 检查模式：只报告变化（有变化退出码 1）
@@ -35,7 +35,7 @@ DEAD_EXCLUDE = {
 HEADER_CN = """# MangaCN.list —— 漫画站域名清单 · 国内直连
 #
 # 内容：漫画/网漫/同人站点中「用国内网络可以直接访问」的域名（按域名分，不按站点分——
-#       同一站点的直连域与需代理域会分别落在本清单与 MangaProxy.list）。
+#       同一站点的直连域与需代理域会分别落在本清单与 MangaProxyNoEH.list）。
 # 用法：RULE-SET 指到直连策略组，例：
 #         - RULE-SET,manga_cn,🎯 全球直连
 # 来源：manga-sites.md（根目录，729 域名调研 + 实测）；自动同步区来自 v2fly/domain-list-community。
@@ -46,13 +46,13 @@ HEADER_CN = """# MangaCN.list —— 漫画站域名清单 · 国内直连
 #
 # 已知取舍（要改就是改分流语义，留意）：
 #   - 拷贝漫画：按官方公告，大陆入口 copy4000.com 等 copy 系别名收录在本清单；
-#     主域 mangacopy.com / copymanga.site 与图片 CDN mangafunb.fun 归 MangaProxy.list。
+#     主域 mangacopy.com / copymanga.site 与图片 CDN mangafunb.fun 归 MangaProxyNoEH.list。
 #     若你在大陆实测 mangafunb.fun 直连也正常，把它挪进本清单手工区。
 #   - 漫画柜 / 漫画DB / 包子漫画 系为境外托管但国内常用的站，按「国内可直连」收录；
-#     若实测直连不通，把它们挪到 MangaProxy.list 手工区。
+#     若实测直连不通，把它们挪到 MangaProxyNoEH.list 手工区。
 """
 
-HEADER_PROXY = """# MangaProxy.list —— 漫画站域名清单 · 海外代理
+HEADER_PROXY = """# MangaProxyNoEH.list —— 漫画站域名清单 · 海外代理（不含 e-hentai 家族，另见 MangaEHentai.list）
 #
 # 内容：漫画/网漫/同人站点中「需要走代理」的域名：日/韩官方平台与商店、聚合与生肉站、
 #       成人/本子站、被墙的汉化站域名（如拷贝漫画主域）。国内可直连的部分见 MangaCN.list。
@@ -73,7 +73,7 @@ HEADER_PROXY = """# MangaProxy.list —— 漫画站域名清单 · 海外代理
 """
 
 CONFIG = Config(
-    name="漫画规则集（MangaCN / MangaProxy）",
+    name="漫画规则集（MangaCN / MangaProxyNoEH）",
     dead_exclude=DEAD_EXCLUDE,
     targets=[
         Target(
@@ -88,7 +88,7 @@ CONFIG = Config(
         ),
         Target(
             key="proxy",
-            path=ROOT / "rules" / "MangaProxy.list",
+            path=ROOT / "rules" / "MangaProxyNoEH.list",
             header=HEADER_PROXY,
             sources=[
                 v2fly("data/18comic"),

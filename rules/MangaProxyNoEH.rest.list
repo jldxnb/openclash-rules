@@ -1,6 +1,6 @@
-# 自动生成（scripts/gen_mrs.py）：从 rules/MangaProxy.list 拆出的非域名规则。
+# 自动生成（scripts/gen_mrs.py）：从 rules/MangaProxyNoEH.list 拆出的非域名规则。
 # mrs 只能表达 DOMAIN / DOMAIN-SUFFIX，这些条目编不进去，仍以 classical 文本提供。
-# 不要手改本文件——改 rules/MangaProxy.list 后重新生成。
+# 不要手改本文件——改 rules/MangaProxyNoEH.list 后重新生成。
 DOMAIN-KEYWORD,18comic
 DOMAIN-KEYWORD,jmcomic
 DOMAIN-KEYWORD,jmapinode

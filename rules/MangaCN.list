@@ -1,7 +1,7 @@
 # MangaCN.list —— 漫画站域名清单 · 国内直连
 #
 # 内容：漫画/网漫/同人站点中「用国内网络可以直接访问」的域名（按域名分，不按站点分——
-#       同一站点的直连域与需代理域会分别落在本清单与 MangaProxy.list）。
+#       同一站点的直连域与需代理域会分别落在本清单与 MangaProxyNoEH.list）。
 # 用法：RULE-SET 指到直连策略组，例：
 #         - RULE-SET,manga_cn,🎯 全球直连
 # 来源：manga-sites.md（根目录，729 域名调研 + 实测）；自动同步区来自 v2fly/domain-list-community。
@@ -12,10 +12,10 @@
 #
 # 已知取舍（要改就是改分流语义，留意）：
 #   - 拷贝漫画：按官方公告，大陆入口 copy4000.com 等 copy 系别名收录在本清单；
-#     主域 mangacopy.com / copymanga.site 与图片 CDN mangafunb.fun 归 MangaProxy.list。
+#     主域 mangacopy.com / copymanga.site 与图片 CDN mangafunb.fun 归 MangaProxyNoEH.list。
 #     若你在大陆实测 mangafunb.fun 直连也正常，把它挪进本清单手工区。
 #   - 漫画柜 / 漫画DB / 包子漫画 系为境外托管但国内常用的站，按「国内可直连」收录；
-#     若实测直连不通，把它们挪到 MangaProxy.list 手工区。
+#     若实测直连不通，把它们挪到 MangaProxyNoEH.list 手工区。
 # ===== 手工维护区开始（脚本原样保留，按行增删即可）=====
 DOMAIN-SUFFIX,1kkk.com
 DOMAIN-SUFFIX,2025copy.com

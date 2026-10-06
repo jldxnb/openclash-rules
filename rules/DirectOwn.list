@@ -14,7 +14,7 @@ DOMAIN-SUFFIX,vsean.net
 DOMAIN-SUFFIX,ustc.edu.cn
 DOMAIN,downloads.openwrt.org
 
-# 漫画域名不在这里维护：国内可直连的见 MangaCN.list，需代理的见 MangaProxy.list
+# 漫画域名不在这里维护：国内可直连的见 MangaCN.list，需代理的见 MangaProxyNoEH.list
 
 # 555电影
 DOMAIN-SUFFIX,55jok.com

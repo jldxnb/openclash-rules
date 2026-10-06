@@ -1,7 +1,7 @@
 name: update-rules
 
 # 每天把上游的域名增量同步进自建清单的「自动同步区」（手工维护区不动），并重建产物：
-#   - rules/MangaCN.list / MangaProxy.list ← v2fly/domain-list-community 的漫画相关 data 文件
+#   - rules/MangaCN.list / MangaProxyNoEH.list ← v2fly/domain-list-community 的漫画相关 data 文件
 #   - rules/AnimeProxy.list ← FMHY 的 Anime Streaming / Downloading / Torrenting / Tracking 小节
 #     （AnimeCN.list 是国内平台域名，稳定，不设自动上游）
 # 之后重新生成 mrs/*.mrs 与 rules/*.rest.list（配置引用的就是这些产物）。
