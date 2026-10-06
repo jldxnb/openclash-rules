@@ -12,6 +12,8 @@
 
 ```
 manga-sites.md      漫画站点域名清单（2026-10-05，729 个域名逐条实测+来源，供自建分流规则参考）
+anime-sites.md      动漫站点域名清单（2026-10-06，736 个域名调研+实测）：国内直连 / 海外代理拆分、
+                    代理·存疑清单、hanime1 家族的「非日本节点」说明、2026 年聚合站阵亡名单
 configs/
   mihomo/          完整的 mihomo 配置，直接给 OpenClash / FlClash / Clash Party 用
     three-redir-host.yaml  主力配置（redir-host）：三机场 + 自建规则做例外分流 + MetaCubeX 上游（GEOSITE/GEOIP 内联）；
