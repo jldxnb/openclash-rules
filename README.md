@@ -131,8 +131,11 @@ rule-providers:
 | `rules/AnimeProxy.list` | 动漫 · 海外代理（日系 / 海外聚合 / BT·字幕组 / 成人向） | FMHY 的 Anime Streaming / Downloading / Torrenting / Tracking 小节 |
 
 域名来源与逐条实测记录：漫画见 [manga-sites.md](manga-sites.md)，动漫见 [anime-sites.md](anime-sites.md)。
-动漫里「屏蔽 / 限制日本 IP」的站（hanime1 家族、hanime.tv 系）不在 AnimeProxy，而是收在
-`rules/NoJP.list`（"非日本"例外清单，配置里 `no_jp` 规则先于 `anime_proxy` 命中）。
+「屏蔽 / 限制日本 IP」的站单独成两份清单：`rules/AnimeNoJP.list`（hanime1 家族、hanime.tv 系；
+原 `NoJP.list` 于 2026-10-06 改名）与 `rules/MangaNoJP.list`（18comic / 3hentai / irodoricomics /
+exhentai / manhuagui，证据分档见文件头注释）。配置里 `no_jp` 指向 AnimeNoJP.list，必须排在
+`anime_proxy` / `manga_proxy` 之前命中；`AnimeProxy.list` 尾部另留了一份备用条目，
+没接 NoJP 时也能走普通代理。
 
 每份清单分两区：
 
@@ -254,7 +257,7 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 
 | 位置 | 问题 |
 |---|---|
-| `rules/NoJP.list` | 曾经只有 1 条 `DOMAIN-KEYWORD,hanime1`；2026-10-06 起补入了 hanime1 家族与 hanime.tv 系的 9 个域名（官方域名数组见 anime-sites.md §5/§8.4）。它现在既有域名又有关键词，所以也有 `mrs/NoJP.mrs` 产物，但配置仍直接引用 `.list`（10 条量级用文本足够，也省得拆 rest）；顺序上 `no_jp` 必须排在 `anime_proxy` / `manga_proxy` 之前（考证见 [docs/migration.md](docs/migration.md) 第四、五节） |
+| `rules/AnimeNoJP.list`（原 `NoJP.list`，2026-10-06 改名） | 动漫侧"非日本"清单：1 条关键词（hanime1 家族轮换兜底）+ 9 个域名（hanime1 家族与 hanime.tv 系，日本 IP 受限；证据见 anime-sites.md §5/§8.4）。漫画侧同类清单是 `rules/MangaNoJP.list`（18comic / 3hentai / irodoricomics / exhentai / manhuagui，证据与"已排查但不需要"的名单都写在文件头注释里，暂未被 configs 引用）。两份清单都有 mrs 产物，但配置仍直接引用 `.list`（10 条量级用文本足够）；顺序上 `no_jp` 必须排在 `anime_proxy` / `manga_proxy` 之前（考证见 [docs/migration.md](docs/migration.md) 第四、五节） |
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` **未废弃**（此前误记为旧写法；官方废弃的是 `fallback-filter.geosite`，文件里没用它）。但它与 `nameserver-policy` 并存会让两套 DNS 并行查询，官方提供 `fallback-lazy-query: true` 可避免 |

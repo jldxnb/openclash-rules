@@ -1,0 +1,27 @@
+# MangaNoJP.list —— 漫画站 · 不能用日本节点访问的站点（"非日本"例外清单）
+#
+# 内容：漫画（含同人 / 成人漫画）站点中屏蔽 / 限制日本 IP 的。2026-10-06 专项调研结论
+#   （证据分档，全部有来源链接）：
+#   - 18comic.org / 18comic.vip —— 【明确】官方分流域名公告：「国际通用网域 不支援日本/韩国路线」。
+#     注意 JM 是「APP 端不限 IP、网页端限制 IP 地区」，网页版走日本线路会命中限制。
+#   - 3hentai.net —— 【明确】站点对日本 IP 做地理 DNS 定制解析（返回 127.x 回环黑洞地址，物理打不开）。
+#   - irodoricomics.com —— 【明确】日本 IP 被 302 到 /blocked.html（其授权范围是日本国外发行）。
+#   - exhentai.org —— 【社区实测】日本 IP 常见「白屏 / 内容被审查 / 新账号受限」（5ch 长期讨论）。
+#   - manhuagui.com —— 【社区实测】按 IP 判定的 country cookie，country=JP 时部分漫画不可见。
+#     它在大陆是直连清单（MangaCN）里的站，直连不受影响；列在这里是防止走代理时误选日本节点。
+# 明确「不需要因为日本而排除」（已调研、无证据）：nhentai.net、hitomi.la、e-hentai.org（表站）、
+#   imhentai、hentaifox、luscious、multporn、fakku、copymanga/mangacopy、baozimh、manhuaren/dm5，
+#   以及韩国站群（mato31 / newto31 / bookto31 / toonkor### / wfwf### / blacktoon### / marumaru### /
+#   11toon### / goodtoon###）——它们封的是别的东西，日本节点访问无障碍。
+# 用法：RULE-SET 指到「非日本」组；建议排在 *_cn 之后（直连优先，如 manhuagui）、*_proxy 之前：
+#         - RULE-SET,manga_no_jp,🎌 漫画动漫
+# 维护：手工维护；不参与自动同步（内容需证据驱动）。
+# 宁枉勿纵的话可自行加 DOMAIN-KEYWORD,jmcomic / 18comic（覆盖 JM 轮换域名，
+#   但会连带它标注「东南亚线路建议」的那几个域，按需取舍）。
+#
+DOMAIN-SUFFIX,18comic.org
+DOMAIN-SUFFIX,18comic.vip
+DOMAIN-SUFFIX,3hentai.net
+DOMAIN-SUFFIX,exhentai.org
+DOMAIN-SUFFIX,irodoricomics.com
+DOMAIN-SUFFIX,manhuagui.com

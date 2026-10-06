@@ -3228,6 +3228,9 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 
 > **hanime1 家族要点**：`hanime1.me`（主站）、`hanimeone.me`（漫画分站）、`javchu.com`（AV 分站）都**不能走日本节点**；`hanime1.com` 是官方给「只有日本节点」用户的替代域名（走日本节点时改用它，即可正常访问）。
 > 你现有的 `NoJP.list` 只有 `DOMAIN-KEYWORD,hanime1`——**`hanimeone.me` 和 `javchu.com` 不含 "hanime1" 字样，命中不到**，建议把上表 8.4 整组收进去（或补关键词 `hanimeone`）。
+>
+> **（2026-10-06 晚已完成）** 这组域名已收进 `rules/AnimeNoJP.list`（原 `NoJP.list` 改名），
+> 并在 `rules/AnimeProxy.list` 尾部留了备用条目；漫画侧同类清单 `rules/MangaNoJP.list` 一并建立。
 
 ## 9. 定期复查指南
 

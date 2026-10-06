@@ -86,8 +86,9 @@ HEADER_PROXY = """# AnimeProxy.list —— 动漫站域名清单 · 海外代理
 # 已知取舍：
 #   - 「代理·存疑」区：面向大陆用户的中文聚合站（樱花/风车/AGE/稀饭/次元城等），托管墙外、
 #     未验证直连，默认按代理放；你实测直连可用的话，把它挪到 AnimeCN.list 手工区。
-#   - 屏蔽 / 限制日本 IP 的站（hanime1 家族、hanime.tv 系）**不在本清单**，已收进
-#     rules/NoJP.list（"非日本"例外清单，配置里 no_jp 规则先于本清单命中）。
+#   - 屏蔽 / 限制日本 IP 的站（hanime1 家族、hanime.tv 系）正式归属 rules/AnimeNoJP.list
+#     （"非日本"例外清单，规则顺序上必须先于本清单命中）；它们在本清单尾部另留了一份
+#     备用条目，万一配置没接 NoJP 也能走普通代理。
 #   - 共用域未收录：Netflix / Disney+ / Prime Video 这类大平台官网与 Amazon、Kobo 等综合商城
 #     不收（会连带非动漫流量）；它们的 CDN 单独出现在 FMHY 里的专用子域会被自动区收进来。
 """

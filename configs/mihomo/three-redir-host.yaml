@@ -197,7 +197,7 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AI.rest.list"
   no_jp:
     <<: *self_text
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/NoJP.list"
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AnimeNoJP.list"
   bluearchive:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BlueArchive.mrs"

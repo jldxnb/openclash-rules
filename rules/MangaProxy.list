@@ -441,7 +441,7 @@ DOMAIN-KEYWORD,webtoon
 DOMAIN-KEYWORD,copymanga
 DOMAIN-KEYWORD,mangacopy
 DOMAIN-KEYWORD,mangafunb
-# hanime1：备用条目 —— 正常情况下会被更靠前的 rules/NoJP.list（→ 非日本节点）先命中
+# hanime1：备用条目 —— 正常情况下会被更靠前的 rules/AnimeNoJP.list（→ 非日本节点）先命中
 DOMAIN-KEYWORD,hanime1
 # ===== 手工维护区结束 =====
 
