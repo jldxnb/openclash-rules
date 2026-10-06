@@ -434,7 +434,8 @@ DOMAIN-KEYWORD,webtoon
 DOMAIN-KEYWORD,copymanga
 DOMAIN-KEYWORD,mangacopy
 DOMAIN-KEYWORD,mangafunb
-# hanime1：备用条目 —— 正常情况下会被更靠前的 rules/AnimeNoJP.list（→ 非日本节点）先命中
+# hanime1：备用条目 —— 与 rules/AnimeProxy.list 尾部那组重复（两条规则都指向「🎌 漫画动漫」，
+# 谁先命中都一样；留在这里是为了本清单自包含）
 DOMAIN-KEYWORD,hanime1
 # ===== 手工维护区结束 =====
 
