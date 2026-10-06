@@ -1,5 +1,5 @@
 # three-fake-ip.yaml
-# 三机场（stable / stable1 / cheap）+ 自建规则例外分流 + MetaCubeX mrs 的 fake-ip 版。
+# 三机场（stable / stable1 / cheap）+ 自建规则例外分流 + MetaCubeX 上游（GEOSITE / GEOIP 内联）的 fake-ip 版。
 # 与 three-redir-host.yaml 是**孪生配置：策略组/规则/规则集完全一致，只有 DNS 模式不同**，
 # 改一份要同步另一份。手机（FlClash）/ TUN 场景推荐用这一份：
 # 客户端拿到的是假 IP，不携带污染信息，连接时用域名出站、由节点解析——
@@ -7,7 +7,13 @@
 # 使用前必须把下面三个 url: "订阅" 替换为真实订阅地址。
 
 proxy-providers:
-  stable:
+  # 三个机场共用同一套设置，只在这里定义一次，下面三个 provider 用锚点继承；
+  # 只有 additional-prefix 和 url 各自写。
+  #   · health-check.interval：fallback 组的切换灵敏度完全取决于它；
+  #   · lazy: true —— 只有该机场被实际使用时才做健康检查（省电省流量），
+  #     代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的；
+  #   · 某个机场的订阅必须经代理才能拉到时，删掉它那行 `proxy: DIRECT`（就会改成按规则走）。
+  stable: &provider_base
     type: http
     interval: 86400
     proxy: DIRECT
@@ -16,67 +22,30 @@ proxy-providers:
         - clash.meta
     health-check:
       enable: true
-      url: https://www.gstatic.com/generate_204
+      url: "https://www.gstatic.com/generate_204"
       timeout: 3000
-      # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
       interval: 120
-      # lazy: true —— 只有该机场被实际使用时才做健康检查，省电省流量；
-      # 代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的
       lazy: true
+    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗"
     override:
       additional-prefix: "渔云|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗"
     url: "订阅"
 
   stable1:
-    type: http
-    interval: 86400
-    proxy: DIRECT
-    header:
-      User-Agent:
-        - clash.meta
-    health-check:
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      timeout: 3000
-      # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
-      interval: 120
-      # lazy: true —— 只有该机场被实际使用时才做健康检查，省电省流量；
-      # 代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的
-      lazy: true
+    <<: *provider_base
     override:
       additional-prefix: "猫咪|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗"
     url: "订阅"
 
   cheap:
-    type: http
-    interval: 86400
-    proxy: DIRECT
-    header:
-      User-Agent:
-        - clash.meta
-    health-check:
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      timeout: 3000
-      # 健康检查间隔：原为 300（5 分钟），fallback 组的切换灵敏度完全取决于它
-      interval: 120
-      # lazy: true —— 只有该机场被实际使用时才做健康检查，省电省流量；
-      # 代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的
-      lazy: true
+    <<: *provider_base
     override:
       additional-prefix: "一分|"
-    exclude-filter: "超时|重置|机场|直连|优惠|官方|官网|到期|配置|更新|佣金|订阅|BT|流量|游戏|消耗"
     url: "订阅"
-
 global-ua: clash.meta
 
-port: 7890
-socks-port: 7891
-redir-port: 7892
+# 只留混合端口（http+socks 都有）；redir/tproxy 是 Linux 专用，Windows/安卓/客户端里通常也会被覆盖
 mixed-port: 7893
-tproxy-port: 7894
 ipv6: false
 allow-lan: false
 tcp-concurrent: true
@@ -100,7 +69,7 @@ keep-alive-interval: 30
 
 profile:
   store-selected: true
-  # fake-ip 模式下把「假 IP ↔ 域名」的映射持久化：重启后应用手里缓存的旧假 IP 仍能对上域名
+  # fake-ip 模式下持久化「假 IP ↔ 域名」映射（重启后应用缓存的旧假 IP 仍能对上）；redir-host 下这项无意义，保留是为了两份结构一致
   store-fake-ip: true
 
 sniffer:
@@ -114,7 +83,8 @@ sniffer:
       ports: [80, 8080-8880]
       override-destination: true
     TLS:
-      ports: [443, 8443]
+      # 补上 Cloudflare 的备用 HTTPS 端口，让更多连接能靠 SNI 把域名救回来
+      ports: [443, 8443, 2053, 2083, 2087, 2096]
     QUIC:
       ports: [443, 8443]
   force-domain:
@@ -142,6 +112,11 @@ tun:
   auto-redirect: true
   auto-detect-interface: true
 
+# ── DNS 上游：同一组 DoH 地址在多处复用，只在这里定义一次 ──
+x-dns-lists:
+  cn:   &cn_dns   ["https://dns.alidns.com/dns-query", "https://doh.pub/dns-query"]
+  intl: &intl_dns ["https://dns.cloudflare.com/dns-query", "https://dns.google/dns-query"]
+
 dns:
   enable: true
   # 只监听本机：TUN 的 dns-hijack 是把连接导入内部 DNS 模块，不依赖这个端口；
@@ -149,8 +124,7 @@ dns:
   listen: 127.0.0.1:1053
   ipv6: false
   enhanced-mode: fake-ip
-  # 用 IANA 保留的测试段（198.18.0.0/15 的前半）。不要写 28.0.0.1/8 之类——
-  # 那是真实公网段，真实目标撞进来会被当成假 IP 处理。
+  # IANA 保留的测试段（不要写 28.0.0.1/8 那种真实公网段）
   fake-ip-range: 198.18.0.1/16
   # blacklist：下面列表里的域名发真实 IP，其余全部发假 IP（假 IP 不需要解析，也就没有污染问题）
   fake-ip-filter-mode: blacklist
@@ -159,7 +133,7 @@ dns:
     - "+.local"
     - geosite:private
     - geosite:cn                 # 国内域名必须真实 IP 才能直连
-    # 下面这些"必须拿到真实 IP"的常见例外：连通性检测 / 推送 / 联机游戏 / 时间同步
+    # 必须拿到真实 IP 的常见例外：连通性检测 / 推送 / 联机游戏 / 时间同步
     - "+.msftconnecttest.com"
     - "+.msftncsi.com"
     - "+.push.apple.com"
@@ -169,39 +143,23 @@ dns:
     - "+.xboxlive.com"
     - localhost.ptlogin2.qq.com
   respect-rules: true
-  default-nameserver:
-    - 223.5.5.5
-    - 114.114.114.114
-  proxy-server-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  direct-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
+  default-nameserver: [223.5.5.5, 114.114.114.114]
+  proxy-server-nameserver: *cn_dns
+  direct-nameserver: *cn_dns
   direct-nameserver-follow-policy: false
-  nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  fallback:
-    - https://dns.cloudflare.com/dns-query
-    - https://dns.google/dns-query
-  # 显式写出（与默认值一致）：fake-ip 下只有「fake-ip-filter 放行的域名」（国内域名等）
-  # 才需要真实解析，这条判断管的是它们；境外域名走假 IP，根本不做本地解析
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
+  nameserver: *cn_dns
+  fallback: *intl_dns
+  # 显式写出（与默认值一致）：「主解析结果不是中国 IP」就改问 fallback——
+  # 国内 DoH 对境外域名会返回污染 IP，这条判断正是挡住它的关键
+  fallback-filter: {geoip: true, geoip-code: CN}
   fallback-lazy-query: true
   nameserver-policy:
-    "geosite:cn,private":
-      - https://dns.alidns.com/dns-query
-      - https://doh.pub/dns-query
-    "geosite:geolocation-!cn":
-      - https://dns.cloudflare.com/dns-query
-      - https://dns.google/dns-query
+    "geosite:cn,private": *cn_dns
+    "geosite:geolocation-!cn": *intl_dns
 
 # ── 节点筛选词：只在这里定义一次，下面各策略组用 YAML 锚点引用 ──
 # （mihomo 不认识 x-node-filters 这个键，会忽略它；它只是给锚点一个落脚处。
-#   改筛选词只需改这里，7 处引用自动跟随，不会出现"链上过滤了、手动列表没过滤"的漂移。）
+#   改筛选词只需改这里，下面各策略组的 filter 都会跟随，不会出现"链上过滤了、手动列表没过滤"的漂移。）
 x-node-filters:
   no_hktw: &no_hktw "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
   no_jp:   &no_jp   "(?i)^((?!(日|JP|Japan|Tokyo|Osaka|东京|大阪|名古屋|福冈|札幌|横滨|神户|京都|冲绳|埼玉|琦玉|家宽|游戏|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
@@ -234,61 +192,6 @@ proxy-groups:
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
-
-rules:
-  # 私网 / 组播地址一律直连：命不中前面任何规则的局域网 IP 会一路落到 MATCH → 🐟 漏网之鱼 →
-  # 被送进代理（路由器后台、打印机、NAS、投屏用的 mDNS/SSDP、「手机连接」都会受影响）。
-  # cn_ip 那份 GeoIP 里不含 RFC1918 网段，所以必须显式写。
-  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
-  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
-  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
-  - IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
-  - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
-  - IP-CIDR,224.0.0.0/4,DIRECT,no-resolve
-  # 连本机 → 直连。原来这条在 rules/DirectOwn.rest.list 里，整份只剩这一行，
-  # 没必要为了它去拉远程规则集，直接写进配置。
-  - IP-CIDR,127.0.0.1/32,DIRECT,no-resolve
-
-  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
-  # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
-  - RULE-SET,direct1,DIRECT
-  - RULE-SET,ai,🤖 AI
-  - RULE-SET,ai_rest,🤖 AI
-  - RULE-SET,no_jp,🎌 漫画动漫
-  - RULE-SET,bluearchive,🎮 游戏
-  - RULE-SET,bluearchive_rest,🎮 游戏
-  - RULE-SET,manga_cn,🎯 全球直连
-  - RULE-SET,manga_cn_rest,🎯 全球直连
-  - RULE-SET,manga_proxy,🎌 漫画动漫
-  - RULE-SET,manga_proxy_rest,🎌 漫画动漫
-  - RULE-SET,media,🎌 漫画动漫
-  - RULE-SET,bilibili,🎯 全球直连
-  - RULE-SET,proxylite,DIRECT
-  - RULE-SET,download,🎯 全球直连
-  - RULE-SET,ai_all,🤖 AI
-
-  - RULE-SET,private_domain,DIRECT
-  - RULE-SET,apple_domain,🎯 全球直连
-  - RULE-SET,google_cn,🎯 全球直连
-  - RULE-SET,github_domain,🚀 节点选择
-  - RULE-SET,youtube_domain,🎬 流媒体
-  - RULE-SET,twitter_domain,🎬 流媒体
-  - RULE-SET,google_domain,🤖 AI
-  - RULE-SET,onedrive_domain,🪟 微软服务
-  - RULE-SET,microsoft_domain,🪟 微软服务
-  - RULE-SET,tiktok_domain,🚀 节点选择
-  - RULE-SET,speedtest_domain,✈️ Speedtest
-  - RULE-SET,telegram_domain,🎬 流媒体
-  - RULE-SET,netflix_domain,🚀 节点选择
-  - RULE-SET,paypal_domain,🚀 节点选择
-  - RULE-SET,geolocation-!cn,🚀 节点选择
-  - RULE-SET,cn_domain,🎯 全球直连
-  - RULE-SET,google_ip,🤖 AI,no-resolve
-  - RULE-SET,twitter_ip,🎬 流媒体,no-resolve
-  - RULE-SET,netflix_ip,🚀 节点选择,no-resolve
-  - RULE-SET,telegram_ip,🎬 流媒体,no-resolve
-  - RULE-SET,cn_ip,🎯 全球直连
-  - MATCH,🐟 漏网之鱼
 
 rule-providers:
   # ══ 自建清单：手工源是 rules/*.list（唯一手改的地方）══
@@ -347,74 +250,57 @@ rule-providers:
     <<: *self_text
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
 
-  ai_all:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-ai-!cn.mrs"
-  youtube_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs"
-  twitter_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/twitter.mrs"
-  private_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/private.mrs"
-  google_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google.mrs"
-  github_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/github.mrs"
-  telegram_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs"
-  netflix_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/netflix.mrs"
-  paypal_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/paypal.mrs"
-  onedrive_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/onedrive.mrs"
-  microsoft_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft.mrs"
-  apple_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/apple-cn.mrs"
-  google_cn:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google-cn.mrs"
-  speedtest_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/ookla-speedtest.mrs"
-  tiktok_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/tiktok.mrs"
-  geolocation-!cn:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/geolocation-!cn.mrs"
-  cn_domain:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs"
+rules:
+  # 私网 / 组播地址一律直连：命不中前面任何规则的局域网 IP 会一路落到 MATCH → 🐟 漏网之鱼 →
+  # 被送进代理（路由器后台、打印机、NAS、投屏用的 mDNS/SSDP、「手机连接」都会受影响）。
+  # cn_ip 那份 GeoIP 里不含 RFC1918 网段，所以必须显式写。
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+  - IP-CIDR,224.0.0.0/4,DIRECT,no-resolve
+  # 连本机 → 直连。原来这条在 rules/DirectOwn.rest.list 里，整份只剩这一行，
+  # 没必要为了它去拉远程规则集，直接写进配置。
+  - IP-CIDR,127.0.0.1/32,DIRECT,no-resolve
 
-  google_ip: &ip
-    proxy: DIRECT
-    type: http
-    interval: 86400
-    behavior: ipcidr
-    format: mrs
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/google.mrs"
-  twitter_ip:
-    <<: *ip
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/twitter.mrs"
-  netflix_ip:
-    <<: *ip
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/netflix.mrs"
-  telegram_ip:
-    <<: *ip
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs"
-  cn_ip:
-    <<: *ip
-    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs"
+  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
+  # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
+  - RULE-SET,direct1,DIRECT
+  - RULE-SET,ai,🤖 AI
+  - RULE-SET,ai_rest,🤖 AI
+  - RULE-SET,no_jp,🎌 漫画动漫
+  - RULE-SET,bluearchive,🎮 游戏
+  - RULE-SET,bluearchive_rest,🎮 游戏
+  - RULE-SET,manga_cn,🎯 全球直连
+  - RULE-SET,manga_cn_rest,🎯 全球直连
+  - RULE-SET,manga_proxy,🎌 漫画动漫
+  - RULE-SET,manga_proxy_rest,🎌 漫画动漫
+  - RULE-SET,media,🎌 漫画动漫
+  - RULE-SET,bilibili,🎯 全球直连
+  - RULE-SET,proxylite,DIRECT
+  - RULE-SET,download,🎯 全球直连
+  - GEOSITE,category-ai-!cn,🤖 AI
+
+  - GEOSITE,private,DIRECT
+  - GEOSITE,apple-cn,🎯 全球直连
+  - GEOSITE,google-cn,🎯 全球直连
+  - GEOSITE,github,🚀 节点选择
+  - GEOSITE,youtube,🎬 流媒体
+  - GEOSITE,twitter,🎬 流媒体
+  - GEOSITE,google,🤖 AI
+  - GEOSITE,onedrive,🪟 微软服务
+  - GEOSITE,microsoft,🪟 微软服务
+  - GEOSITE,tiktok,🚀 节点选择
+  - GEOSITE,ookla-speedtest,✈️ Speedtest
+  - GEOSITE,telegram,🎬 流媒体
+  - GEOSITE,netflix,🚀 节点选择
+  - GEOSITE,paypal,🚀 节点选择
+  - GEOSITE,geolocation-!cn,🚀 节点选择
+  - GEOSITE,cn,🎯 全球直连
+  - GEOIP,google,🤖 AI,no-resolve
+  - GEOIP,twitter,🎬 流媒体,no-resolve
+  - GEOIP,netflix,🚀 节点选择,no-resolve
+  - GEOIP,telegram,🎬 流媒体,no-resolve
+  - GEOIP,cn,🎯 全球直连
+  - MATCH,🐟 漏网之鱼

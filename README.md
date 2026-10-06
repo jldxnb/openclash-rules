@@ -14,7 +14,7 @@
 manga-sites.md      漫画站点域名清单（2026-10-05，729 个域名逐条实测+来源，供自建分流规则参考）
 configs/
   mihomo/          完整的 mihomo 配置，直接给 OpenClash / FlClash / Clash Party 用
-    three-redir-host.yaml  主力配置（redir-host）：三机场 + 自建规则做例外分流 + MetaCubeX mrs；
+    three-redir-host.yaml  主力配置（redir-host）：三机场 + 自建规则做例外分流 + MetaCubeX 上游（GEOSITE/GEOIP 内联）；
                       规则集走 jsDelivr、控制面板只监听本机、不依赖本机 127.0.0.1:5225。
                       注意：redir-host 下境外域名的解析依赖"代理可用"，代理不通会表现为
                       「国内正常、外站域名解析失败」
@@ -193,6 +193,8 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 - **规则集格式**：未知规则类型、缺失匹配内容、YAML 列表前缀 `- `、重复行、空规则集、UTF-8 BOM
 - **mrs 与源清单的对应**：纯域名清单有没有 mrs 产物、有没有孤儿 mrs、配置引用了 mrs 却漏引
   对应的 `*.rest.list`（内容层面的"是否同步"由 `gen_mrs.py --check` 负责）
+- **孪生配置同步**：`three-redir-host.yaml` 与 `three-fake-ip.yaml` 除「文件头 / dns 段 / store-fake-ip」
+  外必须逐字节相同——只改一份会被直接报错
 - **mihomo 配置**：YAML 语法、rule-provider 必填字段（`format: mrs` 必须是 `domain`/`ipcidr`）、
   `RULE-SET` 是否指向已定义的 provider、策略组 `use` 是否指向已定义的订阅、未替换的占位符、
   控制面板与局域网的暴露风险
