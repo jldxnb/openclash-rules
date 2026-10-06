@@ -117,7 +117,7 @@ rule-providers:
 在 subconverter / OpenClash 的"订阅转换"里把 `configs/subconverter/acl4ssr-*.ini`
 填为外部配置（`&config=` 参数指向该文件的 raw 地址）。
 
-## 漫画 / 动漫规则集（MangaCN、MangaProxy、AnimeCN、AnimeProxy）
+## 漫画 / 动漫规则集（MangaCN、MangaProxyNoEH、AnimeCN、AnimeProxy）
 
 四份域名清单，各按「用国内网络能否直接访问」划分——**按域名分，不按站点分**。同一个站可能出现
 在两边：漫画的典型是拷贝漫画（`copy4000.com` 在国内集、`mangacopy.com` 在代理集），动漫的典型是
@@ -126,7 +126,7 @@ rule-providers:
 | 清单 | 内容 | 自动上游 |
 |---|---|---|
 | `rules/MangaCN.list` | 漫画 / 网漫 / 同人 · 国内直连 | v2fly 的 manhuagui / manhuaren / copymanga 等 data 文件 |
-| `rules/MangaProxy.list` | 漫画 / 网漫 / 同人 · 海外代理 | 同上（18comic / haitang / boylove / pixiv / dlsite / dmm-porn；e-hentai 家族已拆出，见下一节） |
+| `rules/MangaProxyNoEH.list`（原 `MangaProxy.list`，2026-10-06 改名） | 漫画 / 网漫 / 同人 · 海外代理（**不含 e-hentai 家族**） | 同上（18comic / haitang / boylove / pixiv / dlsite / dmm-porn；e-hentai 家族已拆出，见下一节） |
 | `rules/AnimeCN.list` | 动漫 · 国内直连（国内平台动漫区 + CDN、国际版未被墙域） | 无（国内平台域名稳定，纯手工维护） |
 | `rules/AnimeProxy.list` | 动漫 · 海外代理（日系 / 海外聚合 / BT·字幕组 / 成人向） | FMHY 的 Anime Streaming / Downloading / Torrenting / Tracking 小节 |
 
@@ -168,13 +168,13 @@ rule-providers:
     interval: 86400
     behavior: domain
     format: mrs
-    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/mrs/MangaProxy.mrs"
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/mrs/MangaProxyNoEH.mrs"
   manga_proxy_rest:
     type: http
     interval: 86400
     behavior: classical
     format: text
-    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxy.rest.list"
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxyNoEH.rest.list"
   anime_cn:
     type: http
     interval: 86400
@@ -209,7 +209,7 @@ rules:
 | 清单 | 内容 | 指向的策略组 |
 |---|---|---|
 | `rules/BiliBiliHMT.list`（自建） | B站港澳台限定番剧的「地区判定 + 播放入口」（`api.` / `bangumi.` / `www.`）+ 国际版（`bilibili.tv` / `biliintl.com` / `p.bstarstatic.com`） | `📺 B站番剧` |
-| `rules/MangaEHentai.list`（自建，从 MangaProxy 拆出） | e-hentai / ExHentai 家族 8 个域名（= geosite:ehentai 全集）+ 2 条关键词（拆进 `MangaEHentai.rest.list`） | `🔞 e-hentai` |
+| `rules/MangaEHentai.list`（自建，从 MangaProxyNoEH 拆出） | e-hentai / ExHentai 家族 8 个域名（= geosite:ehentai 全集）+ 2 条关键词（拆进 `MangaEHentai.rest.list`） | `🔞 e-hentai` |
 | 上游 blackmatrix7 的 `BiliBili.list`（**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
 
 - **📺 B站番剧**：默认 `DIRECT`——与不加这份清单时行为完全一致。要看港澳台限定番剧时，把这一组
@@ -224,9 +224,10 @@ rules:
   同源（非日本链 + 全机场非日本节点，`no_jp` 过滤——exhentai 对日本 IP 有限制，证据见
   `rules/MangaNoJP.list` 文件头）。
 - 两个组用的 `hktw` / `no_hktw` 筛选词都定义在 `x-node-filters`，改词只改那一处。
-- e-hentai 家族原来在 `rules/MangaProxy.list` 里；现已迁出成独立的 `MangaEHentai.list`
+- e-hentai 家族原来在漫画代理清单里；现已迁出成独立的 `MangaEHentai.list`，原清单同时改名
+  `MangaProxy.list` → `MangaProxyNoEH.list`（文件名直接写明「不含 e-hentai」）
   （文件名保留了 Manga 前缀，一眼能看出它是从漫画清单拆出来的），`gen_manga_rules.py` 也不再同步
-  v2fly 的 `data/ehentai`（否则 CI 会把条目写回 MangaProxy）。
+  v2fly 的 `data/ehentai`（否则 CI 会把条目写回 MangaProxyNoEH）。
 
 ## 使用前必须替换的占位符
 
