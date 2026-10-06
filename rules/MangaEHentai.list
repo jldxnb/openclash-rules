@@ -1,5 +1,7 @@
-# EHentai.list —— e-hentai / ExHentai 家族
+# MangaEHentai.list —— e-hentai / ExHentai 家族（从 MangaProxy.list 拆出，单独一个策略组）
 #
+# 为什么单独一份：图站的下载额度按 IP 记，换个机场 / 换个节点就重置，所以给了它专属的
+#   「🔞 e-hentai」组；其余漫画站仍走 MangaProxy.list →「🎌 漫画动漫」。
 # 内容：本体 + 图床与 H@H 图片网络 + tracker + wiki（= geosite:ehentai 全集 8 条，逐条对应）。
 #       少任何一条都可能表现为「页面能开、图片裂」：ehgt.org 是静态 / 图床域，
 #       hath.network 与 hentaiathome.net 是 H@H 图片网络，ehtracker.org 是 tracker，
