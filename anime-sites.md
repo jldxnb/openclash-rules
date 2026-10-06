@@ -13,7 +13,7 @@
 | 🟢 **直连** | 国内网络可直连（国内平台，或 GreatFire 未封锁 + 证据） | 建议指向直连策略组（如 🎯 全球直连） |
 | 🔴 **代理** | 需代理（被墙 / 海外服务 / 地区限制） | 建议指向代理组（如 🚀 节点选择） |
 | 🟡 **代理·存疑** | 面向大陆用户但托管墙外、或未验证直连 | **默认按代理放**；实测直连可用再挪去直连 |
-| ⚠️ **非日本** | 屏蔽 / 限制日本 IP 的站（hanime1 家族等） | 必须走「非日本节点」组（现收在 `rules/AnimeProxy.list`） |
+| ⚠️ **非日本** | 屏蔽 / 限制日本 IP 的站（hanime1 家族等） | 必须走「非日本节点」组（你已有 `rules/NoJP.list`） |
 
 ### 分流建议
 
@@ -3231,8 +3231,6 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 >
 > **（2026-10-06 晚已完成）** 这组域名已收进 `rules/AnimeNoJP.list`（原 `NoJP.list` 改名），
 > 并在 `rules/AnimeProxy.list` 尾部留了备用条目；漫画侧同类清单 `rules/MangaNoJP.list` 一并建立。
-> **（当天稍后）** `AnimeNoJP.list` 删除：内容并入 `rules/AnimeProxy.list`，配置改由 `anime_proxy`
-> 规则接管（→「🎌 漫画动漫」）；subconverter 模板里那条 ruleset 也改指 AnimeProxy.list。
 
 ## 9. 定期复查指南
 

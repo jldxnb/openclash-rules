@@ -111,9 +111,7 @@ git rev-parse refactor/project-structure:rules/NoJP.list   # 同上
 
 > 注（2026-10-06）：`rules/NoJP.list` 已改名为 `rules/AnimeNoJP.list`（内容不变，
 > 配置与 subconverter 模板的 URL 已同步），并按同样思路新建了漫画侧 `rules/MangaNoJP.list`；
-> 本节描述的原理与顺序要求不变。**同日稍后**：`AnimeNoJP.list` 删除、内容并入
-> `rules/AnimeProxy.list`（配置里 `no_jp` provider 取消，改由 `anime_proxy` 规则接管；
-> 3 份 subconverter 模板的 ruleset URL 改指 AnimeProxy.list）。
+> 本节描述的原理与顺序要求不变。
 
 `rules/` 下的自建列表在配置里都排在**最前面**，作用是抢在通用规则之前把特定域名捞出来改道：
 
