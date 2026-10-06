@@ -1,0 +1,21 @@
+# EHentai.list —— e-hentai / ExHentai 家族
+#
+# 内容：本体 + 图床与 H@H 图片网络 + tracker + wiki（= geosite:ehentai 全集 8 条，逐条对应）。
+#       少任何一条都可能表现为「页面能开、图片裂」：ehgt.org 是静态 / 图床域，
+#       hath.network 与 hentaiathome.net 是 H@H 图片网络，ehtracker.org 是 tracker，
+#       ehwiki.org 是 wiki。
+# 用法：指向「🔞 e-hentai」组——图站的下载额度按 IP 记，独立成组方便换机场 / 换节点。
+#       该组默认候选用「非日本」链：exhentai 对日本 IP 有已知限制（证据见 rules/MangaNoJP.list
+#       文件头）；e-hentai 表站不受影响，但同组统一按非日本走，省得来回切。
+# 维护：手工源，直接增删本文件。两条关键词由 gen_mrs.py 拆进 EHentai.rest.list——
+#       mrs 格式装不下 DOMAIN-KEYWORD，而关键词能兜住带前缀的轮换域名。
+DOMAIN-SUFFIX,e-hentai.org
+DOMAIN-SUFFIX,ehgt.org
+DOMAIN-SUFFIX,ehtracker.org
+DOMAIN-SUFFIX,ehwiki.org
+DOMAIN-SUFFIX,exhentai.org
+DOMAIN-SUFFIX,hath.network
+DOMAIN-SUFFIX,hentaiathome.net
+DOMAIN-SUFFIX,hentaiverse.org
+DOMAIN-KEYWORD,e-hentai
+DOMAIN-KEYWORD,exhentai

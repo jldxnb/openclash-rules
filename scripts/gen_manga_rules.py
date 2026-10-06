@@ -66,8 +66,10 @@ HEADER_PROXY = """# MangaProxy.list —— 漫画站域名清单 · 海外代理
 # 高变动提示：韩国盗版站（mato31 / newto31 / bookto31 / toonkor### 等）与 JM / raw 系
 #   域名轮换很快，清单里收了「稳定入口 + 关键词兜底」；长期跟进入口见 manga-sites.md §3/§10。
 # 共用域未收录（避免连带非漫画流量，需要时自行加）：Kindle=amazon.co.jp、
-#   Kobo=www.kobo.com、U-NEXT=video.unext.jp。ebookjapan 的图片 CDN
-#   （prod-contents-br-page.akamaized.net）因是专用主机名，已收录。
+#   Kobo=www.kobo.com、U-NEXT=video.unext.jp。ebookjapan 的图片 CDN（prod-contents-br-page.akamaized.net）因是专用主机名，已收录。
+# e-hentai 家族（e-hentai.org / exhentai.org / ehgt.org / ehwiki.org / ehtracker.org /
+#   hath.network / hentaiathome.net / hentaiverse.org + 2 条关键词）已迁到 rules/EHentai.list，
+#   由「🔞 e-hentai」策略组单独承接——图站额度按 IP 记，独立成组方便换机场 / 换节点。
 """
 
 CONFIG = Config(
@@ -93,7 +95,7 @@ CONFIG = Config(
                 v2fly("data/copymanga", exclude=COPY_CN_ALIASES),
                 v2fly("data/haitang"),
                 v2fly("data/boylove"),
-                v2fly("data/ehentai"),
+                # data/ehentai 不再并入本清单：e-hentai 家族已迁到 rules/EHentai.list（「🔞 e-hentai」组）
                 v2fly("data/pixiv"),
                 v2fly("data/dlsite"),
                 v2fly("data/dmm-porn"),

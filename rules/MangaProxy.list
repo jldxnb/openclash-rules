@@ -6,13 +6,16 @@
 #         - RULE-SET,manga_proxy,🚀 节点选择      （想细分可再拆，如日漫走 🇯🇵 日本节点）
 # 来源：manga-sites.md（根目录，729 域名调研 + 实测）；自动同步区来自 v2fly/domain-list-community。
 # 维护：手工条目写在「手工维护区」（脚本不动）；「自动同步区」由 scripts/gen_manga_rules.py
-#       每日重写（CI: .github/workflows/update-manga-rules.yml），会随上游增删，勿手改。
+#       每日重写（CI: .github/workflows/update-rules.yml），会随上游增删，勿手改。
 #       想固定某条不被上游影响，把它挪到手工区。
 #
 # 高变动提示：韩国盗版站（mato31 / newto31 / bookto31 / toonkor### 等）与 JM / raw 系
 #   域名轮换很快，清单里收了「稳定入口 + 关键词兜底」；长期跟进入口见 manga-sites.md §3/§10。
 # 共用域未收录（避免连带非漫画流量，需要时自行加）：Kindle=amazon.co.jp、
 #   Kobo=www.kobo.com、U-NEXT=video.unext.jp。ebookjapan 的图片 CDN（prod-contents-br-page.akamaized.net）因是专用主机名，已收录。
+# e-hentai 家族（e-hentai.org / exhentai.org / ehgt.org / ehwiki.org / ehtracker.org /
+#   hath.network / hentaiathome.net / hentaiverse.org + 2 条关键词）已迁到 rules/EHentai.list，
+#   由「🔞 e-hentai」策略组单独承接——图站额度按 IP 记，独立成组方便换机场 / 换节点。
 # ===== 手工维护区开始（脚本原样保留，按行增删即可）=====
 DOMAIN-SUFFIX,11toon.com
 DOMAIN-SUFFIX,11toon1.com
@@ -115,13 +118,8 @@ DOMAIN-SUFFIX,doujins.com
 DOMAIN-SUFFIX,drecomi-plus.jp
 DOMAIN-SUFFIX,drm.cdn.nicomanga.jp
 DOMAIN-SUFFIX,dynasty-scans.com
-DOMAIN-SUFFIX,e-hentai.org
 DOMAIN-SUFFIX,ebookjapan.yahoo.co.jp
 DOMAIN-SUFFIX,ebookstore.sony.jp
-DOMAIN-SUFFIX,ehgt.org
-DOMAIN-SUFFIX,ehtracker.org
-DOMAIN-SUFFIX,ehwiki.org
-DOMAIN-SUFFIX,exhentai.org
 DOMAIN-SUFFIX,fakku.cc
 DOMAIN-SUFFIX,fakku.net
 DOMAIN-SUFFIX,fanbox.cc
@@ -141,14 +139,12 @@ DOMAIN-SUFFIX,hachiraw.win
 DOMAIN-SUFFIX,haitangbook.com
 DOMAIN-SUFFIX,haitbook.com
 DOMAIN-SUFFIX,hanayume.com
-DOMAIN-SUFFIX,hath.network
 DOMAIN-SUFFIX,hayacomic.jp
 DOMAIN-SUFFIX,hentai-cosplay-xxx.com
 DOMAIN-SUFFIX,hentai-img-xxx.com
 DOMAIN-SUFFIX,hentai-img.com
 DOMAIN-SUFFIX,hentai2read.com
 DOMAIN-SUFFIX,hentai2w.com
-DOMAIN-SUFFIX,hentaiathome.net
 DOMAIN-SUFFIX,hentaicdn.com
 DOMAIN-SUFFIX,hentaienvy.com
 DOMAIN-SUFFIX,hentaiera.com
@@ -159,7 +155,6 @@ DOMAIN-SUFFIX,hentaihere.com
 DOMAIN-SUFFIX,hentainexus.com
 DOMAIN-SUFFIX,hentairead.com
 DOMAIN-SUFFIX,hentairox.com
-DOMAIN-SUFFIX,hentaiverse.org
 DOMAIN-SUFFIX,hentaiyes.com
 DOMAIN-SUFFIX,hentaizap.com
 DOMAIN-SUFFIX,hentalk.pw
@@ -432,8 +427,6 @@ DOMAIN-KEYWORD,hachiraw
 DOMAIN-KEYWORD,raw1001
 DOMAIN-KEYWORD,nhentai
 DOMAIN-KEYWORD,hitomi
-DOMAIN-KEYWORD,e-hentai
-DOMAIN-KEYWORD,exhentai
 DOMAIN-KEYWORD,hentaifox
 DOMAIN-KEYWORD,imhentai
 DOMAIN-KEYWORD,mangadex
