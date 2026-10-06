@@ -205,9 +205,16 @@ rule-providers:
     behavior: classical
     format: text
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AI.rest.list"
-  no_jp:
+  # 动漫（AnimeCN / AnimeProxy）：原 no_jp 清单已并入 AnimeProxy.list，不再单列 provider
+  anime_cn:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/AnimeCN.mrs"
+  anime_proxy:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/AnimeProxy.mrs"
+  anime_proxy_rest:
     <<: *self_text
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AnimeNoJP.list"
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/AnimeProxy.rest.list"
   bluearchive:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BlueArchive.mrs"
@@ -272,12 +279,12 @@ rules:
   # 没必要为了它去拉远程规则集，直接写进配置。
   - IP-CIDR,127.0.0.1/32,DIRECT,no-resolve
 
-  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组；manga_ehentai 早于 manga_proxy_no_eh，保证 e-hentai 落「🔞 e-hentai」组）。
+  # 自建规则：顺序是例外优先（manga_ehentai 早于 manga_proxy_no_eh，保证 e-hentai 落「🔞 e-hentai」组；
+  # anime_proxy 排在 B站 规则之后，避免抢走 B站国际版域名与 CDN 直连）。
   # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
   - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🤖 AI
   - RULE-SET,ai_rest,🤖 AI
-  - RULE-SET,no_jp,🎌 漫画动漫
   - RULE-SET,bluearchive,🎮 游戏
   - RULE-SET,bluearchive_rest,🎮 游戏
   - RULE-SET,manga_cn,🎯 全球直连
@@ -294,6 +301,13 @@ rules:
   # 顺序不能反：反了 +.bilibili.com 会先把 api/bangumi 接走，📺 组就切不动了。
   - RULE-SET,bilibili_hmt,📺 B站番剧
   - RULE-SET,bilibili_cn,🎯 全球直连
+  # 动漫·国内平台（AnimeCN）：按清单定位直连；排在 B站 之后，避免抢走 api/bangumi 的「📺 B站番剧」可切换性
+  - RULE-SET,anime_cn,🎯 全球直连
+  # 动漫（海外，含原 no_jp 的 hanime1 家族）：必须排在 B站 规则之后——AnimeProxy.list 里含
+  # B站国际版域名（bilibili.tv / biliintl.com / p.bstarstatic.com / 两个 akamai 镜像），抢在前面
+  # 会让「📺 B站番剧」切不动、上述 CDN 也被送进代理
+  - RULE-SET,anime_proxy,🎌 漫画动漫
+  - RULE-SET,anime_proxy_rest,🎌 漫画动漫
   - RULE-SET,proxylite,DIRECT
   - RULE-SET,download,🎯 全球直连
   - GEOSITE,category-ai-!cn,🤖 AI
