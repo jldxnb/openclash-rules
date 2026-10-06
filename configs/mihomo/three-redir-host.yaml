@@ -220,12 +220,12 @@ rule-providers:
   manga_cn_rest:
     <<: *self_text
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaCN.rest.list"
-  manga_proxy:
+  manga_proxy_no_eh:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaProxy.mrs"
-  manga_proxy_rest:
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaProxyNoEH.mrs"
+  manga_proxy_no_eh_rest:
     <<: *self_text
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxy.rest.list"
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxyNoEH.rest.list"
   manga_ehentai:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaEHentai.mrs"
@@ -272,7 +272,7 @@ rules:
   # 没必要为了它去拉远程规则集，直接写进配置。
   - IP-CIDR,127.0.0.1/32,DIRECT,no-resolve
 
-  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组；manga_ehentai 早于 manga_proxy，保证 e-hentai 落「🔞 e-hentai」组）。
+  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组；manga_ehentai 早于 manga_proxy_no_eh，保证 e-hentai 落「🔞 e-hentai」组）。
   # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
   - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🤖 AI
@@ -286,8 +286,8 @@ rules:
   # 排在 manga_proxy 之前，避免被漫画清单先接走
   - RULE-SET,manga_ehentai,🔞 e-hentai
   - RULE-SET,manga_ehentai_rest,🔞 e-hentai
-  - RULE-SET,manga_proxy,🎌 漫画动漫
-  - RULE-SET,manga_proxy_rest,🎌 漫画动漫
+  - RULE-SET,manga_proxy_no_eh,🎌 漫画动漫
+  - RULE-SET,manga_proxy_no_eh_rest,🎌 漫画动漫
   - RULE-SET,media,🎌 漫画动漫
   # B站：先让「📺 B站番剧」（可切换、默认直连）接管地区判定 / 播放入口 + 国际版，
   # 再由 bilibili_cn（上游清单）兜住 CDN / PCDN 等其余 B站系域名，保持直连。
