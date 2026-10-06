@@ -9,9 +9,11 @@
 > 属于历史记录，需要时用 `git show <删除前的提交>:<路径>` 取回。
 >
 > 后续变更（2026-10-06，追加）：`rules/MangaProxy.list` 里的 e-hentai 家族（8 域名 + 2 关键词）
-> 迁到 `rules/EHentai.list`，B站港澳台相关域名另立 `rules/BiliBiliHMT.list`；两者各对应一个新的
-> 可切换策略组（「🔞 e-hentai」「📺 B站番剧」）。`scripts/gen_manga_rules.py` 已不再同步 v2fly
-> 的 `data/ehentai`，避免 CI 把条目写回 MangaProxy。
+> 迁到 `rules/MangaEHentai.list`（先叫 EHentai.list，同日改名），B站港澳台相关域名另立
+> `rules/BiliBiliHMT.list`；两者各对应一个新的可切换策略组（「🔞 e-hentai」「📺 B站番剧」）。
+> 另：原 `rules/BiliBili.list`（6 行手工 CDN 主机）已删除，改为 provider `bilibili_cn` 直接引用上游
+> blackmatrix7 的 `rule/Clash/BiliBili/BiliBili.list`（覆盖全部 CDN/PCDN/akamai 镜像，随上游更新）；
+> `scripts/gen_manga_rules.py` 已不再同步 v2fly 的 `data/ehentai`，避免 CI 把条目写回 MangaProxy。
 
 **如果你是配置的使用者（路由器 / OpenClash / subconverter 里填了本仓库的地址），
 只需要照着下面第二张表替换 URL 即可。**

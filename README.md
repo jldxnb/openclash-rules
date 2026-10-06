@@ -202,26 +202,30 @@ rules:
 
 > 这四份清单暂未被 `configs/` 引用时，`validate.py` 的「未被引用」提示属正常（不是错误）。
 
-## B站番剧 / e-hentai 专用组（`rules/BiliBiliHMT.list`、`rules/EHentai.list`）
+## B站番剧 / e-hentai 专用组（`rules/BiliBiliHMT.list`、`rules/MangaEHentai.list`）
 
 两份清单各对应一个可切换的策略组（2026-10-06 增加）：
 
 | 清单 | 内容 | 指向的策略组 |
 |---|---|---|
-| `rules/BiliBiliHMT.list` | B站港澳台限定番剧的「地区判定 + 播放入口」（`api.` / `bangumi.` / `www.`）+ 国际版（`bilibili.tv` / `biliintl.com` / `p.bstarstatic.com`） | `📺 B站番剧` |
-| `rules/EHentai.list` | e-hentai / ExHentai 家族 8 个域名（= geosite:ehentai 全集）+ 2 条关键词（拆进 `EHentai.rest.list`） | `🔞 e-hentai` |
+| `rules/BiliBiliHMT.list`（自建） | B站港澳台限定番剧的「地区判定 + 播放入口」（`api.` / `bangumi.` / `www.`）+ 国际版（`bilibili.tv` / `biliintl.com` / `p.bstarstatic.com`） | `📺 B站番剧` |
+| `rules/MangaEHentai.list`（自建，从 MangaProxy 拆出） | e-hentai / ExHentai 家族 8 个域名（= geosite:ehentai 全集）+ 2 条关键词（拆进 `MangaEHentai.rest.list`） | `🔞 e-hentai` |
+| 上游 blackmatrix7 的 `BiliBili.list`（**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
 
 - **📺 B站番剧**：默认 `DIRECT`——与不加这份清单时行为完全一致。要看港澳台限定番剧时，把这一组
   切到「🔯 主备切换|港澳台」或「…|港澳台1」（各机场一条；过滤器 `hktw` 只收香港 / 台湾节点）。
-  港澳台限制是在**接口层**判定的，所以只有判定 / 取址域名进这个组；视频 CDN（`upos-*` / `mcdn`，
-  见 `rules/BiliBili.list`）保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。
+  港澳台限制是在**接口层**判定的，所以只有判定 / 取址域名进这个组；视频 CDN（`upos-*` / `mcdn`、
+  四个 akamai 镜像）由 `bilibili_cn` 保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。
+  规则顺序上 `bilibili_hmt` **必须排在 `bilibili_cn` 之前**：上游清单里的 `+.bilibili.com` 会把判定域名
+  先接走，顺序反了 📺 组就切不动。
   代价：切到港澳台之后，内地版权内容也会变成"港澳台视角"（两者共用同一批域名，无法自动区分，
   只能手动切组）。
 - **🔞 e-hentai**：图站的下载额度按 IP 记，独立成组方便换机场 / 换节点。候选与「🎌 漫画动漫」
   同源（非日本链 + 全机场非日本节点，`no_jp` 过滤——exhentai 对日本 IP 有限制，证据见
   `rules/MangaNoJP.list` 文件头）。
 - 两个组用的 `hktw` / `no_hktw` 筛选词都定义在 `x-node-filters`，改词只改那一处。
-- e-hentai 家族原来在 `rules/MangaProxy.list` 里；现已迁出，`gen_manga_rules.py` 也不再同步
+- e-hentai 家族原来在 `rules/MangaProxy.list` 里；现已迁出成独立的 `MangaEHentai.list`
+  （文件名保留了 Manga 前缀，一眼能看出它是从漫画清单拆出来的），`gen_manga_rules.py` 也不再同步
   v2fly 的 `data/ehentai`（否则 CI 会把条目写回 MangaProxy）。
 
 ## 使用前必须替换的占位符
