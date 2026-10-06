@@ -40,7 +40,9 @@ docs/
   examples/         规则语法示例
 scripts/
   validate.py       仓库自检脚本，见下文
-  gen_manga_rules.py  漫画规则集同步脚本（每日由 CI 自动运行，见「漫画规则集」节）
+  gen_manga_rules.py  漫画清单同步（每日由 CI 运行，见「漫画 / 动漫规则集」节）
+  gen_anime_rules.py  动漫清单同步（同上；自动上游 = FMHY）
+  rules_sync.py     上面两个脚本共用的实现（清单格式、上游解析、突变保护）
   gen_mrs.py        由 rules/*.list 生成 mrs/ 与 rules/*.rest.list（见「list 与 mrs」节）
 archive/            历史文件，不要使用
 ```
@@ -115,22 +117,34 @@ rule-providers:
 在 subconverter / OpenClash 的"订阅转换"里把 `configs/subconverter/acl4ssr-*.ini`
 填为外部配置（`&config=` 参数指向该文件的 raw 地址）。
 
-## 漫画规则集（MangaCN / MangaProxy）
+## 漫画 / 动漫规则集（MangaCN、MangaProxy、AnimeCN、AnimeProxy）
 
-`rules/MangaCN.list`（国内直连）与 `rules/MangaProxy.list`（海外代理）是漫画 / 网漫 / 同人站的
-两份域名清单，按「用国内网络能否直接访问」划分——**按域名分，不按站点分**（同一个站的直连域
-和需代理域会分别落在两个清单里，典型如拷贝漫画：`copy4000.com` 在国内集、`mangacopy.com`
-在代理集）。域名来源与逐条实测记录见根目录 [manga-sites.md](manga-sites.md)。
+四份域名清单，各按「用国内网络能否直接访问」划分——**按域名分，不按站点分**。同一个站可能出现
+在两边：漫画的典型是拷贝漫画（`copy4000.com` 在国内集、`mangacopy.com` 在代理集），动漫的典型是
+蜜柑计划（`mikanime.tv` 直连、`mikanani.me` 已被墙）。
+
+| 清单 | 内容 | 自动上游 |
+|---|---|---|
+| `rules/MangaCN.list` | 漫画 / 网漫 / 同人 · 国内直连 | v2fly 的 manhuagui / manhuaren / copymanga 等 data 文件 |
+| `rules/MangaProxy.list` | 漫画 / 网漫 / 同人 · 海外代理 | 同上（18comic / haitang / boylove / ehentai / pixiv / dlsite / dmm-porn） |
+| `rules/AnimeCN.list` | 动漫 · 国内直连（国内平台动漫区 + CDN、国际版未被墙域） | 无（国内平台域名稳定，纯手工维护） |
+| `rules/AnimeProxy.list` | 动漫 · 海外代理（日系 / 海外聚合 / BT·字幕组 / 成人向） | FMHY 的 Anime Streaming / Downloading / Torrenting / Tracking 小节 |
+
+域名来源与逐条实测记录：漫画见 [manga-sites.md](manga-sites.md)，动漫见 [anime-sites.md](anime-sites.md)。
+动漫里「屏蔽 / 限制日本 IP」的站（hanime1 家族、hanime.tv 系）不在 AnimeProxy，而是收在
+`rules/NoJP.list`（"非日本"例外清单，配置里 `no_jp` 规则先于 `anime_proxy` 命中）。
 
 每份清单分两区：
 
 - **手工维护区**：随手改，脚本永远不动它；想固定某条不被上游增删影响，把它挪到这里。
-- **自动同步区**：由 `scripts/gen_manga_rules.py` 从
-  [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community/tree/master/data)
-  的漫画相关 data 文件合并增量，**每天自动重写**（CI：`.github/workflows/update-manga-rules.yml`，
-  北京时间 06:30；有变化才提交，拉上游失败时不写不提交，避免误删条目）。
+- **自动同步区**：由 `scripts/gen_manga_rules.py` / `scripts/gen_anime_rules.py` 合并上游增量，
+  **每天自动重写**（CI：`.github/workflows/update-rules.yml`，北京时间 06:30）。安全设计：只重写
+  自动区；任何上游拉取失败都不写不提交；自动区条目数骤降（疑似上游改版 / 解析失效）时拒绝写入。
+  `AnimeProxy.list` 的「代理·存疑」区是手工条目——面向大陆但托管墙外的中文聚合站（樱花 / 风车 /
+  AGE / 稀饭等），默认按代理放，实测直连可用再挪到 AnimeCN。
 
-在配置里引用（沿用「list 与 mrs」的做法：域名部分用 mrs，关键词部分用 rest 文本）：
+在配置里引用（沿用「list 与 mrs」的做法：域名部分用 mrs，关键词部分用 rest 文本；
+AnimeCN / AnimeProxy 没有关键词条目，所以不需要 rest provider）：
 
 ```yaml
 rule-providers:
@@ -158,15 +172,32 @@ rule-providers:
     behavior: classical
     format: text
     url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/rules/MangaProxy.rest.list"
+  anime_cn:
+    type: http
+    interval: 86400
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/mrs/AnimeCN.mrs"
+  anime_proxy:
+    type: http
+    interval: 86400
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/jldxnb/openclash-rules/main/mrs/AnimeProxy.mrs"
 rules:
   - RULE-SET,manga_cn,🎯 全球直连
   - RULE-SET,manga_cn_rest,🎯 全球直连
-  - RULE-SET,manga_proxy,🚀 节点选择
+  - RULE-SET,manga_proxy,🚀 节点选择      # 本仓库当前配置里指向 🎌 漫画动漫 组
   - RULE-SET,manga_proxy_rest,🚀 节点选择
+  - RULE-SET,anime_cn,🎯 全球直连
+  - RULE-SET,anime_proxy,🚀 节点选择      # 同上，可自行接到 🎌 漫画动漫 组
 ```
 
-本地手动同步：`python scripts/gen_manga_rules.py`（只报告变化，不写文件）、加 `--apply` 写入；
-写入后要再跑 `python scripts/gen_mrs.py` 重建 mrs 与 rest（CI 里这两步是连着做的）。
+本地手动同步：`python scripts/gen_manga_rules.py` / `python scripts/gen_anime_rules.py`
+（只报告变化，不写文件）、加 `--apply` 写入；写入后要再跑 `python scripts/gen_mrs.py`
+重建 mrs 与 rest（CI 里这两步是连着做的）。
+
+> 这四份清单暂未被 `configs/` 引用时，`validate.py` 的「未被引用」提示属正常（不是错误）。
 
 ## 使用前必须替换的占位符
 
@@ -223,7 +254,7 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 
 | 位置 | 问题 |
 |---|---|
-| `rules/NoJP.list` | 只有 1 条 `DOMAIN-KEYWORD,hanime1`——这是**例外清单**，靠顺序提前命中做分流，短是正常的；关键词编不进 mrs，所以它没有 mrs 产物，配置直接引用 `.list`（考证见 [docs/migration.md](docs/migration.md) 第四、五节） |
+| `rules/NoJP.list` | 曾经只有 1 条 `DOMAIN-KEYWORD,hanime1`；2026-10-06 起补入了 hanime1 家族与 hanime.tv 系的 9 个域名（官方域名数组见 anime-sites.md §5/§8.4）。它现在既有域名又有关键词，所以也有 `mrs/NoJP.mrs` 产物，但配置仍直接引用 `.list`（10 条量级用文本足够，也省得拆 rest）；顺序上 `no_jp` 必须排在 `anime_proxy` / `manga_proxy` 之前（考证见 [docs/migration.md](docs/migration.md) 第四、五节） |
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` **未废弃**（此前误记为旧写法；官方废弃的是 `fallback-filter.geosite`，文件里没用它）。但它与 `nameserver-policy` 并存会让两套 DNS 并行查询，官方提供 `fallback-lazy-query: true` 可避免 |

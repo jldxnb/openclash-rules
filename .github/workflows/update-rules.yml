@@ -1,11 +1,12 @@
-name: update-manga-rules
+name: update-rules
 
-# 每天把 v2fly/domain-list-community 的漫画相关域名增量同步进
-# rules/MangaCN.list 与 rules/MangaProxy.list 的「自动同步区」（手工维护区不动），
-# 然后重新生成对应的 mrs/MangaCN.mrs、mrs/MangaProxy.mrs 与
-# rules/MangaCN.rest.list、rules/MangaProxy.rest.list（配置引用的就是这些产物）。
-# 有变化才提交；拉上游失败则不写不提交（避免把网络故障当成“域名消失”误删条目）。
-# 脚本：scripts/gen_manga_rules.py + scripts/gen_mrs.py（本地手动跑同样两条命令）。
+# 每天把上游的域名增量同步进自建清单的「自动同步区」（手工维护区不动），并重建产物：
+#   - rules/MangaCN.list / MangaProxy.list ← v2fly/domain-list-community 的漫画相关 data 文件
+#   - rules/AnimeProxy.list ← FMHY 的 Anime Streaming / Downloading / Torrenting / Tracking 小节
+#     （AnimeCN.list 是国内平台域名，稳定，不设自动上游）
+# 之后重新生成 mrs/*.mrs 与 rules/*.rest.list（配置引用的就是这些产物）。
+# 有变化才提交；上游拉取失败、或自动区条目数骤降（疑似上游改版）时都不写不提交。
+# 脚本：scripts/gen_manga_rules.py + scripts/gen_anime_rules.py + scripts/gen_mrs.py。
 
 on:
   schedule:
@@ -17,12 +18,12 @@ permissions:
   contents: write
 
 concurrency:
-  group: update-manga-rules
+  group: update-rules
   cancel-in-progress: false
 
 jobs:
   update:
-    name: 同步漫画规则集
+    name: 同步自建清单
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,10 +32,14 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: 合并上游增量（写入自动同步区）
+      - name: 合并上游增量（写入各清单的自动同步区）
         run: |
           set -o pipefail
-          python scripts/gen_manga_rules.py --apply | tee "$RUNNER_TEMP/manga-report.txt"
+          {
+            python scripts/gen_manga_rules.py --apply
+            echo
+            python scripts/gen_anime_rules.py --apply
+          } | tee "$RUNNER_TEMP/rules-report.txt"
 
       - name: 重新生成 mrs（list 变了 mrs 就得跟着变）
         run: |
@@ -49,22 +54,20 @@ jobs:
 
       - name: 有变化才提交推送
         run: |
-          if git diff --quiet -- rules/MangaCN.list rules/MangaProxy.list; then
+          if git diff --quiet -- rules/ mrs/; then
             echo "上游无变化，跳过提交"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add rules/MangaCN.list rules/MangaProxy.list \
-                  rules/MangaCN.rest.list rules/MangaProxy.rest.list \
-                  mrs/MangaCN.mrs mrs/MangaProxy.mrs
+          git add rules/ mrs/
           {
-            echo "chore(manga): 每日同步上游漫画域名并重建 mrs（$(date -u +%F)）"
+            echo "chore(rules): 每日同步上游域名并重建 mrs（$(date -u +%F)）"
             echo
-            echo "自动合并 v2fly/domain-list-community 的漫画相关域名增量到两个清单的自动同步区；手工维护区未改动。报告："
+            echo "自动合并上游增量到自建清单的自动同步区（漫画=v2fly，动漫=FMHY），并重建 mrs / rest 产物；手工维护区未改动。报告："
             echo
             echo '```'
-            cat "$RUNNER_TEMP/manga-report.txt"
+            cat "$RUNNER_TEMP/rules-report.txt"
             cat "$RUNNER_TEMP/mrs-report.txt"
             echo '```'
           } > "$RUNNER_TEMP/commit-msg.txt"

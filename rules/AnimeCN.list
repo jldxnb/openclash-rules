@@ -1,0 +1,97 @@
+# AnimeCN.list —— 动漫站域名清单 · 国内直连
+#
+# 内容：动漫（番剧/动画）站点中「用国内网络可以直接访问」的域名——国内视频平台的动漫区
+#       （B站/爱奇艺/腾讯视频/优酷/芒果/AcFun/咪咕/乐视/搜狐/PPTV/弹弹play 等）
+#       及其图片/视频 CDN、国际版里实测未被墙的域名（iq.com / wetv.vip / youku.tv，
+#       依据 GreatFire 未封锁记录）、蜜柑计划的国内入口 mikanime.tv。
+# 用法：RULE-SET 指到直连策略组，例：
+#         - RULE-SET,anime_cn,🎯 全球直连
+# 来源：anime-sites.md（根目录，736 域名调研 + 实测）；本清单无自动上游（国内站域名稳定）。
+# 维护：直接改「手工维护区」即可（脚本不动它）。
+# 注意：暂未在 configs/ 里引用时，validate.py 会提示「未被引用」，属正常提示而非错误。
+#
+# 已知取舍：
+#   - iq.com / wetv.vip / youku.tv 是「大陆平台的国际版」，实测未被墙（GreatFire），
+#     按直连收；若你实测不畅，把它们挪到 AnimeProxy.list 手工区。
+#   - 中文动漫聚合站（樱花/风车/AGE/稀饭等）虽然面向大陆用户，但托管墙外、未验证直连，
+#     统一放 AnimeProxy.list 的「代理·存疑」区（实测直连可用再挪到本清单）。
+# ===== 手工维护区开始（脚本原样保留，按行增删即可）=====
+# ---- 国内视频平台动漫区 / 国际版 / 工具（逐条来源见 anime-sites.md §1、§8.1）----
+DOMAIN-SUFFIX,2fp-cdnstatic.svc.litv.tv
+DOMAIN-SUFFIX,a1.itc.cn
+DOMAIN-SUFFIX,account.youku.com
+DOMAIN-SUFFIX,acfun.cn
+DOMAIN-SUFFIX,acg.youku.com
+DOMAIN-SUFFIX,api.bilibili.com
+DOMAIN-SUFFIX,api.dandanplay.net
+DOMAIN-SUFFIX,assets.anixplayer.net
+DOMAIN-SUFFIX,b23.tv
+DOMAIN-SUFFIX,bangumi.bilibili.com
+DOMAIN-SUFFIX,bilibili.com
+DOMAIN-SUFFIX,bilivideo.com
+DOMAIN-SUFFIX,cache-video.iq.com
+DOMAIN-SUFFIX,cache.video.iqiyi.com
+DOMAIN-SUFFIX,cartoon.aplus.pptv.com
+DOMAIN-SUFFIX,css.tv.itc.cn
+DOMAIN-SUFFIX,dandanplay.com
+DOMAIN-SUFFIX,dandanplay.net
+DOMAIN-SUFFIX,display-sc.miguvideo.com
+DOMAIN-SUFFIX,film.qq.com
+DOMAIN-SUFFIX,fino.svc.litv.tv
+DOMAIN-SUFFIX,honey.mgtv.com
+DOMAIN-SUFFIX,i0.hdslb.com
+DOMAIN-SUFFIX,i1.hdslb.com
+DOMAIN-SUFFIX,i2.hdslb.com
+DOMAIN-SUFFIX,i3.itc.cn
+DOMAIN-SUFFIX,img.cmvideo.cn
+DOMAIN-SUFFIX,img.mgtv.com
+DOMAIN-SUFFIX,img7.iqiyipic.com
+DOMAIN-SUFFIX,imgs.aixifan.com
+DOMAIN-SUFFIX,intl-api.iq.com
+DOMAIN-SUFFIX,intl-help.iq.com
+DOMAIN-SUFFIX,iq.com
+DOMAIN-SUFFIX,iqiyi.com
+DOMAIN-SUFFIX,iqiyipic.com
+DOMAIN-SUFFIX,itc.cn
+DOMAIN-SUFFIX,le.com
+DOMAIN-SUFFIX,letv.com
+DOMAIN-SUFFIX,liangcang-material.alicdn.com
+DOMAIN-SUFFIX,litv.tv
+DOMAIN-SUFFIX,m.miguvideo.com
+DOMAIN-SUFFIX,m.ykimg.com
+DOMAIN-SUFFIX,m.youku.tv
+DOMAIN-SUFFIX,mgtv.com
+DOMAIN-SUFFIX,migu.cn
+DOMAIN-SUFFIX,migudm.cn
+DOMAIN-SUFFIX,miguvideo.com
+DOMAIN-SUFFIX,mikanime.tv
+DOMAIN-SUFFIX,msg-intl.qy.net
+DOMAIN-SUFFIX,my.tv.sohu.com
+DOMAIN-SUFFIX,pptv.com
+DOMAIN-SUFFIX,puui.qpic.cn
+DOMAIN-SUFFIX,qy.net
+DOMAIN-SUFFIX,s1.hdslb.com
+DOMAIN-SUFFIX,so.youku.com
+DOMAIN-SUFFIX,sohu.com
+DOMAIN-SUFFIX,static.hitv.com
+DOMAIN-SUFFIX,static.wetvinfo.com
+DOMAIN-SUFFIX,t.youku.com
+DOMAIN-SUFFIX,v.qq.com
+DOMAIN-SUFFIX,v.youku.com
+DOMAIN-SUFFIX,vfiles.gtimg.cn
+DOMAIN-SUFFIX,videohy.tc.qq.com
+DOMAIN-SUFFIX,vliveachy.tc.qq.com
+DOMAIN-SUFFIX,vm.gtimg.cn
+DOMAIN-SUFFIX,vv.video.qq.com
+DOMAIN-SUFFIX,wapx.cmvideo.cn
+DOMAIN-SUFFIX,wetv.vip
+DOMAIN-SUFFIX,wetvinfo.com
+DOMAIN-SUFFIX,www.youku.com
+DOMAIN-SUFFIX,www.youku.tv
+DOMAIN-SUFFIX,ykimg.alicdn.com
+DOMAIN-SUFFIX,youku.com
+DOMAIN-SUFFIX,youku.tv
+# ===== 手工维护区结束 =====
+
+# ===== 自动同步区开始（由 scripts/gen_*_rules.py 重写，勿手改）=====
+# ===== 自动同步区结束 =====

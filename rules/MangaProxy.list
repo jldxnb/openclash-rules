@@ -445,7 +445,7 @@ DOMAIN-KEYWORD,mangafunb
 DOMAIN-KEYWORD,hanime1
 # ===== 手工维护区结束 =====
 
-# ===== 自动同步区开始（由 scripts/gen_manga_rules.py 重写，勿手改）=====
+# ===== 自动同步区开始（由 scripts/gen_*_rules.py 重写，勿手改）=====
 DOMAIN-SUFFIX,chobit.cc
 DOMAIN-SUFFIX,ci-en.jp
 DOMAIN-SUFFIX,ci-en.net
