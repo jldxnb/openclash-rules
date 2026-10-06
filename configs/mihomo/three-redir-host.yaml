@@ -226,18 +226,25 @@ rule-providers:
   manga_proxy_rest:
     <<: *self_text
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxy.rest.list"
-  e_hentai:
+  manga_ehentai:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/EHentai.mrs"
-  e_hentai_rest:
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/MangaEHentai.mrs"
+  manga_ehentai_rest:
     <<: *self_text
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/EHentai.rest.list"
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaEHentai.rest.list"
   media:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/Media.mrs"
-  bilibili:
-    <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BiliBili.mrs"
+  # B站系域名（直连）：引用上游 blackmatrix7 的 BiliBili 清单，比手工维护的那 6 行更全——
+  # 含全部 CDN / PCDN 主机、四个 akamai 镜像（其中 upos-hz-mirrorakam 是港澳台番剧的海外 UPOS，
+  # 直连更快）、App 包名等，并随上游更新。港澳台判定那几个域名由 bilibili_hmt 优先接管。
+  bilibili_cn:
+    proxy: DIRECT
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/BiliBili/BiliBili.list"
   bilibili_hmt:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BiliBiliHMT.mrs"
@@ -265,7 +272,7 @@ rules:
   # 没必要为了它去拉远程规则集，直接写进配置。
   - IP-CIDR,127.0.0.1/32,DIRECT,no-resolve
 
-  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组；e_hentai 早于 manga_proxy，保证 e-hentai 落「🔞 e-hentai」组）。
+  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组；manga_ehentai 早于 manga_proxy，保证 e-hentai 落「🔞 e-hentai」组）。
   # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
   - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🤖 AI
@@ -277,14 +284,16 @@ rules:
   - RULE-SET,manga_cn_rest,🎯 全球直连
   # e-hentai 单独走组（图站额度按 IP 记，换机场 / 换节点最方便）：
   # 排在 manga_proxy 之前，避免被漫画清单先接走
-  - RULE-SET,e_hentai,🔞 e-hentai
-  - RULE-SET,e_hentai_rest,🔞 e-hentai
+  - RULE-SET,manga_ehentai,🔞 e-hentai
+  - RULE-SET,manga_ehentai_rest,🔞 e-hentai
   - RULE-SET,manga_proxy,🎌 漫画动漫
   - RULE-SET,manga_proxy_rest,🎌 漫画动漫
   - RULE-SET,media,🎌 漫画动漫
-  - RULE-SET,bilibili,🎯 全球直连
-  # B站番剧：地区判定 / 播放入口 + 国际版，交给可切换的「📺 B站番剧」（默认直连，CDN 不在此列）
+  # B站：先让「📺 B站番剧」（可切换、默认直连）接管地区判定 / 播放入口 + 国际版，
+  # 再由 bilibili_cn（上游清单）兜住 CDN / PCDN 等其余 B站系域名，保持直连。
+  # 顺序不能反：反了 +.bilibili.com 会先把 api/bangumi 接走，📺 组就切不动了。
   - RULE-SET,bilibili_hmt,📺 B站番剧
+  - RULE-SET,bilibili_cn,🎯 全球直连
   - RULE-SET,proxylite,DIRECT
   - RULE-SET,download,🎯 全球直连
   - GEOSITE,category-ai-!cn,🤖 AI
