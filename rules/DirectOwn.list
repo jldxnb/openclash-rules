@@ -4,7 +4,6 @@
 #   安卓 FlClash / 桌面客户端的“系统代理”就是 127.0.0.1:<端口>，
 #   于是浏览器等遵守系统代理的应用，境外流量会被强制直连而超时（国内本来就走直连，看不出问题）。
 IP-CIDR,127.0.0.1/32,no-resolve
-IP-CIDR,5.5.5.5/32,no-resolve
 
 # 域名
 DOMAIN-SUFFIX,program-test.eu.org
@@ -16,10 +15,7 @@ DOMAIN-SUFFIX,vsean.net
 DOMAIN-SUFFIX,ustc.edu.cn
 DOMAIN,downloads.openwrt.org
 
-# 漫画的一些域名
-#DOMAIN-KEYWORD,18comic-
-#DOMAIN-KEYWORD,jmcomic-
-DOMAIN-KEYWORD,baozimh
+# 漫画域名不在这里维护：国内可直连的见 MangaCN.list，需代理的见 MangaProxy.list
 
 # 555电影
 DOMAIN-SUFFIX,55jok.com
