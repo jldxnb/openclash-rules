@@ -2,8 +2,7 @@
 
 个人的 Clash / mihomo（OpenClash）分流规则与配置模板集合，不是面向公众的通用规则库。
 
-内容分三层：**自建规则**（`rules/`）、**完整配置**（`configs/mihomo/`）、
-**订阅转换模板**（`configs/subconverter/`）。外部规则集来自
+内容分两层：**自建规则**（`rules/`）与**完整配置**（`configs/mihomo/`）。外部规则集来自
 [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)、
 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)、
 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat)，本仓库只维护自己的部分。
@@ -25,12 +24,7 @@ configs/
                       由节点解析，既不依赖境外 DoH 也不怕污染）
     两份是孪生配置，改一份要同步另一份；其余历史配置（one / three / three-v2 等）
     已于 2026-10-06 删除，需要时从 git 历史取回
-  subconverter/    subconverter 转换模板（ACL4SSR 语法）
-    acl4ssr-one.ini  主力模板
-    acl4ssr-two.ini  多机场 + 流媒体走便宜节点
-    acl4ssr-cys.ini  带特定机场前缀的版本
-    qichiyu.ini      基于骑秋雨的上游模板，未做本地改动
-    qichiyu-custom.ini  上面的本地改版
+  （原 subconverter/ 目录的 5 份转换模板已于 2026-10-06 删除，需要时从 git 历史取回）
 rules/              自建规则集**手工源**（classical 文本，见「list 与 mrs」节）
   *.list              手工维护的清单；配置不直接用它，而是用下面两个生成物
   *.rest.list         生成物：清单里 mrs 表达不了的部分（DOMAIN-KEYWORD / IP-CIDR 等）
@@ -112,11 +106,6 @@ rule-providers:
 | `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
 | `🐟 漏网之鱼` | 兜底流量，默认走节点选择，可切成直连 |
 
-### 3. 用 subconverter 模板转换
-
-在 subconverter / OpenClash 的"订阅转换"里把 `configs/subconverter/acl4ssr-*.ini`
-填为外部配置（`&config=` 参数指向该文件的 raw 地址）。
-
 ## 漫画 / 动漫规则集（MangaCN、MangaProxyNoEH、AnimeCN、AnimeProxy）
 
 四份域名清单，各按「用国内网络能否直接访问」划分——**按域名分，不按站点分**。同一个站可能出现
@@ -133,9 +122,11 @@ rule-providers:
 域名来源与逐条实测记录：漫画见 [manga-sites.md](manga-sites.md)，动漫见 [anime-sites.md](anime-sites.md)。
 「屏蔽 / 限制日本 IP」的站单独成两份清单：`rules/AnimeNoJP.list`（hanime1 家族、hanime.tv 系；
 原 `NoJP.list` 于 2026-10-06 改名）与 `rules/MangaNoJP.list`（18comic / 3hentai / irodoricomics /
-exhentai / manhuagui，证据分档见文件头注释）。配置里 `no_jp` 指向 AnimeNoJP.list，必须排在
-`anime_proxy` / `manga_proxy_no_eh` 之前命中；`AnimeProxy.list` 尾部另留了一份同内容的备用条目，
-没接 NoJP 时也能走同样路线。
+exhentai / manhuagui，证据分档见文件头注释）。**两份清单目前都未被配置引用**（保留备用）：
+动漫侧那组域名在 `AnimeProxy.list` 尾部有同内容的条目、漫画侧在 `MangaProxyNoEH.list` 里也有，
+配置里不再单独接 `no_jp` provider——对应的流量由 `anime_proxy` / `manga_proxy_no_eh` 规则接到
+「🎌 漫画动漫」（注意：配置里仍有一个叫 `no_jp` 的**节点筛选词**锚点，那是给该组与两条
+「非日本」链过滤节点用的，与这两份清单无关）。
 
 每份清单分两区：
 
@@ -202,7 +193,8 @@ rules:
 
 > 这四份清单现已全部接进 `configs/`（`manga_cn` → 🎯 全球直连、`manga_proxy_no_eh` → 🎌 漫画动漫、
 > `anime_cn` → 🎯 全球直连、`anime_proxy`(+rest) → 🎌 漫画动漫）；`validate.py` 对仍未引用的清单
-> （如 `rules/MangaNoJP.list`）给出的「未被引用」提示属正常（不是错误）。
+> （`rules/AnimeNoJP.list`、`rules/MangaNoJP.list` 两份「非日本」备用清单）给出的「未被引用」
+> 提示属正常（不是错误）。
 
 ## B站番剧 / e-hentai 专用组（`rules/BiliBiliHMT.list`、`rules/MangaEHentai.list`）
 
@@ -226,8 +218,8 @@ rules:
   同源（非日本链 + 全机场非日本节点，`no_jp` 过滤——exhentai 对日本 IP 有限制，证据见
   `rules/MangaNoJP.list` 文件头）。
 - 动漫两份清单也一并接进来了：`anime_cn` → `🎯 全球直连`（国内平台动漫区，按清单定位直连）、
-  `anime_proxy`(+`anime_proxy_rest`) → `🎌 漫画动漫`（海外动漫站；其中「不能用日本节点」的
-  hanime1 家族由更靠前的 `no_jp` 规则先命中，同样落这一组）。
+  `anime_proxy`(+`anime_proxy_rest`) → `🎌 漫画动漫`（海外动漫站；hanime1 家族这类
+  「不能用日本节点」的站也收在这份清单里，同样落这一组）。
 - 两个组用的 `hktw` / `no_hktw` 筛选词都定义在 `x-node-filters`，改词只改那一处。
 - e-hentai 家族原来在漫画代理清单里；现已迁出成独立的 `MangaEHentai.list`，原清单同时改名
   `MangaProxy.list` → `MangaProxyNoEH.list`（文件名直接写明「不含 e-hentai」）
@@ -266,7 +258,6 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 - **mihomo 配置**：YAML 语法、rule-provider 必填字段（`format: mrs` 必须是 `domain`/`ipcidr`）、
   `RULE-SET` 是否指向已定义的 provider、策略组 `use` 是否指向已定义的订阅、未替换的占位符、
   控制面板与局域网的暴露风险
-- **subconverter 模板**：`ruleset=` 指向的策略组是否在 `custom_proxy_group=` 中有定义
 - **未引用文件**：`rules/` 下有哪些规则集没被任何配置使用（提示，不算错误）
 
 ## 约定

@@ -16,6 +16,8 @@
 > 同日该文件再改名为 `rules/MangaProxyNoEH.list`（文件名写明「不含 e-hentai」），provider 相应改为
 > `manga_proxy_no_eh` / `manga_proxy_no_eh_rest`。
 > `scripts/gen_manga_rules.py` 已不再同步 v2fly 的 `data/ehentai`，避免 CI 把条目写回 MangaProxyNoEH。
+> 同日 `configs/subconverter/` 的 5 份转换模板整体删除（他确认不再使用；需要时从 git 历史取回）：
+> 上面「文件位置变化」表里这些路径已成为历史。
 
 **如果你是配置的使用者（路由器 / OpenClash / subconverter 里填了本仓库的地址），
 只需要照着下面第二张表替换 URL 即可。**
@@ -110,7 +112,7 @@ git rev-parse refactor/project-structure:rules/NoJP.list   # 同上
 ## 五、NoJP 这类列表是怎么生效的（顺序优先）
 
 > 注（2026-10-06）：`rules/NoJP.list` 已改名为 `rules/AnimeNoJP.list`（内容不变，
-> 配置与 subconverter 模板的 URL 已同步），并按同样思路新建了漫画侧 `rules/MangaNoJP.list`；
+> 配置与 subconverter 模板的 URL 已同步；模板本身已于同日删除），并按同样思路新建了漫画侧 `rules/MangaNoJP.list`；
 > 本节描述的原理与顺序要求不变。
 
 `rules/` 下的自建列表在配置里都排在**最前面**，作用是抢在通用规则之前把特定域名捞出来改道：
