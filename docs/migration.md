@@ -11,7 +11,7 @@
 > 后续变更（2026-10-06，追加）：当时的 `rules/MangaProxy.list`（现 `MangaProxyNoEH.list`）里的 e-hentai 家族（8 域名 + 2 关键词）
 > 迁到 `rules/MangaEHentai.list`（先叫 EHentai.list，同日改名），B站港澳台相关域名另立
 > `rules/BiliBiliHMT.list`；两者各对应一个新的可切换策略组（「🔞 e-hentai」「📺 B站番剧」）。
-> 另：原 `rules/BiliBili.list`（6 行手工 CDN 主机）已删除，改为 provider `bilibili_cn` 直接引用上游
+> 另：原 `rules/BiliBili.list`（6 行手工 CDN 主机）已删除，改为 provider `bilibili_cdn`（先叫 bilibili_cn，同日改名）直接引用上游
 > blackmatrix7 的 `rule/Clash/BiliBili/BiliBili.list`（覆盖全部 CDN/PCDN/akamai 镜像，随上游更新）；
 > 同日该文件再改名为 `rules/MangaProxyNoEH.list`（文件名写明「不含 e-hentai」），provider 相应改为
 > `manga_proxy_no_eh` / `manga_proxy_no_eh_rest`。

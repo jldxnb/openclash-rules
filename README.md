@@ -104,7 +104,7 @@ rule-providers:
 | `🔯 自动兜底` | 跨机场故障转移：`stable` 整体不可用时自动切到 `stable1`，再不行才用 `cheap` |
 | `🔯 主备切换*`、`♻️ 便宜主备` | 都是 `fallback` 类型：默认用列表里第一个健康的节点，**也可以在面板里点选一个首选节点**（选择会持久化），该节点失效时自动切到下一个健康的 |
 | `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
-| `🐟 漏网之鱼` | 兜底流量，默认走节点选择，可切成直连 |
+| `🐟 漏网之鱼` | 兜底流量，默认走节点选择；可切成直连或任一机场链（`🔯 主备切换` / `🔯 主备切换1` / `♻️ 便宜主备`） |
 
 ## 漫画 / 动漫规则集（MangaCN、MangaProxyNoEH、AnimeCN、AnimeProxy）
 
@@ -204,13 +204,13 @@ rules:
 |---|---|---|
 | `rules/BiliBiliHMT.list`（自建） | B站港澳台限定番剧的「地区判定 + 播放入口」（`api.` / `bangumi.` / `www.`）+ 国际版（`bilibili.tv` / `biliintl.com` / `p.bstarstatic.com`） | `📺 B站番剧` |
 | `rules/MangaEHentai.list`（自建，从 MangaProxyNoEH 拆出） | e-hentai / ExHentai 家族 8 个域名（= geosite:ehentai 全集）+ 2 条关键词（拆进 `MangaEHentai.rest.list`） | `🔞 e-hentai` |
-| 上游 blackmatrix7 的 `BiliBili.list`（**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
+| 上游 blackmatrix7 的 `BiliBili.list`（provider 名 `bilibili_cdn`，**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
 
 - **📺 B站番剧**：默认 `DIRECT`——与不加这份清单时行为完全一致。要看港澳台限定番剧时，把这一组
   切到「🔯 主备切换|港澳台」或「…|港澳台1」（各机场一条；过滤器 `hktw` 只收香港 / 台湾节点）。
   港澳台限制是在**接口层**判定的，所以只有判定 / 取址域名进这个组；视频 CDN（`upos-*` / `mcdn`、
-  四个 akamai 镜像）由 `bilibili_cn` 保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。
-  规则顺序上 `bilibili_hmt` **必须排在 `bilibili_cn` 之前**：上游清单里的 `+.bilibili.com` 会把判定域名
+  四个 akamai 镜像）由 `bilibili_cdn` 保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。
+  规则顺序上 `bilibili_hmt` **必须排在 `bilibili_cdn` 之前**：上游清单里的 `+.bilibili.com` 会把判定域名
   先接走，顺序反了 📺 组就切不动。
   代价：切到港澳台之后，内地版权内容也会变成"港澳台视角"（两者共用同一批域名，无法自动区分，
   只能手动切组）。

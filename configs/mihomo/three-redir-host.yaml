@@ -183,7 +183,7 @@ proxy-groups:
   - {name: 🔯 主备切换|港澳台1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *hktw, max-failed-times: 1}
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
-  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备, 🎯 全球直连]}
 
 rule-providers:
   # ══ 自建清单：手工源是 rules/*.list（唯一手改的地方）══
@@ -243,8 +243,9 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/Media.mrs"
   # B站系域名（直连）：引用上游 blackmatrix7 的 BiliBili 清单，比手工维护的那 6 行更全——
   # 含全部 CDN / PCDN 主机、四个 akamai 镜像（其中 upos-hz-mirrorakam 是港澳台番剧的海外 UPOS，
-  # 直连更快）、App 包名等，并随上游更新。港澳台判定那几个域名由 bilibili_hmt 优先接管。
-  bilibili_cn:
+  # 直连更快）、App 包名等，并随上游更新。港澳台判定那几个域名由 bilibili_hmt 优先接管。名字里的 CDN 是重点：真正依赖这条规则的
+  # 是 CDN / PCDN / 镜像主机（其余 B站域名 geosite cn 本来也会直连）。
+  bilibili_cdn:
     proxy: DIRECT
     type: http
     interval: 86400
@@ -296,10 +297,10 @@ rules:
   - RULE-SET,manga_proxy_no_eh_rest,🎌 漫画动漫
   - RULE-SET,media,🎌 漫画动漫
   # B站：先让「📺 B站番剧」（可切换、默认直连）接管地区判定 / 播放入口 + 国际版，
-  # 再由 bilibili_cn（上游清单）兜住 CDN / PCDN 等其余 B站系域名，保持直连。
+  # 再由 bilibili_cdn（上游清单）兜住 CDN / PCDN 等其余 B站系域名，保持直连。
   # 顺序不能反：反了 +.bilibili.com 会先把 api/bangumi 接走，📺 组就切不动了。
   - RULE-SET,bilibili_hmt,📺 B站番剧
-  - RULE-SET,bilibili_cn,🎯 全球直连
+  - RULE-SET,bilibili_cdn,🎯 全球直连
   # 动漫·国内平台（AnimeCN）：按清单定位直连；排在 B站 之后，避免抢走 api/bangumi 的「📺 B站番剧」可切换性
   - RULE-SET,anime_cn,🎯 全球直连
   # 动漫（海外；hanime1 家族等「不能用日本节点」的站也收在这份清单里，同样落本组）：
