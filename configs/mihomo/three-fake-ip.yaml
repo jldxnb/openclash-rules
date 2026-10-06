@@ -1,10 +1,9 @@
-# three-v2-redir-host.yaml
-# 三机场 + 自建规则 + MetaCubeX 上游规则的桌面稳定版。
-# 三个 proxy-provider（stable / stable1 / cheap）+「AI」「游戏」「漫画动漫」「流媒体」等分流组，
-# 采用 redir-host，不依赖本机 127.0.0.1:5225 DNS。
-# 自建清单手工源是 rules/*.list，配置引用的是 mrs/*.mrs（生成物，见 scripts/gen_mrs.py）。
-# 注意：redir-host 下境外域名的解析要靠 fallback 的境外 DoH，而它们的连接是经规则、经代理发出的——
-# 代理不可用时会表现为「国内正常、外站域名解析失败」。手机 / TUN 场景请用 three-v2-fake-ip.yaml。
+# three-fake-ip.yaml
+# 三机场（stable / stable1 / cheap）+ 自建规则例外分流 + MetaCubeX mrs 的 fake-ip 版。
+# 与 three-redir-host.yaml 是**孪生配置：策略组/规则/规则集完全一致，只有 DNS 模式不同**，
+# 改一份要同步另一份。手机（FlClash）/ TUN 场景推荐用这一份：
+# 客户端拿到的是假 IP，不携带污染信息，连接时用域名出站、由节点解析——
+# 既不依赖「境外 DoH 能否直连」，也不怕本地解析被污染。本文件不依赖本机 127.0.0.1:5225。
 # 使用前必须把下面三个 url: "订阅" 替换为真实订阅地址。
 
 proxy-providers:
@@ -101,7 +100,8 @@ keep-alive-interval: 30
 
 profile:
   store-selected: true
-  store-fake-ip: false
+  # fake-ip 模式下把「假 IP ↔ 域名」的映射持久化：重启后应用手里缓存的旧假 IP 仍能对上域名
+  store-fake-ip: true
 
 sniffer:
   enable: true
@@ -148,7 +148,26 @@ dns:
   # 哪天要给局域网设备当 DNS 用，再改回 0.0.0.0
   listen: 127.0.0.1:1053
   ipv6: false
-  enhanced-mode: redir-host
+  enhanced-mode: fake-ip
+  # 用 IANA 保留的测试段（198.18.0.0/15 的前半）。不要写 28.0.0.1/8 之类——
+  # 那是真实公网段，真实目标撞进来会被当成假 IP 处理。
+  fake-ip-range: 198.18.0.1/16
+  # blacklist：下面列表里的域名发真实 IP，其余全部发假 IP（假 IP 不需要解析，也就没有污染问题）
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "+.lan"
+    - "+.local"
+    - geosite:private
+    - geosite:cn                 # 国内域名必须真实 IP 才能直连
+    # 下面这些"必须拿到真实 IP"的常见例外：连通性检测 / 推送 / 联机游戏 / 时间同步
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.push.apple.com"
+    - "+.ntp.org"
+    - "+.stun.playstation.net"
+    - "+.srv.nintendo.net"
+    - "+.xboxlive.com"
+    - localhost.ptlogin2.qq.com
   respect-rules: true
   default-nameserver:
     - 223.5.5.5
@@ -166,8 +185,8 @@ dns:
   fallback:
     - https://dns.cloudflare.com/dns-query
     - https://dns.google/dns-query
-  # 显式写出（与默认值一致）：「主解析结果不是中国 IP」就改问 fallback——
-  # 国内 DoH 对境外域名会返回污染 IP，这条判断正是挡住它的关键
+  # 显式写出（与默认值一致）：fake-ip 下只有「fake-ip-filter 放行的域名」（国内域名等）
+  # 才需要真实解析，这条判断管的是它们；境外域名走假 IP，根本不做本地解析
   fallback-filter:
     geoip: true
     geoip-code: CN

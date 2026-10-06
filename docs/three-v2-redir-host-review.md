@@ -1,5 +1,8 @@
 # three-v2-redir-host.yaml 审查报告
 
+> 说明：本报告审的是当时名为 `configs/mihomo/three-v2-redir-host.yaml` 的配置，
+> 该文件后来更名为 `configs/mihomo/three-redir-host.yaml`（内容有少量加固改动）。
+
 - 日期：2026-10-06。
 - 对象：[configs/mihomo/three-v2-redir-host.yaml](../configs/mihomo/three-v2-redir-host.yaml)。下文行号为该文件的实际 1-based 行号。
 - 范围：审查该 YAML 的配置值、相互依赖及潜在行为；没有修改 YAML，也没有审查其他配置或规则清单内容。

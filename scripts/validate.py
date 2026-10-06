@@ -178,6 +178,14 @@ def check_rule_lists() -> None:
                     "请把注释挪到单独一行")
             if " " in payload.split(",")[0] and rule_type.startswith("DOMAIN"):
                 add("WARN", rel, lineno, f"域名含空格：{payload}")
+            # 来源类规则会连"客户端自己的系统代理"一起命中：安卓 FlClash / 桌面客户端会把
+            # 系统代理设成 127.0.0.1:<端口>，于是浏览器等遵守系统代理的应用，境外流量被强制
+            # 直连而超时（国内本来就走直连，看不出问题）——2026-10-06 的手机故障就是这个原因。
+            if rule_type.startswith("SRC-"):
+                add("WARN", rel, lineno,
+                    f"来源类规则 {rule_type}：它会命中所有从该来源地址发起的连接（含客户端的"
+                    f"系统代理 127.0.0.1），容易把境外流量误判成直连；直连例外请只按目标地址判断"
+                    f"（IP-CIDR / DOMAIN-SUFFIX）")
 
             if line in seen:
                 add("WARN", rel, lineno, f"与第 {seen[line]} 行重复")

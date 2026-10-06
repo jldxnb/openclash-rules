@@ -4,8 +4,8 @@
 一批指向已删除/已改名文件的失效引用，并把历史草稿归档。
 
 > 后续变更（2026-10-06）：`configs/mihomo/` 下的 `one.yaml`、`three.yaml`、
-> `three-redir-host.yaml`、`three-v2.yaml` 已删除——四份配置收敛为 `three-v2-redir-host.yaml`
-> 与 `three-v2-fake-ip.yaml`（孪生配置，只有 DNS 模式不同）。下表里提到这几个文件的地方
+> `three-redir-host.yaml`、`three-v2.yaml` 已删除——四份配置收敛为 `three-redir-host.yaml`
+> 与 `three-fake-ip.yaml`（孪生配置，只有 DNS 模式不同；两份后来又规范命名过一次）。下表里提到这几个文件的地方
 > 属于历史记录，需要时用 `git show <删除前的提交>:<路径>` 取回。
 
 **如果你是配置的使用者（路由器 / OpenClash / subconverter 里填了本仓库的地址），

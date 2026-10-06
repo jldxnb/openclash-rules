@@ -14,14 +14,14 @@
 manga-sites.md      漫画站点域名清单（2026-10-05，729 个域名逐条实测+来源，供自建分流规则参考）
 configs/
   mihomo/          完整的 mihomo 配置，直接给 OpenClash / FlClash / Clash Party 用
-    three-v2-redir-host.yaml  主力配置（redir-host）：三机场 + 自建规则做例外分流 + MetaCubeX mrs；
+    three-redir-host.yaml  主力配置（redir-host）：三机场 + 自建规则做例外分流 + MetaCubeX mrs；
                       规则集走 jsDelivr、控制面板只监听本机、不依赖本机 127.0.0.1:5225。
                       注意：redir-host 下境外域名的解析依赖"代理可用"，代理不通会表现为
                       「国内正常、外站域名解析失败」
-    three-v2-fake-ip.yaml     上面那份的 fake-ip 版，**策略组/规则完全一致，只有 DNS 模式不同**
+    three-fake-ip.yaml     上面那份的 fake-ip 版，**策略组/规则完全一致，只有 DNS 模式不同**
                       （手机 FlClash / TUN 场景用这一份：假 IP 不携带污染信息，连接时用域名出站、
                       由节点解析，既不依赖境外 DoH 也不怕污染）
-    两份是孪生配置，改一份要同步另一份；其余历史配置（one / three / three-redir-host / three-v2）
+    两份是孪生配置，改一份要同步另一份；其余历史配置（one / three / three-v2 等）
     已于 2026-10-06 删除，需要时从 git 历史取回
   subconverter/    subconverter 转换模板（ACL4SSR 语法）
     acl4ssr-one.ini  主力模板
@@ -95,7 +95,7 @@ rule-providers:
 
 ### 2. 直接使用完整配置
 
-把 `configs/mihomo/three-v2-redir-host.yaml`（桌面）或 `three-v2-fake-ip.yaml`（手机 / TUN）
+把 `configs/mihomo/three-redir-host.yaml`（桌面）或 `three-fake-ip.yaml`（手机 / TUN）
 的内容喂给客户端。**必须先替换占位符**（见下一节），否则订阅拉不下来。
 
 配置里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
