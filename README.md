@@ -131,11 +131,11 @@ rule-providers:
 | `rules/AnimeProxy.list` | 动漫 · 海外代理（日系 / 海外聚合 / BT·字幕组 / 成人向） | FMHY 的 Anime Streaming / Downloading / Torrenting / Tracking 小节 |
 
 域名来源与逐条实测记录：漫画见 [manga-sites.md](manga-sites.md)，动漫见 [anime-sites.md](anime-sites.md)。
-「屏蔽 / 限制日本 IP」的站单独成两份清单：`rules/AnimeNoJP.list`（hanime1 家族、hanime.tv 系；
-原 `NoJP.list` 于 2026-10-06 改名）与 `rules/MangaNoJP.list`（18comic / 3hentai / irodoricomics /
-exhentai / manhuagui，证据分档见文件头注释）。配置里 `no_jp` 指向 AnimeNoJP.list，必须排在
-`anime_proxy` / `manga_proxy` 之前命中；`AnimeProxy.list` 尾部另留了一份备用条目，
-没接 NoJP 时也能走普通代理。
+「屏蔽 / 限制日本 IP」的站：动漫侧（hanime1 家族、hanime.tv 系）原本单独成 `rules/AnimeNoJP.list`，
+2026-10-06 该清单删除、内容并入 `rules/AnimeProxy.list` 尾部，配置里不再单接 `no_jp`——改由
+`anime_proxy`（以及漫画清单里的同名备用条目）接管，仍送进「🎌 漫画动漫」（该组默认就是"非日本"链）。漫画侧仍是
+`rules/MangaNoJP.list`（18comic / 3hentai / irodoricomics / exhentai / manhuagui，证据分档见
+文件头注释；暂未被配置引用）。
 
 每份清单分两区：
 
@@ -200,7 +200,9 @@ rules:
 （只报告变化，不写文件）、加 `--apply` 写入；写入后要再跑 `python scripts/gen_mrs.py`
 重建 mrs 与 rest（CI 里这两步是连着做的）。
 
-> 这四份清单暂未被 `configs/` 引用时，`validate.py` 的「未被引用」提示属正常（不是错误）。
+> 这四份清单现已全部接进 `configs/`（`manga_cn` → 🎯 全球直连、`manga_proxy_no_eh` → 🎌 漫画动漫、
+> `anime_cn` → 🎯 全球直连、`anime_proxy`(+rest) → 🎌 漫画动漫）；`validate.py` 对仍未引用的清单
+> （如 `rules/MangaNoJP.list`）给出的「未被引用」提示属正常（不是错误）。
 
 ## B站番剧 / e-hentai 专用组（`rules/BiliBiliHMT.list`、`rules/MangaEHentai.list`）
 
@@ -223,6 +225,9 @@ rules:
 - **🔞 e-hentai**：图站的下载额度按 IP 记，独立成组方便换机场 / 换节点。候选与「🎌 漫画动漫」
   同源（非日本链 + 全机场非日本节点，`no_jp` 过滤——exhentai 对日本 IP 有限制，证据见
   `rules/MangaNoJP.list` 文件头）。
+- 动漫两份清单也一并接进来了：`anime_cn` → `🎯 全球直连`（国内平台动漫区，按清单定位直连）、
+  `anime_proxy`(+`anime_proxy_rest`) → `🎌 漫画动漫`（海外动漫站，含 hanime1 家族这类
+  「不能用日本节点」的站——原来由单独的 `no_jp` 清单承担，该清单 2026-10-06 删除后由它接棒）。
 - 两个组用的 `hktw` / `no_hktw` 筛选词都定义在 `x-node-filters`，改词只改那一处。
 - e-hentai 家族原来在漫画代理清单里；现已迁出成独立的 `MangaEHentai.list`，原清单同时改名
   `MangaProxy.list` → `MangaProxyNoEH.list`（文件名直接写明「不含 e-hentai」）
