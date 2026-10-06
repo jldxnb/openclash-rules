@@ -332,6 +332,24 @@ def check_mihomo_configs() -> None:
             if name not in providers:
                 add("ERROR", rel, 0, f"rules 里引用了未定义的 rule-provider：{name}")
 
+        # 每条规则的出口（组名 / DIRECT / REJECT 等）必须真实存在——
+        # 目标名被写错时 mihomo 只会在运行时静默走兜底，很难发现
+        for entry in cfg.get("rules") or []:
+            text = str(entry)
+            parts = [x.strip() for x in text.split(",")]
+            head = parts[0].upper() if parts else ""
+            if head == "MATCH":
+                target = parts[1] if len(parts) > 1 else ""
+            elif head in ("RULE-SET", "GEOSITE", "GEOIP", "DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD",
+                          "IP-CIDR", "IP-CIDR6", "PROCESS-NAME", "PROCESS-NAME-REGEX", "SRC-IP-CIDR"):
+                target = parts[2] if len(parts) > 2 else ""
+            else:
+                continue
+            if not target:
+                add("ERROR", rel, 0, f"规则缺少出口：{text}")
+            elif target not in group_names and target not in BUILTIN_POLICIES:
+                add("ERROR", rel, 0, f"规则的出口「{target}」不是已定义策略组也不是内建策略：{text}")
+
         # 策略组引用
         for group in groups:
             if not isinstance(group, dict):
