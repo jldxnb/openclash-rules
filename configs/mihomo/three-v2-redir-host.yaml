@@ -226,11 +226,13 @@ rules:
   - IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
   - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
   - IP-CIDR,224.0.0.0/4,DIRECT,no-resolve
+  # 连本机 → 直连。原来这条在 rules/DirectOwn.rest.list 里，整份只剩这一行，
+  # 没必要为了它去拉远程规则集，直接写进配置。
+  - IP-CIDR,127.0.0.1/32,DIRECT,no-resolve
 
   # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
   # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
   - RULE-SET,direct1,DIRECT
-  - RULE-SET,direct1_rest,DIRECT
   - RULE-SET,ai,🤖 AI
   - RULE-SET,ai_rest,🤖 AI
   - RULE-SET,no_jp,🎌 漫画动漫
@@ -322,9 +324,6 @@ rule-providers:
   direct1:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/DirectOwn.mrs"
-  direct1_rest:
-    <<: *self_text
-    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/DirectOwn.rest.list"
   download:
     <<: *self_text
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/download.list"
