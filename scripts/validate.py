@@ -378,6 +378,51 @@ def check_exposure(rel, cfg: dict) -> None:
 
 
 # --------------------------------------------------------------------------
+# 3b. 孪生配置：两份只允许差「文件头 / dns 段 / store-fake-ip」
+# --------------------------------------------------------------------------
+def _twin_comparable(path: Path) -> list[str]:
+    """把配置文本归一化：去掉文件头注释块、dns 段、store-fake-ip 行，返回剩余的行。"""
+    text = read_text(path).replace("\r\n", "\n").replace("\r", "\n")
+    out: list[str] = []
+    in_dns = False
+    for raw in text.split("\n"):
+        line = raw.rstrip()
+        if not out and (not line or line.startswith("#")):
+            continue                      # 文件头（注释块）
+        if line.startswith("dns:"):
+            in_dns = True
+            continue
+        if in_dns:
+            if line and not line[0].isspace():
+                in_dns = False            # dns 段结束：遇到下一个顶层键
+            else:
+                continue
+        if line.strip().startswith("store-fake-ip:"):
+            continue                      # 只在 fake-ip 模式下才有意义的开关
+        out.append(line)
+    return out
+
+
+def check_config_twins() -> None:
+    base = ROOT / "configs" / "mihomo"
+    a, b = base / "three-redir-host.yaml", base / "three-fake-ip.yaml"
+    if not (a.is_file() and b.is_file()):
+        return
+    la, lb = _twin_comparable(a), _twin_comparable(b)
+    for index, (x, y) in enumerate(zip(la, lb)):
+        if x != y:
+            add("ERROR", "configs/mihomo", 0,
+                "孪生配置不一致（归一化后第 %d 行）：\n      %s: %s\n      %s: %s\n"
+                "      两份只允许差「文件头 / dns 段 / store-fake-ip」，改一份请同步另一份"
+                % (index + 1, a.name, x.strip()[:80], b.name, y.strip()[:80]))
+            return
+    if len(la) != len(lb):
+        add("ERROR", "configs/mihomo", 0,
+            "孪生配置行数不一致（%s %d 行 vs %s %d 行），改一份请同步另一份"
+            % (a.name, len(la), b.name, len(lb)))
+
+
+# --------------------------------------------------------------------------
 # 4. subconverter 模板（configs/subconverter/*.ini）
 # --------------------------------------------------------------------------
 def check_subconverter_templates(files: list[Path]) -> None:
@@ -506,6 +551,7 @@ def main() -> int:
     check_rule_lists()
     check_mrs_files(used)
     check_mihomo_configs()
+    check_config_twins()
     check_subconverter_templates(files)
     if args.online:
         check_online(files)
