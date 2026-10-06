@@ -143,8 +143,11 @@ dns:
 # （mihomo 不认识 x-node-filters 这个键，会忽略它；它只是给锚点一个落脚处。
 #   改筛选词只需改这里，下面各策略组的 filter 都会跟随，不会出现"链上过滤了、手动列表没过滤"的漂移。）
 x-node-filters:
-  no_hktw: &no_hktw "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|彰化|中华电信|HiNet|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
+  no_hktw: &no_hktw "(?i)^((?!(香港|港|HK|Hong Kong|HongKong|台湾|台灣|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|桃園|彰化|中华电信|中華電信|HiNet|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
   no_jp:   &no_jp   "(?i)^((?!(日|JP|Japan|Tokyo|Osaka|东京|大阪|名古屋|福冈|札幌|横滨|神户|京都|冲绳|埼玉|琦玉|家宽|游戏|剩余|流量|套餐|有效期|过期|试用|测试|维护)).)*$"
+  # 港台（正向）：只收香港 / 台湾节点，给「📺 B站番剧」用。与 no_hktw 是同一套词的正面写法
+  # （繁体写法两边都收，避免节点名写「台灣-01」时两个组判断不一致）
+  hktw:    &hktw    "(?i)(香港|港|HK|Hong Kong|HongKong|台湾|台灣|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|桃園|彰化|中华电信|中華電信|HiNet)"
 
 proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
@@ -152,9 +155,14 @@ proxy-groups:
   # 游戏不做地区限制：港澳台节点延迟低，打游戏反而更合适，所以候选直接用不限地区的链
   - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换, 🔯 主备切换1], include-all: true}
   - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|非日本, 🔯 主备切换|非日本1], include-all: true, filter: *no_jp}
+  # e-hentai 单独成组：图站的下载额度按 IP 记，换机场 / 换节点都在这里切；
+  # 候选与「🎌 漫画动漫」同源（非日本链 + 全机场非日本节点，默认项就是非日本链）
+  - {name: 🔞 e-hentai, type: select, proxies: [🔯 主备切换|非日本, 🔯 主备切换|非日本1, ♻️ 便宜主备], include-all: true, filter: *no_jp}
   # 微软服务默认直连：Windows 更新 / Office 下载走直连更快，也避免影响「手机连接」的局域网配对
   - {name: 🪟 微软服务, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, 🚀 节点选择], use: [cheap]}
+  # B站番剧默认直连（与不加规则时完全一致）；要看港澳台限定番剧，把这一组切到「港澳台」链
+  - {name: 📺 B站番剧, type: select, proxies: [DIRECT, 🔯 主备切换|港澳台, 🔯 主备切换|港澳台1], include-all: true, filter: *hktw}
   - {name: ✈️ Speedtest, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
 
   # 跨机场自动：stable → stable1 → cheap。想指定某个机场就别选它，
@@ -162,15 +170,17 @@ proxy-groups:
   - {name: 🔯 自动兜底, type: fallback, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
 
-  # 机场一：stable —— 三条链，按地区区分（无限制 / 非港台 / 非日本）
+  # 机场一：stable —— 四条链，按地区区分（无限制 / 非港台 / 非日本 / 港澳台）
   - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: 🔯 主备切换|非港台, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
   - {name: 🔯 主备切换|非日本, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
+  - {name: 🔯 主备切换|港澳台, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *hktw, max-failed-times: 1}
 
   # 机场二：stable1 —— 同上
   - {name: 🔯 主备切换1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
   - {name: 🔯 主备切换|非港台1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
   - {name: 🔯 主备切换|非日本1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
+  - {name: 🔯 主备切换|港澳台1, type: fallback, use: [stable1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *hktw, max-failed-times: 1}
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
@@ -216,12 +226,21 @@ rule-providers:
   manga_proxy_rest:
     <<: *self_text
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/MangaProxy.rest.list"
+  e_hentai:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/EHentai.mrs"
+  e_hentai_rest:
+    <<: *self_text
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/rules/EHentai.rest.list"
   media:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/Media.mrs"
   bilibili:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BiliBili.mrs"
+  bilibili_hmt:
+    <<: *domain
+    url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/BiliBiliHMT.mrs"
   proxylite:
     <<: *domain
     url: "https://cdn.jsdelivr.net/gh/jldxnb/openclash-rules@main/mrs/ProxyLite.mrs"
@@ -246,7 +265,7 @@ rules:
   # 没必要为了它去拉远程规则集，直接写进配置。
   - IP-CIDR,127.0.0.1/32,DIRECT,no-resolve
 
-  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组）。
+  # 自建规则：顺序是例外优先（no_jp 早于漫画清单，保证 hanime1 落「漫画动漫」组；e_hentai 早于 manga_proxy，保证 e-hentai 落「🔞 e-hentai」组）。
   # 每对「X + X_rest」来自同一个清单：X 是 mrs（域名部分），X_rest 是关键词/IP 部分（source list 里 mrs 编不进去的条目）。
   - RULE-SET,direct1,DIRECT
   - RULE-SET,ai,🤖 AI
@@ -256,10 +275,16 @@ rules:
   - RULE-SET,bluearchive_rest,🎮 游戏
   - RULE-SET,manga_cn,🎯 全球直连
   - RULE-SET,manga_cn_rest,🎯 全球直连
+  # e-hentai 单独走组（图站额度按 IP 记，换机场 / 换节点最方便）：
+  # 排在 manga_proxy 之前，避免被漫画清单先接走
+  - RULE-SET,e_hentai,🔞 e-hentai
+  - RULE-SET,e_hentai_rest,🔞 e-hentai
   - RULE-SET,manga_proxy,🎌 漫画动漫
   - RULE-SET,manga_proxy_rest,🎌 漫画动漫
   - RULE-SET,media,🎌 漫画动漫
   - RULE-SET,bilibili,🎯 全球直连
+  # B站番剧：地区判定 / 播放入口 + 国际版，交给可切换的「📺 B站番剧」（默认直连，CDN 不在此列）
+  - RULE-SET,bilibili_hmt,📺 B站番剧
   - RULE-SET,proxylite,DIRECT
   - RULE-SET,download,🎯 全球直连
   - GEOSITE,category-ai-!cn,🤖 AI
