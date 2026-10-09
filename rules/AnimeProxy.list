@@ -464,7 +464,6 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 
 # ===== 自动同步区开始（由 scripts/gen_*_rules.py 重写，勿手改）=====
 DOMAIN-SUFFIX,anibase.net
-DOMAIN-SUFFIX,anidb.app
 DOMAIN-SUFFIX,anidb.net
 DOMAIN-SUFFIX,anidl.org
 DOMAIN-SUFFIX,anime-planet.com
