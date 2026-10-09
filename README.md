@@ -202,7 +202,7 @@ rules:
 
 | 清单 | 内容 | 指向的策略组 |
 |---|---|---|
-| `rules/BiliBiliHMT.list`（自建） | B站港澳台限定番剧的「地区判定 + 播放入口」（`api.` / `bangumi.` / `www.`）+ 国际版（`bilibili.tv` / `biliintl.com` / `p.bstarstatic.com`） | `📺 B站番剧` |
+| `rules/BiliBiliHMT.list`（自建） | B站港澳台限定番剧的「地区判定 + 播放入口」：网页端 `api.` / `bangumi.` / `www.` + App 端 `grpc.biliapi.net` / `app.bilibili.com`，另有国际版 `bilibili.tv` / `biliintl.com` / `p.bstarstatic.com` | `📺 B站番剧` |
 | `rules/MangaEHentai.list`（自建，从 MangaProxyNoEH 拆出） | e-hentai / ExHentai 家族 8 个域名（= geosite:ehentai 全集）+ 2 条关键词（拆进 `MangaEHentai.rest.list`） | `🔞 e-hentai` |
 | 上游 blackmatrix7 的 `BiliBili.list`（provider 名 `bilibili_cdn`，**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
 
@@ -212,6 +212,10 @@ rules:
   四个 akamai 镜像）由 `bilibili_cdn` 保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。
   规则顺序上 `bilibili_hmt` **必须排在 `bilibili_cdn` 之前**：上游清单里的 `+.bilibili.com` 会把判定域名
   先接走，顺序反了 📺 组就切不动。
+  网页端只用 `api.` / `bangumi.` / `www.` 三个域名，而手机 App 的详情与播放走 gRPC 的
+  `grpc.biliapi.net`（另有 `app.bilibili.com`）——少写这两个会出现「浏览器能看港澳台、手机 App 不能」：
+  它们会被 `bilibili_cdn` 接走（上游清单含 `+.biliapi.net` / `+.bilibili.com`，还有
+  `PROCESS-NAME,tv.danmaku.bili` 等 6 条 App 包名规则），落「🎯 全球直连」，切组也没用。
   代价：切到港澳台之后，内地版权内容也会变成"港澳台视角"（两者共用同一批域名，无法自动区分，
   只能手动切组）。
 - **🔞 e-hentai**：图站的下载额度按 IP 记，独立成组方便换机场 / 换节点。候选与「🎌 漫画动漫」
