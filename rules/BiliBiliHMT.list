@@ -1,6 +1,7 @@
 # BiliBiliHMT.list —— B站「港澳台限定」番剧相关域名
 #
-# 内容：区域判定与播放入口（api / bangumi / www）+ 国际版（bilibili.tv / biliintl.com / 静态资源）。
+# 内容：网页端区域判定 / 播放入口（api / bangumi / www）+ App 端播放入口（grpc.biliapi.net /
+#       app.bilibili.com）+ 国际版（bilibili.tv / biliintl.com / 静态资源）。
 #       港澳台限制是在接口层判定的——这些域名走哪条线，B站就认为你是哪个地区的用户。
 # 用法：指向「📺 B站番剧」组：默认 DIRECT，与不加这份清单时完全一致；要看港澳台限定番剧时
 #       把该组切到「港澳台」链（香港 / 台湾节点都可以，部分番剧只在一个地区有版权）。
@@ -9,7 +10,6 @@
 # 写法说明：p.bstarstatic.com 用精确主机（国际版静态资源）。实测该域下存在 p. / s1. 两个在用子域，
 #       这里先只收主用的 p.（与 blackmatrix7 / ACL4SSR 的写法一致）；要连 s1. 一起收，
 #       把这条改成 DOMAIN-SUFFIX,bstarstatic.com。
-# App 内解锁不生效时，再启用文件末尾注释里的两条（新版 App 播放入口 / 通用接口）。
 DOMAIN,api.bilibili.com
 DOMAIN,bangumi.bilibili.com
 DOMAIN,www.bilibili.com
@@ -18,6 +18,12 @@ DOMAIN,p.bstarstatic.com
 DOMAIN-SUFFIX,bilibili.tv
 DOMAIN-SUFFIX,biliintl.com
 
-# App 场景备选（默认关闭；Android / iOS 客户端解锁不出来时再打开）
-# DOMAIN,grpc.biliapi.net
-# DOMAIN,app.bilibili.com
+# App 端播放入口（2026-10-09 启用）：安卓 / iOS 客户端的番剧详情与 PlayURL 走 gRPC 的
+#   grpc.biliapi.net，另有 app.bilibili.com（旧版通用接口）。网页端只走上面那三条，所以
+#   只用浏览器时看不出缺这两条——一旦不写，它们会落到后面的 bilibili_cdn（上游清单含
+#   DOMAIN-SUFFIX,biliapi.net / DOMAIN-SUFFIX,bilibili.com 与 PROCESS-NAME,tv.danmaku.bili）
+#   →「🎯 全球直连」，App 里把本组切到港澳台链也解锁不出来（症状：桌面浏览器能看、手机不能）。
+# 要再放宽：grpc.biliapi.net → DOMAIN-SUFFIX,biliapi.net（biliapi.net 只有 B站接口，不含 CDN）；
+#   app.bilibili.com 别放宽成 bilibili.com 后缀——会把网站、登录、漫画全卷进本组。
+DOMAIN,grpc.biliapi.net
+DOMAIN,app.bilibili.com
