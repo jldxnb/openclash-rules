@@ -329,6 +329,15 @@ rules:
   - RULE-SET,anime_proxy_rest,🎌 漫画动漫
   - RULE-SET,proxylite,DIRECT
   - RULE-SET,download,🎯 全球直连
+  # 微软商店（Store）下载 / 更新：写死 DIRECT（不经 🚀 节点选择，也不受可切换的「🪟 微软服务」组影响）。
+  #   · mp.microsoft.com —— 覆盖 delivery. / storeedgefd.dsx. / displaycatalog. 这三个下载与目录主机
+  #     （都是它的子域）。原来只靠 GEOSITE,microsoft → 🪟 微软服务，那一组一旦被切到节点，商店更新就会挂。
+  #   · akamaized.net —— 商店的下载 CDN（Akamai）；不加这条，这些主机落 GEOSITE,geolocation-!cn → 代理。
+  # 位置必须在这里（自建清单之后、GEOSITE 之前）：bahamut.akamaized.net（台限视频 CDN）、
+  # vod-/linear-abematv.akamaized.net（日限）、prod-contents-br-page.akamaized.net（ebookjapan 图床）
+  # 这几个站点专用子域要靠节点 IP 过区域限制，不能被本条整域直连抢走。
+  - DOMAIN-SUFFIX,mp.microsoft.com,DIRECT
+  - DOMAIN-SUFFIX,akamaized.net,DIRECT
   - GEOSITE,category-ai-!cn,🤖 AI
 
   - GEOSITE,private,DIRECT
