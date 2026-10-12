@@ -230,6 +230,25 @@ rules:
   （文件名保留了 Manga 前缀，一眼能看出它是从漫画清单拆出来的），`gen_manga_rules.py` 也不再同步
   v2fly 的 `data/ehentai`（否则 CI 会把条目写回 MangaProxyNoEH）。
 
+## 微软商店下载写死直连（`mp.microsoft.com` / `akamaized.net`）
+
+两份配置里各有一对**写死 `DIRECT`** 的规则（不是可切换的组），紧跟自建清单之后、`GEOSITE` 之前：
+
+| 规则 | 为什么 |
+|---|---|
+| `DOMAIN-SUFFIX,mp.microsoft.com,DIRECT` | 商店的下载与目录主机——`delivery.mp.microsoft.com`、`storeedgefd.dsx.mp.microsoft.com`、`displaycatalog.mp.microsoft.com` 都是它的子域。原先只靠 `GEOSITE,microsoft` → `🪟 微软服务`，那一组一旦被切到节点，商店应用更新就会失败 |
+| `DOMAIN-SUFFIX,akamaized.net,DIRECT` | 商店的下载 CDN（Akamai）。不加这条，这些主机落 `GEOSITE,geolocation-!cn`（该清单里有 `+.akamaized.net`）→ 代理 |
+
+**位置不能往前提**：`bahamut.akamaized.net`（巴哈姆特动画疯的台限视频 CDN）、
+`vod-` / `linear-abematv.akamaized.net`（Abema 日限）、`prod-contents-br-page.akamaized.net`
+（ebookjapan 图床）这几个**站点专用**子域要靠节点 IP 过区域限制，必须继续由前面的
+`anime_proxy` / `manga_proxy_no_eh` 接走——这也是 `anime-sites.md` 里「共用 CDN 不整域收录」
+那条约定的原因，别把这两条挪到 `direct1`（`rules/DirectOwn.list`，那是首条规则，会抢走它们）。
+
+验证方式（可复现）：假节点内核 + `curl -x http://127.0.0.1:7899 https://<域名>/`，
+日志里应出现 `match DomainSuffix(mp.microsoft.com) using DIRECT` / `DomainSuffix(akamaized.net)`，
+同一内核下 `bahamut.akamaized.net` 仍命中 `RuleSet(anime_proxy)`。
+
 ## 使用前必须替换的占位符
 
 | 位置 | 当前值 | 要改成 |
