@@ -122,12 +122,13 @@
 
 #### 拷贝漫画（CopyManga）★重点
 - 类别: 汉化站/聚合站
-- 域名: mangacopy.com | www.mangacopy.com | copymanga.site | www.copymanga.site | copy4000.com | www.copy4000.com | api.mangacopy.com | api.copymanga.site | mangafunb.fun | s3.mangafunb.fun | sa–sz.mangafunb.fun 系列（实测可见: sa sb sc sd se sf sg sh sj sl sm sn sp sq ss st sw sx sy sz + s3）| manga2026.xyz | www.manga2026.xyz
+- 域名: mangacopy.com | www.mangacopy.com | copymanga.site | www.copymanga.site | copy4000.com | www.copy4000.com | api.mangacopy.com | api.copymanga.site | mangafunb.fun | s3.mangafunb.fun | sa–sz.mangafunb.fun 系列（实测可见: sa sb sc sd se sf sg sh sj sl sm sn sp sq ss st sw sx sy sz + s3）| manga2026.xyz | www.manga2026.xyz | mangashot.com | c3.mangashot.com | static.mangashot.com | hotmangas.com | c3.hotmangas.com | c3.yourfgjfghkk.club
 - 性质: 全球华人免费在线漫画站（官方自述"为躲避不可抗力开设"），日漫汉化为主，带官方 App
 - 来源: [拷贝漫画首页](https://www.mangacopy.com/)（站内横幅官方公告原文："大陸無障礙訪問地址為https://www.copy4000.com/ ** 更多加速服務正在艱難談判中"）；[百度知道整理](https://zhidao.baidu.com)（网页端为 www.mangacopy.com，copymanga.org 已失效）；[bgm.tv 资源汇总帖](https://bgm.tv)（历史拓展过 .org/.site/.info/.net 后缀）；图片/静态 CDN 域名 mangafunb.fun 全部来自首页源码实测（25 次 s3.mangafunb.fun，封面图使用 sa–sz 系列子域）；manga2026.xyz 为首页 banner 官方关联下载站
 - 后续更新入口: 站内首页横幅公告（https://www.mangacopy.com/ 或 copy4000.com 首页）；未发现公开官方 TG 频道链接
 - 快测: www.mangacopy.com: 200；www.copymanga.site: 200；www.copy4000.com: 200；api.mangocopy.com(误写)/api.mangacopy.com: 404（存活）；api.copymanga.site: 200；copymanga.org: 连接失败；copymanga.tv: NXDOMAIN；copymanga.com: 连接失败；copymanga.info: 200（停放页）；copymanga.co: 200（停放页）；copymanga.app: 200（welcome 停放页）
 - 备注: 域名轮换规律——每遇攻击/封锁即启用新 TLD，官方公告只挂最新可用域名；API 独立于网页（api.mangacopy.com / api.copymanga.site），App 走 API 需单独覆盖；mangafunb.fun 是图片核心域，缺它网页能开但图挂；manga2026.xyz 是关联"新番/里番下载站"，可按需收录。旧域名 .org/.tv/.com 等已失效或停放，不要再加入规则；.info/.co/.app 实测均为停放页（title 即域名本身或 welcome），无内容。
+- 备注（2026-10-12 复审，起因：他报"拷贝漫画域名收集不全、流量导错"）: 站点前端常量文件 `public20251212.js`（https://s3.mangafunb.fun/static/websitefree/js20190704/public20251212.js，阅读页与详情页都加载它）公布了当前线路——`STATIC_URL = s3.mangafunb.fun`（注释里另有 `static.mangashot.com`）、`C3_URL = c3.yourfgjfghkk.club`、被注释的 `API_URL = www.qetzdg.club`；同文件 `getImgObj()` 把章节图 URL 里的 `//c3.hotmangas.com/` **改写成 `//c3.mangashot.com/` 再加载**——即**章节图实际走 mangashot.com**，`hotmangas.com` 是接口下发时的原始形式，两条都要覆盖。解析实测：`c3.mangashot.com` / `c3.hotmangas.com` 的 AliDNS 答案是**污染段**（104.244.43.208＝Twitter 段 / 173.252.88.133＝Facebook 段），境外 DoH 给的是真实 AWS IP（54.243.117.197 / 13.223.25.84 / 207.56.119.16 / 38.177.233.200）→ 判定"被墙"，已随主域收进 `MangaProxyNoEH.list`（后缀 + 关键词兜底）。`www.qetzdg.club` 今日 NXDOMAIN（已死，未收录）；`static.mangashot.com` 带 Referer 访问返回 302（Cloudflare 前置、有防盗链），`c3.*` 从境外 IP 直连不稳定（302/000 交替）。
 
 #### 漫画DB
 - 类别: 汉化站（单行本扫描聚合）
