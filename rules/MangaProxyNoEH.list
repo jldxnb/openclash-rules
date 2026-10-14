@@ -11,8 +11,10 @@
 #
 # 高变动提示：韩国盗版站（mato31 / newto31 / bookto31 / toonkor### 等）与 JM / raw 系
 #   域名轮换很快，清单里收了「稳定入口 + 关键词兜底」；长期跟进入口见 manga-sites.md §3/§10。
-#   拷贝漫画也在换 CDN 名字（图片域从 mangafunb.fun 扩出 mangashot.com / hotmangas.com 与
-#   随机 .club 主机），已按「后缀 + 关键词」双双收录；新域名出现在站点 JS 的 public*.js 常量里。
+#   拷贝漫画也在换 CDN 与镜像名字（mangafunb.fun → mangashot.com / hotmangas*.com / 随机 .club；
+#   镜像域出现 2026copy.com / copy3000.com / manga2025.com 等），已按「后缀 + 关键词」双双收录；
+#   找新域名的两个来源：站点 JS 的 public*.js 常量、安卓扩展 APK 的 classes.dex
+#   （github.com/LittleSurvival/copymanga-copy20）。
 # 共用域未收录（避免连带非漫画流量，需要时自行加）：Kindle=amazon.co.jp、
 #   Kobo=www.kobo.com、U-NEXT=video.unext.jp。ebookjapan 的图片 CDN（prod-contents-br-page.akamaized.net）因是专用主机名，已收录。
 # e-hentai 家族（e-hentai.org / exhentai.org / ehgt.org / ehwiki.org / ehtracker.org /
@@ -270,6 +272,15 @@ DOMAIN-SUFFIX,mangafunb.fun
 DOMAIN-SUFFIX,hotmangas.com
 DOMAIN-SUFFIX,mangashot.com
 DOMAIN-SUFFIX,yourfgjfghkk.club
+# 拷贝漫画的镜像 / 接口域名（2026-10-12 从安卓扩展 tachiyomi-zh.copymanga v1.4.85 的 classes.dex 提取，
+#   上游仓库 github.com/LittleSurvival/copymanga-copy20，含 www./api./mapi. 多种前缀）：
+#   这三个在 CN 被 DNS 污染——AliDNS 返回 31.13 / 104.244 / 108.160 段（Facebook / Twitter /
+#   Dropbox 段），境外 DoH 给真实 Cloudflare / 越南 IP → 按「被墙」归本清单。同族的干净别名
+#   （copy4000 / copy20 / copy2000.online / copy2000.site / 2025copy）在 MangaCN.list。
+#   关键词兜底用 mangafun 前缀（下面），覆盖 mangafunb.fun 与同门的 mangafuna.xyz 等。
+DOMAIN-SUFFIX,2026copy.com
+DOMAIN-SUFFIX,copy3000.com
+DOMAIN-SUFFIX,manga2025.com
 DOMAIN-SUFFIX,mangago.me
 DOMAIN-SUFFIX,mangahere.cc
 DOMAIN-SUFFIX,mangahub.io
@@ -444,7 +455,7 @@ DOMAIN-KEYWORD,mangadex
 DOMAIN-KEYWORD,webtoon
 DOMAIN-KEYWORD,copymanga
 DOMAIN-KEYWORD,mangacopy
-DOMAIN-KEYWORD,mangafunb
+DOMAIN-KEYWORD,mangafun
 DOMAIN-KEYWORD,hotmangas
 DOMAIN-KEYWORD,mangashot
 # hanime1：备用条目 —— 与 rules/AnimeProxy.list 尾部那组重复（两条规则都指向「🎌 漫画动漫」，

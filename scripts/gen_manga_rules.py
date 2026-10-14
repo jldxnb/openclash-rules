@@ -66,8 +66,10 @@ HEADER_PROXY = """# MangaProxyNoEH.list —— 漫画站域名清单 · 海外�
 #
 # 高变动提示：韩国盗版站（mato31 / newto31 / bookto31 / toonkor### 等）与 JM / raw 系
 #   域名轮换很快，清单里收了「稳定入口 + 关键词兜底」；长期跟进入口见 manga-sites.md §3/§10。
-#   拷贝漫画也在换 CDN 名字（图片域从 mangafunb.fun 扩出 mangashot.com / hotmangas.com 与
-#   随机 .club 主机），已按「后缀 + 关键词」双双收录；新域名出现在站点 JS 的 public*.js 常量里。
+#   拷贝漫画也在换 CDN 与镜像名字（mangafunb.fun → mangashot.com / hotmangas*.com / 随机 .club；
+#   镜像域出现 2026copy.com / copy3000.com / manga2025.com 等），已按「后缀 + 关键词」双双收录；
+#   找新域名的两个来源：站点 JS 的 public*.js 常量、安卓扩展 APK 的 classes.dex
+#   （github.com/LittleSurvival/copymanga-copy20）。
 # 共用域未收录（避免连带非漫画流量，需要时自行加）：Kindle=amazon.co.jp、
 #   Kobo=www.kobo.com、U-NEXT=video.unext.jp。ebookjapan 的图片 CDN（prod-contents-br-page.akamaized.net）因是专用主机名，已收录。
 # e-hentai 家族（e-hentai.org / exhentai.org / ehgt.org / ehwiki.org / ehtracker.org /
