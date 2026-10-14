@@ -11,10 +11,12 @@
 #
 # 高变动提示：韩国盗版站（mato31 / newto31 / bookto31 / toonkor### 等）与 JM / raw 系
 #   域名轮换很快，清单里收了「稳定入口 + 关键词兜底」；长期跟进入口见 manga-sites.md §3/§10。
+#   拷贝漫画也在换 CDN 名字（图片域从 mangafunb.fun 扩出 mangashot.com / hotmangas.com 与
+#   随机 .club 主机），已按「后缀 + 关键词」双双收录；新域名出现在站点 JS 的 public*.js 常量里。
 # 共用域未收录（避免连带非漫画流量，需要时自行加）：Kindle=amazon.co.jp、
 #   Kobo=www.kobo.com、U-NEXT=video.unext.jp。ebookjapan 的图片 CDN（prod-contents-br-page.akamaized.net）因是专用主机名，已收录。
 # e-hentai 家族（e-hentai.org / exhentai.org / ehgt.org / ehwiki.org / ehtracker.org /
-#   hath.network / hentaiathome.net / hentaiverse.org + 2 条关键词）已迁到 rules/EHentai.list，
+#   hath.network / hentaiathome.net / hentaiverse.org + 2 条关键词）已迁到 rules/MangaEHentai.list，
 #   由「🔞 e-hentai」策略组单独承接——图站额度按 IP 记，独立成组方便换机场 / 换节点。
 # ===== 手工维护区开始（脚本原样保留，按行增删即可）=====
 DOMAIN-SUFFIX,11toon.com
@@ -259,6 +261,15 @@ DOMAIN-SUFFIX,mangacross.jp
 DOMAIN-SUFFIX,mangadex.org
 DOMAIN-SUFFIX,mangafire.to
 DOMAIN-SUFFIX,mangafunb.fun
+# 拷贝漫画的图片 / 静态 CDN（2026-10-12 站内实测，证据见 manga-sites.md「拷贝漫画」节）：
+#   章节图 URL 由接口下发为 //c3.hotmangas.com/…，前端 JS（public*.js 的 getImgObj）会改写成
+#   c3.mangashot.com 再加载；另有静态备用域 static.mangashot.com、站点 JS 里的 C3 主机
+#   c3.yourfgjfghkk.club（C3_URL）。三个名字都不含 mangacopy / copymanga，关键词兜底抓不到。
+#   归属依据：c3.* 的 AliDNS 答案是污染段（Twitter / Facebook 段），境外 DoH 给真实 AWS IP
+#   → 按「被墙」与主域同归本清单。（JS 里另一条注释掉的 API 域 www.qetzdg.club 已 NXDOMAIN，未收录）
+DOMAIN-SUFFIX,hotmangas.com
+DOMAIN-SUFFIX,mangashot.com
+DOMAIN-SUFFIX,yourfgjfghkk.club
 DOMAIN-SUFFIX,mangago.me
 DOMAIN-SUFFIX,mangahere.cc
 DOMAIN-SUFFIX,mangahub.io
@@ -434,6 +445,8 @@ DOMAIN-KEYWORD,webtoon
 DOMAIN-KEYWORD,copymanga
 DOMAIN-KEYWORD,mangacopy
 DOMAIN-KEYWORD,mangafunb
+DOMAIN-KEYWORD,hotmangas
+DOMAIN-KEYWORD,mangashot
 # hanime1：备用条目 —— 与 rules/AnimeProxy.list 尾部那组重复（两条规则都指向「🎌 漫画动漫」，
 # 谁先命中都一样；留在这里是为了本清单自包含）
 DOMAIN-KEYWORD,hanime1

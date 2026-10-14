@@ -46,8 +46,9 @@ HEADER_CN = """# MangaCN.list —— 漫画站域名清单 · 国内直连
 #
 # 已知取舍（要改就是改分流语义，留意）：
 #   - 拷贝漫画：按官方公告，大陆入口 copy4000.com 等 copy 系别名收录在本清单；
-#     主域 mangacopy.com / copymanga.site 与图片 CDN mangafunb.fun 归 MangaProxyNoEH.list。
-#     若你在大陆实测 mangafunb.fun 直连也正常，把它挪进本清单手工区。
+#     主域 mangacopy.com / copymanga.site 与图片 CDN（mangafunb.fun / mangashot.com /
+#     hotmangas.com / c3.yourfgjfghkk.club）归 MangaProxyNoEH.list。
+#     若你在大陆实测这些 CDN 直连也正常，把它们挪进本清单手工区。
 #   - 漫画柜 / 漫画DB / 包子漫画 系为境外托管但国内常用的站，按「国内可直连」收录；
 #     若实测直连不通，把它们挪到 MangaProxyNoEH.list 手工区。
 """
@@ -65,6 +66,8 @@ HEADER_PROXY = """# MangaProxyNoEH.list —— 漫画站域名清单 · 海外�
 #
 # 高变动提示：韩国盗版站（mato31 / newto31 / bookto31 / toonkor### 等）与 JM / raw 系
 #   域名轮换很快，清单里收了「稳定入口 + 关键词兜底」；长期跟进入口见 manga-sites.md §3/§10。
+#   拷贝漫画也在换 CDN 名字（图片域从 mangafunb.fun 扩出 mangashot.com / hotmangas.com 与
+#   随机 .club 主机），已按「后缀 + 关键词」双双收录；新域名出现在站点 JS 的 public*.js 常量里。
 # 共用域未收录（避免连带非漫画流量，需要时自行加）：Kindle=amazon.co.jp、
 #   Kobo=www.kobo.com、U-NEXT=video.unext.jp。ebookjapan 的图片 CDN（prod-contents-br-page.akamaized.net）因是专用主机名，已收录。
 # e-hentai 家族（e-hentai.org / exhentai.org / ehgt.org / ehwiki.org / ehtracker.org /
