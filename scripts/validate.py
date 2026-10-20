@@ -421,23 +421,53 @@ def _twin_comparable(path: Path) -> list[str]:
     return out
 
 
-def check_config_twins() -> None:
+TWIN_SUFFIXES = (("-redir-host.yaml", "redir-host"), ("-fake-ip.yaml", "fake-ip"))
+
+
+def twin_pairs() -> dict[str, dict[str, Path]]:
+    """configs/mihomo 下的孪生配置对：<前缀>-redir-host.yaml ↔ <前缀>-fake-ip.yaml。
+
+    按文件名后缀配对，新增一对配置不用再改这个脚本；只写了一份会被报错。
+    """
     base = ROOT / "configs" / "mihomo"
-    a, b = base / "three-redir-host.yaml", base / "three-fake-ip.yaml"
-    if not (a.is_file() and b.is_file()):
-        return
-    la, lb = _twin_comparable(a), _twin_comparable(b)
-    for index, (x, y) in enumerate(zip(la, lb)):
-        if x != y:
+    pairs: dict[str, dict[str, Path]] = {}
+    if not base.is_dir():
+        return pairs
+    for path in sorted(base.glob("*.yaml")):
+        for suffix, kind in TWIN_SUFFIXES:
+            if path.name.endswith(suffix):
+                pairs.setdefault(path.name[: -len(suffix)], {})[kind] = path
+    return pairs
+
+
+def check_config_twins() -> None:
+    for stem, members in sorted(twin_pairs().items()):
+        kinds = [kind for _, kind in TWIN_SUFFIXES]
+        missing = [kind for kind in kinds if kind not in members]
+        if missing:
+            present = next(iter(members.values()))
+            add("ERROR", "configs/mihomo", 0,
+                "孪生配置缺少配对（%s）：只有 %s，缺少 *-%s.yaml。"
+                "成对放置才会做同步校验，两份只允许差「文件头 / dns 段 / store-fake-ip」"
+                % (stem, present.name, missing[0]))
+            continue
+        a, b = members["redir-host"], members["fake-ip"]
+        la, lb = _twin_comparable(a), _twin_comparable(b)
+        mismatch = None
+        for index, (x, y) in enumerate(zip(la, lb)):
+            if x != y:
+                mismatch = (index + 1, x, y)
+                break
+        if mismatch is None and len(la) != len(lb):
+            add("ERROR", "configs/mihomo", 0,
+                "孪生配置行数不一致（%s %d 行 vs %s %d 行），改一份请同步另一份"
+                % (a.name, len(la), b.name, len(lb)))
+        elif mismatch is not None:
+            index, x, y = mismatch
             add("ERROR", "configs/mihomo", 0,
                 "孪生配置不一致（归一化后第 %d 行）：\n      %s: %s\n      %s: %s\n"
                 "      两份只允许差「文件头 / dns 段 / store-fake-ip」，改一份请同步另一份"
-                % (index + 1, a.name, x.strip()[:80], b.name, y.strip()[:80]))
-            return
-    if len(la) != len(lb):
-        add("ERROR", "configs/mihomo", 0,
-            "孪生配置行数不一致（%s %d 行 vs %s %d 行），改一份请同步另一份"
-            % (a.name, len(la), b.name, len(lb)))
+                % (index, a.name, x.strip()[:80], b.name, y.strip()[:80]))
 
 
 # --------------------------------------------------------------------------

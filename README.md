@@ -22,8 +22,13 @@ configs/
     three-fake-ip.yaml     上面那份的 fake-ip 版，**策略组/规则完全一致，只有 DNS 模式不同**
                       （手机 FlClash / TUN 场景用这一份：假 IP 不携带污染信息，连接时用域名出站、
                       由节点解析，既不依赖境外 DoH 也不怕污染）
-    两份是孪生配置，改一份要同步另一份；其余历史配置（one / three / three-v2 等）
-    已于 2026-10-06 删除，需要时从 git 历史取回
+    three-quality-redir-host.yaml  「质量优先、其余便宜」版（redir-host）：机场角色改为
+                      stable（质量优先）/ cheap（默认）/ cheap1（cheap 的备胎）；stable 只接重质量、
+                      低流量的流量（AI、GitHub 接口、Google、游戏），GitHub 下载等大流量改走 cheap，
+                      其余策略组默认 cheap；三个机场在兜底组里都能选
+    three-quality-fake-ip.yaml     上面那份的 fake-ip 版，同样**策略组/规则完全一致，只有 DNS 模式不同**
+    这四份是两对孪生配置（`three-*` / `three-quality-*`），各自成对同步；其余历史配置
+    （one / three / three-v2 等）已于 2026-10-06 删除，需要时从 git 历史取回
   （原 subconverter/ 目录的 5 份转换模板已于 2026-10-06 删除，需要时从 git 历史取回）
 rules/              自建规则集**手工源**（classical 文本，见「list 与 mrs」节）
   *.list              手工维护的清单；配置不直接用它，而是用下面两个生成物
@@ -96,15 +101,68 @@ rule-providers:
 把 `configs/mihomo/three-redir-host.yaml`（桌面）或 `three-fake-ip.yaml`（手机 / TUN）
 的内容喂给客户端。**必须先替换占位符**（见下一节），否则订阅拉不下来。
 
+`three-quality-redir-host.yaml` / `three-quality-fake-ip.yaml` 是同一套孪生结构下的
+「质量优先、其余便宜」版本（stable 只接重质量低流量、GitHub 下载走 cheap，见下一节），
+适合想省 stable 流量时替换使用；`three-*` 仍是原来的 stable-first 设计，两套互不影响。
+
 配置里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
 
 | 组 | 作用 |
 |---|---|
-| `🛑 广告拦截` | 默认 `REJECT`（拦截广告域名）；切到 `DIRECT` 即全部放行 |
-| `🔯 自动兜底` | 跨机场故障转移：`stable` 整体不可用时自动切到 `stable1`，再不行才用 `cheap` |
-| `🔯 主备切换*`、`♻️ 便宜主备` | 都是 `fallback` 类型：默认用列表里第一个健康的节点，**也可以在面板里点选一个首选节点**（选择会持久化），该节点失效时自动切到下一个健康的 |
+| `🔯 自动兜底` | 跨机场故障转移：`three-*` 是 `stable` → `stable1` → `cheap`；`three-quality-*` 是 `cheap 非日本` → `cheap1 非日本` → `stable 非日本` |
+| `🔯 主备切换*`、`♻️ 便宜主备*` | 都是 `fallback` 类型：默认用列表里第一个健康的节点，**也可以在面板里点选一个首选节点**（选择会持久化），该节点失效时自动切到下一个健康的 |
+| `💎 质量优先`、`🐙 GitHub API` | 仅 `three-quality-*`：分别接 AI / Google / Copilot 与 GitHub 低流量接口，默认 stable 链；想省 stable 流量时，`🐙` 可切 cheap 链，`💎` 可切候选里的 cheap / cheap1 节点（该组排除港台） |
+| `📥 大流量下载` | 仅 `three-quality-*`：GitHub / HuggingFace / Google 的大流量下载，默认 cheap 链，故意不占 stable |
 | `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
-| `🐟 漏网之鱼` | 兜底流量，默认走节点选择；可切成直连或任一机场链（`🔯 主备切换` / `🔯 主备切换1` / `♻️ 便宜主备`） |
+| `🐟 漏网之鱼` | 兜底流量，默认走节点选择（`three-quality-*` 默认 cheap 的非日本链）；可切成直连或任一机场链（`three-*` 是 `🔯 主备切换` / `🔯 主备切换1` / `♻️ 便宜主备`） |
+
+## 机场角色与流量策略（`three-quality-*.yaml`）
+
+`three-quality-redir-host.yaml` / `three-quality-fake-ip.yaml` 与 `three-*` 共用同一套 rule-provider、
+DNS / 嗅探 / TUN 段，但**策略组与 rules 按新角色改写**（组有增删、默认项不同）；核心区别是
+**三个机场的角色**和**默认走哪个机场**：
+
+| provider | 机场 | 角色 | 默认承接 |
+|---|---|---|---|
+| `stable` | 渔云 | 质量优先，流量贵/有限 | 「💎 质量优先」（AI、Google、Copilot、`ai` 清单）、「🐙 GitHub API」（`api.github.com`）、「🎮 游戏」 |
+| `cheap` | 一分 | 默认机场 | 「其他」全部：`🚀 节点选择`、流媒体、漫画动漫、e-hentai、B站港澳台、GitHub 下载、Speedtest、两个兜底组 |
+| `cheap1` | 猫咪 | cheap 的备胎 | 各组的候选里排在 cheap 之后；兜底链里也在 cheap 之后、stable 之前 |
+
+分流口径：
+
+- **重质量、低流量 → stable**：AI（`ai` 清单 + `GEOSITE,category-ai-!cn`）、GitHub 的低流量接口
+  （`api.github.com` REST + GraphQL，调用次数按 IP 计、未认证 60 次/小时；另加 `api.mcp.github.com` /
+  `scanning-api.github.com` / `lfs.github.com`）、Copilot（由 `category-ai-!cn` 接住）、
+  Google（账号风控对出口 IP 敏感，沿用旧配置的取舍）、游戏（低流量、重延迟）。
+- **GitHub 拆三段**：低流量接口 → 「🐙 GitHub API」（默认 stable）；下载类主机（release 资产
+  `objects.` / `release-assets.` / `github-releases.`、`codeload.github.com`、`raw.githubusercontent.com`、
+  `ghcr.io`、`pkg.github.com`、Packages / LFS 对象主机、release 上传、GitHub 的 S3 桶、Actions 产物桶）
+  → 「📥 大流量下载」（默认 cheap，**故意不占 stable**）；其余 GitHub 网页（含头像、静态资源）
+  → `🚀 节点选择`（默认 cheap）。
+- **AI / Google 的大流量也提前拆走**（否则会跟着「质量优先」吃 stable 流量）：HuggingFace 的模型 /
+  数据集下载（`hf.co` 系 Xet CDN、`cdn-lfs*` 旧主机）、Envato（`themeforest.net` 等）、Perplexity
+  上传中转、Cursor / LM Studio 安装包 →「📥 大流量下载」；Google 的 Play / Chrome 组件 CDN
+  （`gvt0/1/2/3/5/6/7/9.com`，含 `play.googleapis.com`）、Photos / Drive 内容（`*.googleusercontent.com`、
+  `usercontent.google.com`、`googledrive.com`、`googlephotos.com`）、Cloud Storage（`storage.googleapis.com`
+  等）、Firebase Storage、Takeout →「📥 大流量下载」。注意 `dl.google.com` / `redirector.gvt1.com` /
+  `update.googleapis.com` 这几个 `google-cn` 精确条目仍是**直连**（旧行为，没动）。
+  `huggingface.co` 的网页 / API 与 Google 的搜索 / OAuth / Gemini / Cloud API 仍留在「💎 质量优先」。
+- **其他 → cheap / cheap1，默认 cheap**：`🚀 节点选择` 默认 `♻️ 便宜主备`；流媒体、漫画动漫、
+  e-hentai、B站港澳台、Speedtest、GitHub 下载的默认项也都是 cheap 的链。
+- **最后兜底**：`🔯 自动兜底` 与 `🐟 漏网之鱼` 默认 `♻️ 便宜主备|非日本`（cheap 的非日本节点）；
+  三家机场的链都在候选里（`🐟` 还开了 `include-all`，任一原始节点都能直接点选），
+  stable 只在便宜机场都不可用时才上（`自动兜底` 的最后一跳）。
+
+面板里可以随时切换（不用编辑文件）：
+
+| 想做的事 | 改哪个组 |
+|---|---|
+| 「其他」流量改用 cheap1 | `🚀 节点选择` → `♻️ 便宜主备1` |
+| 省 stable 流量（AI / GitHub 接口改走便宜机场） | `🐙 GitHub API` → 对应的 cheap 链；`💎 质量优先` → 候选里的 cheap / cheap1 原始节点（该组要排除港台，所以没有整条 cheap 链） |
+| GitHub 下载改走别的链路 | `📥 大流量下载` → `🚀 节点选择` 或具体节点 |
+| 兜底流量也想用 stable 的干净 IP | `🐟 漏网之鱼` → `🔯 主备切换|非日本` / `🔯 自动兜底` |
+| 游戏省 stable 流量 | `🎮 游戏` → `♻️ 便宜主备` / `♻️ 便宜主备1` |
+| Google 也改走便宜机场 | 把 `GEOSITE,google` / `GEOIP,google` 两条规则改指 `🚀 节点选择`（rules 里已留注释） |
 
 ## 漫画 / 动漫规则集（MangaCN、MangaProxyNoEH、AnimeCN、AnimeProxy）
 
@@ -207,7 +265,8 @@ rules:
 | 上游 blackmatrix7 的 `BiliBili.list`（provider 名 `bilibili_cdn`，**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
 
 - **📺 B站番剧**：默认 `DIRECT`——与不加这份清单时行为完全一致。要看港澳台限定番剧时，把这一组
-  切到「🔯 主备切换|港澳台」或「…|港澳台1」（各机场一条；过滤器 `hktw` 只收香港 / 台湾节点）。
+  切到「🔯 主备切换|港澳台」或「…|港澳台1」（`three-*` 里是各机场的 stable 链；`three-quality-*`
+  里换成了 `♻️ 便宜主备|港澳台` / `♻️ 便宜主备1|港澳台`）。过滤器 `hktw` 只收香港 / 台湾节点。
   港澳台限制是在**接口层**判定的，所以只有判定 / 取址域名进这个组；视频 CDN（`upos-*` / `mcdn`、
   四个 akamai 镜像）由 `bilibili_cdn` 保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。
   规则顺序上 `bilibili_hmt` **必须排在 `bilibili_cdn` 之前**：上游清单里的 `+.bilibili.com` 会把判定域名
@@ -232,7 +291,7 @@ rules:
 
 ## 微软商店下载写死直连（`mp.microsoft.com` / `akamaized.net`）
 
-两份配置里各有一对**写死 `DIRECT`** 的规则（不是可切换的组），紧跟自建清单之后、`GEOSITE` 之前：
+每份配置里都有一对**写死 `DIRECT`** 的规则（不是可切换的组），紧跟自建清单之后、`GEOSITE` 之前：
 
 | 规则 | 为什么 |
 |---|---|
@@ -253,7 +312,7 @@ rules:
 
 | 位置 | 当前值 | 要改成 |
 |---|---|---|
-| `configs/mihomo/*.yaml` | `url: "订阅"` ×3（stable / stable1 / cheap） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
+| `configs/mihomo/*.yaml` | `url: "订阅"` ×3（`three-*` 是 stable / stable1 / cheap；`three-quality-*` 是 stable / cheap / cheap1） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
 | `configs/mihomo/*.yaml` | `authentication: - name:passwd` | 真实 `用户名:密码`；同时建议 `allow-lan: false` |
 | `configs/mihomo/*.yaml` | `external-controller: 0.0.0.0:9090` + `secret: ""` | 改为 `127.0.0.1:9090` 并设置非空 `secret`（当前等于把控制面板无密码开放给整个局域网） |
 | `configs/mihomo/*.yaml` | DNS `127.0.0.1:5225` | 设备上确有本地 DNS 服务时保留，否则改公共 DNS |
@@ -276,8 +335,9 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 - **规则集格式**：未知规则类型、缺失匹配内容、YAML 列表前缀 `- `、重复行、空规则集、UTF-8 BOM
 - **mrs 与源清单的对应**：纯域名清单有没有 mrs 产物、有没有孤儿 mrs、配置引用了 mrs 却漏引
   对应的 `*.rest.list`（内容层面的"是否同步"由 `gen_mrs.py --check` 负责）
-- **孪生配置同步**：`three-redir-host.yaml` 与 `three-fake-ip.yaml` 除「文件头 / dns 段 / store-fake-ip」
-  外必须逐字节相同——只改一份会被直接报错
+- **孪生配置同步**：`configs/mihomo/` 下同前缀的 `*-redir-host.yaml` 与 `*-fake-ip.yaml`
+  （当前两对：`three-*`、`three-quality-*`）除「文件头 / dns 段 / store-fake-ip」外必须逐字节相同；
+  只改一份、或少写一份配对文件都会被直接报错
 - **mihomo 配置**：YAML 语法、rule-provider 必填字段（`format: mrs` 必须是 `domain`/`ipcidr`）、
   `RULE-SET` 是否指向已定义的 provider、策略组 `use` 是否指向已定义的订阅、未替换的占位符、
   控制面板与局域网的暴露风险
@@ -307,5 +367,8 @@ CI 配置在 `.github/workflows/validate.yml`，提交和 PR 会自动执行同�
 | `rules/AI.list:26` | `DOMAIN-SUFFIX,claude.ai.com` 应为 `claude.ai`（目前靠 `DOMAIN-KEYWORD,Claude` 兜底） |
 | `rules/download.list` | `aria2c`、`uTorrent`、`WebTorrent` 各重复一次 |
 | `configs/mihomo/*.yaml` | `dns.fallback` **未废弃**（此前误记为旧写法；官方废弃的是 `fallback-filter.geosite`，文件里没用它）。但它与 `nameserver-policy` 并存会让两套 DNS 并行查询，官方提供 `fallback-lazy-query: true` 可避免 |
+| `configs/mihomo/three-quality-*.yaml` | `github.com/<owner>/<repo>/releases/download/...` 的首次请求无法与普通网页拆分（mihomo 没有按 URL path 匹配的规则），它落到 `🚀 节点选择`（默认 cheap）；真正的大文件资产会 302 到 `objects.` / `release-assets.githubusercontent.com` 等主机，由「📥 大流量下载」接住，所以不影响「下载不占 stable」 |
+| `configs/mihomo/three-quality-*.yaml` | 「💎 质量优先」里仍有少量大流量主机没拆走：AI 附件 / 生成物（`oaiusercontent.com`、`claudeusercontent.com`、`sora.com`、`copilotprodattachments` 等对象存储桶）与 Google 的通用 API（`www.googleapis.com`，Drive / YouTube 媒体流也走它）。前者体积中等、后者无法按 path 与普通 API 拆分；真成负担时仿照 `hf.co` 的写法把对应主机加在 `GEOSITE,category-ai-!cn` / `GEOSITE,google` 之前即可 |
+| `configs/mihomo/three-quality-*.yaml` | 「📥 大流量下载」「🎬 流媒体」的候选里含 `🚀 节点选择`（逃生口）。若把 `🚀 节点选择` 手动切到 stable 节点，大流量会间接走 stable；默认（cheap）不会 |
 
 重构前后的路径变化见 [docs/migration.md](docs/migration.md)。
