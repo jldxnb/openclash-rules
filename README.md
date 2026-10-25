@@ -98,17 +98,17 @@ rule-providers:
 的内容喂给客户端。**必须先替换占位符**（见下一节），否则订阅拉不下来。
 
 `three-*` 是 **1 个质量机场（stable）+ 2 个便宜机场（cheap / cheap1）**：GitHub API、游戏、e-hentai
-默认用 stable，其余流量默认走 cheap1（「🔯 自动兜底」的顺序是 cheap1 → cheap → stable）。
+默认用 stable，其余流量默认走 cheap（一分）（「🔯 自动兜底」的顺序是 cheap → cheap1 → stable）。
 
 配置里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
 
 | 组 | 作用 |
 |---|---|
-| `🔯 自动兜底` | 跨机场故障转移：`cheap1` → `cheap` → `stable`（`🚀 节点选择` 的默认项，也就是「其他流量默认 cheap1」） |
-| `🔯 主备切换*`、`♻️ 便宜主备*` | 都是 `fallback` 类型：默认用列表里第一个健康的节点，**也可以在面板里点选一个首选节点**（选择会持久化），该节点失效时自动切到下一个健康的 |
+| `🔯 自动兜底` | 跨机场故障转移：`cheap` → `cheap1` → `stable`（`🚀 节点选择` 的默认项，也就是「其他流量默认 cheap」） |
+| `🔯 主备切换*`、`♻️ 便宜主备*` | 都是 `url-test` 类型：按实测延迟自动选最快的节点（`tolerance: 100` = 别的节点要快 100ms 以上才切换，防止频繁跳 IP）；节点失效才换。想固定出口可在面板里对组固定一个节点 |
 | `🐙 GitHub API` | GitHub 低流量接口（`api.github.com` / `api.mcp.github.com` / `scanning-api.github.com` / `lfs.github.com`）单独成组：接口频率按出口 IP 计、要干净节点，默认 stable 链；可切便宜链或候选里的任一节点 |
 | `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
-| `🐟 漏网之鱼` | 兜底流量，默认走 `🚀 节点选择`（= cheap1，经「🔯 自动兜底」）；可切成直连或任一机场链（`🔯 主备切换` / `♻️ 便宜主备1` / `♻️ 便宜主备`） |
+| `🐟 漏网之鱼` | 兜底流量，默认走 `🚀 节点选择`（= cheap，经「🔯 自动兜底」）；可切成直连或任一机场链（`♻️ 便宜主备` / `♻️ 便宜主备1` / `🔯 主备切换`） |
 
 ## 机场角色与流量策略（`three-*.yaml`）
 
@@ -117,21 +117,21 @@ rule-providers:
 | provider | 机场 | 角色与默认承接 |
 |---|---|---|
 | `stable` | 渔云 | 质量机场：`🐙 GitHub API`、`🎮 游戏`、`🔞 e-hentai` 默认用它（`🔯 主备切换*` 四条地区链） |
-| `cheap` | 一分 | 便宜机场 1（备胎）：`♻️ 便宜主备*` 四条地区链；`🔯 自动兜底` 的第二跳 |
-| `cheap1` | 猫咪 | 便宜机场 2（**默认**）：其余流量默认走它（`♻️ 便宜主备1*` 四条地区链）；`🔯 自动兜底` 的第一跳 |
+| `cheap` | 一分 | 便宜机场 1（**默认**）：其余流量默认走它（`♻️ 便宜主备*` 四条地区链）；`🔯 自动兜底` 的第一跳 |
+| `cheap1` | 猫咪 | 便宜机场 2（备胎）：`♻️ 便宜主备1*` 四条地区链；`🔯 自动兜底` 的第二跳 |
 
 分流口径：
 
-- **默认 cheap1，关键流量 stable**：`🚀 节点选择` 默认 `🔯 自动兜底`（cheap1 → cheap → stable）；
+- **默认 cheap，关键流量 stable**：`🚀 节点选择` 默认 `🔯 自动兜底`（cheap → cheap1 → stable）；
   `🐙 GitHub API` / `🎮 游戏` / `🔞 e-hentai` 默认 stable 链（e-hentai 用 stable 的非日本链）。
-  AI / 漫画动漫 / 流媒体 / Speedtest 等「其他」组默认 cheap1；B站番剧、微软服务、全球直连的默认项仍是
+  AI / 漫画动漫 / 流媒体 / Speedtest 等「其他」组默认 cheap；B站番剧、微软服务、全球直连的默认项仍是
   `DIRECT`。想指定机场就在对应组里改选单机场链（`🔯 主备切换` / `♻️ 便宜主备1` / `♻️ 便宜主备`）。
 - **GitHub 拆两段**：低流量接口 →「🐙 GitHub API」（默认 stable 的干净出口）：`api.github.com` 是
   REST + GraphQL 入口、频率按出口 IP 记（未认证 60 次/小时），共用出口容易把额度耗光，所以单独成组；
   `api.mcp.github.com`（MCP）/ `scanning-api.github.com`（代码扫描）/ `lfs.github.com` 也进组。
-  其余 GitHub（网页、`raw.`、`codeload`、Release 资产）→ `🚀 节点选择`（默认 cheap1）。
+  其余 GitHub（网页、`raw.`、`codeload`、Release 资产）→ `🚀 节点选择`（默认 cheap）。
 - **AI / Copilot**：`ai` 清单与 `GEOSITE,category-ai-!cn`（含 `api.githubcopilot.com` 等 Copilot 接口）
-  → `🤖 AI`（默认 cheap1 的非港台链；stable / cheap 的非港台链作候选）。Google 走 `🤖 AI` 是旧配置的取舍
+  → `🤖 AI`（默认 cheap 的非港台链；cheap1 / stable 的非港台链作候选）。Google 走 `🤖 AI` 是旧配置的取舍
   （账号风控对出口 IP 敏感）；想让 AI 也用 stable，在面板把它切到 `🔯 主备切换|非港台` 即可。
 - **游戏 / B站港澳台 / 流媒体 / Speedtest**：各有独立组，按需在面板切换（见上一节的组表）。
 - **例外：`opencode.ai` 走直连**（`rules/DirectOwn.list` → `RULE-SET,direct1,DIRECT` 最先命中）：
@@ -172,10 +172,26 @@ cheap:
 | 想做的事 | 改哪个组 |
 |---|---|
 | 「其他」流量改用 cheap / stable | `🚀 节点选择` → `♻️ 便宜主备` / `🔯 主备切换` |
-| 兜底流量也想用 stable 的干净 IP | `🐟 漏网之鱼` → `🔯 主备切换`（默认仍是 cheap1） |
+| 兜底流量也想用 stable 的干净 IP | `🐟 漏网之鱼` → `🔯 主备切换`（默认仍是 cheap） |
 | 游戏想换机场 | `🎮 游戏` → `♻️ 便宜主备` 等候选 |
-| GitHub API 想换出口 | `🐙 GitHub API` → 候选里的 `♻️ 便宜主备1` / `♻️ 便宜主备`，或直接在 `include-all` 里点一个具体节点 |
+| GitHub API 想换出口 | `🐙 GitHub API` → 候选里的 `♻️ 便宜主备` / `♻️ 便宜主备1`，或直接在 `include-all` 里点一个具体节点 |
 | Google 也改走便宜机场 | 把 `GEOSITE,google` / `GEOIP,google` 两条规则改指 `🚀 节点选择`（rules 里已留注释） |
+
+### 节点自动选择：`url-test` + `tolerance`（不手动选、也不疯狂跳 IP）
+
+- 地区链（`♻️ 便宜主备*` / `🔯 主备切换*`）是 `url-test`：按实测延迟自动选最快的节点。
+  旧版用 `fallback`，它只认「列表里第一个活着的节点」，而订阅排序靠前的往往不是最快节点——所以经常
+  看起来「明明有快节点却用了慢的」。`url-test` 直接按延迟挑，这个毛病就没了。
+- 防跳 IP 靠 `tolerance: 100`：只有别的节点比当前节点**快 100ms 以上**（或当前节点失效）才切换。
+  节点间延迟抖动一般只有几十毫秒，所以不会每次测速都换节点；想更稳就调大（150~300），想更积极就调小。
+- 节奏：provider 的 `health-check`（`interval: 120`，`lazy: true`）刷新节点延迟，`url-test` 按它重评估，
+  所以一轮评估约 2 分钟，不是每个请求都换；闲置的机场不会被反复测（省流量）。
+- 想彻底固定出口：在面板里对某个链**固定一个节点**（选择会持久化，节点失效才自动换）。
+- 首次导入 / 机场刷新后，节点延迟要等一轮健康检查测出来：mihomo 启动时会先测一轮（几十个节点约 5~15 秒），
+  在那之前 `url-test` 先按列表顺序用第一个节点（可能不是最快），测完自动切到最快的，这是正常现象。
+- 节点失效时：`url-test` 只会拨当前选中的节点，通常会有 1~2 个请求失败后才切换（`max-failed-times: 1`
+  让它比默认的 5 次更早触发健康检查；`connection refused` 会立刻触发，换节点更快）。
+- 延迟低 ≠ 带宽高，同一机场里低延迟节点通常也够快；要精确挑带宽，用 `✈️ Speedtest` 组手动测一次再固定。
 
 ## GitHub 低流量接口单独成组（`🐙 GitHub API`）
 
@@ -190,7 +206,7 @@ GitHub 接口的频率按**出口 IP** 计（未认证 REST 60 次/小时；带 
 | `DOMAIN,lfs.github.com` | `🐙 GitHub API` | LFS batch API（请求很小，对象字节在 CDN 主机） |
 | `GEOSITE,github` | `🚀 节点选择` | 其余 GitHub：网页、`raw.`、`codeload`、Release 资产 |
 
-- 组默认 stable（渔云）链；额度被耗光时在面板把它切到 `♻️ 便宜主备1` / `♻️ 便宜主备` 或任一具体节点，
+- 组默认 stable（渔云）链；额度被耗光时在面板把它切到 `♻️ 便宜主备` / `♻️ 便宜主备1` 或任一具体节点，
   **不影响 `🚀 节点选择` 上的其它流量**。
 - 为什么不能只留 `GEOSITE,github` 一把梭：geosite 里的 `+.github.com` / `+.githubusercontent.com`
   会把整域接走，接口规则必须写在它前面。
@@ -301,8 +317,8 @@ rules:
 | 上游 blackmatrix7 的 `BiliBili.list`（provider 名 `bilibili_cdn`，**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
 
 - **📺 B站番剧**：默认 `DIRECT`——与不加这份清单时行为完全一致。要看港澳台限定番剧时，把这一组
-  切到某一家的港澳台链：「🔯 主备切换|港澳台」（stable）/「♻️ 便宜主备1|港澳台」（cheap1）/
-  「♻️ 便宜主备|港澳台」（cheap），三组都在候选里。
+  切到某一家的港澳台链：「♻️ 便宜主备|港澳台」（cheap）/「♻️ 便宜主备1|港澳台」（cheap1）/
+  「🔯 主备切换|港澳台」（stable），三组都在候选里。
   过滤器 `hktw` 只收香港 / 台湾节点。
   港澳台限制是在**接口层**判定的，所以只有判定 / 取址域名进这个组；视频 CDN（`upos-*` / `mcdn`、
   四个 akamai 镜像）由 `bilibili_cdn` 保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。

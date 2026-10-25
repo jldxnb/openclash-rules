@@ -9,7 +9,7 @@
 proxy-providers:
   # 三个机场共用同一套设置，只在这里定义一次，下面三个 provider 用锚点继承；
   # 只有 additional-prefix 和 url 各自写。
-  #   · health-check.interval：fallback 组的切换灵敏度完全取决于它；
+  #   · health-check.interval：节点存活/延迟的刷新节奏（url-test 链按它重评估、fallback 兜底按它切机场）；
   #   · lazy: true —— 只有该机场被实际使用时才做健康检查（省电省流量），
   #     代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的；
   #   · `proxy: DIRECT` 只决定【拉订阅/规则文件】的出口（直连拉，不占代理流量），
@@ -22,7 +22,7 @@ proxy-providers:
   #         url: "订阅"
   #     冷启动时代理组可能还没有节点、本地又没缓存文件，第一次拉取可能失败，mihomo 会按退避重试。
   # 角色：stable = 质量机场（GitHub API / 游戏 / e-hentai 默认用它）；
-  #       cheap、cheap1 = 两个便宜机场，其余流量默认走 cheap1。
+  #       cheap、cheap1 = 两个便宜机场，其余流量默认走 cheap（一分）。
   stable: &provider_base
     type: http
     interval: 86400
@@ -160,51 +160,60 @@ x-node-filters:
   hktw:    &hktw    "(?i)(香港|港|HK|Hong Kong|HongKong|台湾|台灣|Taiwan|TW|台北|台中|台南|高雄|新北|桃园|桃園|彰化|中华电信|中華電信|HiNet)"
 
 proxy-groups:
-  # ── 总入口：默认走「🔯 自动兜底」，其顺序是 cheap1 → cheap → stable（即「其他流量默认 cheap1」）──
-  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, ♻️ 便宜主备1, ♻️ 便宜主备, 🔯 主备切换], include-all: true}
-  # AI 属于「其他」→ 默认 cheap1（排除港台；cheap / stable 的非港台链作候选）
-  - {name: 🤖 AI, type: select, proxies: [♻️ 便宜主备1|非港台, ♻️ 便宜主备|非港台, 🔯 主备切换|非港台], include-all: true, filter: *no_hktw}
+  # ── 选路策略（重要）────────────────────────────────────────────────────────
+  # 地区链（♻️ 便宜主备* / 🔯 主备切换*）一律用 url-test：按实测延迟自动挑最快的节点，
+  # 而不是 fallback 的「列表里第一个活着的」——后者经常选中订阅排序靠前但其实很慢的节点。
+  # tolerance: 100 = 防抖：只有「别的节点比当前节点快 100ms 以上」才切换，
+  # 所以既不会一直用慢节点，也不会因为几十毫秒的抖动疯狂跳 IP；调大更稳（150~300），调小更积极。
+  # 想彻底固定出口：在面板里把对应的 url-test 组固定一个节点即可（选择持久化，节点失效才自动换）。
+  # 健康检查：provider 的 health-check（interval 120s + lazy）负责刷新节点延迟，url-test 按它重评估，
+  # 所以节点重评估最多约每 2 分钟一轮，不是每个请求都换。
+  #
+  # ── 总入口：默认走「🔯 自动兜底」（cheap → cheap1 → stable，即「其他流量默认 cheap」）──
+  - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, ♻️ 便宜主备, ♻️ 便宜主备1, 🔯 主备切换], include-all: true}
+  # AI 属于「其他」→ 默认 cheap 的非港台链（cheap1 / stable 的非港台链作候选）
+  - {name: 🤖 AI, type: select, proxies: [♻️ 便宜主备|非港台, ♻️ 便宜主备1|非港台, 🔯 主备切换|非港台], include-all: true, filter: *no_hktw}
   # GitHub 低流量接口单独成组：限频按出口 IP 记（未认证 REST 60 次/小时），固定一个干净出口更稳；
   # 它是三个默认走 stable 的组之一（另两个是 🎮 游戏、🔞 e-hentai）。
-  - {name: 🐙 GitHub API, type: select, proxies: [🔯 主备切换, ♻️ 便宜主备1, ♻️ 便宜主备], include-all: true}
+  - {name: 🐙 GitHub API, type: select, proxies: [🔯 主备切换, ♻️ 便宜主备, ♻️ 便宜主备1], include-all: true}
   # 游戏默认 stable（延迟优先，不做地区限制）
-  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换, ♻️ 便宜主备1, ♻️ 便宜主备], include-all: true}
-  # 漫画动漫属于「其他」→ 默认 cheap1 的非日本链
-  - {name: 🎌 漫画动漫, type: select, proxies: [♻️ 便宜主备1|非日本, ♻️ 便宜主备|非日本, 🔯 主备切换|非日本], include-all: true, filter: *no_jp}
+  - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换, ♻️ 便宜主备, ♻️ 便宜主备1], include-all: true}
+  # 漫画动漫属于「其他」→ 默认 cheap 的非日本链
+  - {name: 🎌 漫画动漫, type: select, proxies: [♻️ 便宜主备|非日本, ♻️ 便宜主备1|非日本, 🔯 主备切换|非日本], include-all: true, filter: *no_jp}
   # e-hentai 默认 stable：图站额度按 IP 记，换机场 / 换节点都在这里切；exhentai 对日本 IP 有限制，排除日本
-  - {name: 🔞 e-hentai, type: select, proxies: [🔯 主备切换|非日本, ♻️ 便宜主备1|非日本, ♻️ 便宜主备|非日本], include-all: true, filter: *no_jp}
+  - {name: 🔞 e-hentai, type: select, proxies: [🔯 主备切换|非日本, ♻️ 便宜主备|非日本, ♻️ 便宜主备1|非日本], include-all: true, filter: *no_jp}
   # 微软服务默认直连：Windows 更新 / Office 下载走直连更快，也避免影响「手机连接」的局域网配对
   - {name: 🪟 微软服务, type: select, proxies: [DIRECT, 🚀 节点选择]}
-  # 流媒体属于「其他」→ 默认 cheap1
-  - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备1, ♻️ 便宜主备, 🔯 主备切换], include-all: true}
+  # 流媒体属于「其他」→ 默认 cheap
+  - {name: 🎬 流媒体, type: select, proxies: [♻️ 便宜主备, ♻️ 便宜主备1, 🔯 主备切换], include-all: true}
   # B站番剧默认直连（与不加规则时一致）；要看港澳台限定番剧，在面板里切到任一家的港澳台链
-  - {name: 📺 B站番剧, type: select, proxies: [DIRECT, 🔯 主备切换|港澳台, ♻️ 便宜主备1|港澳台, ♻️ 便宜主备|港澳台], include-all: true, filter: *hktw}
-  # Speedtest 属于「其他」→ 默认 cheap1
-  - {name: ✈️ Speedtest, type: select, proxies: [♻️ 便宜主备1, ♻️ 便宜主备, 🔯 主备切换], include-all: true}
+  - {name: 📺 B站番剧, type: select, proxies: [DIRECT, ♻️ 便宜主备|港澳台, ♻️ 便宜主备1|港澳台, 🔯 主备切换|港澳台], include-all: true, filter: *hktw}
+  # Speedtest 属于「其他」→ 默认 cheap
+  - {name: ✈️ Speedtest, type: select, proxies: [♻️ 便宜主备, ♻️ 便宜主备1, 🔯 主备切换], include-all: true}
 
-  # 跨机场自动：cheap1 → cheap → stable（「其他流量默认 cheap1」就靠它；想指定机场就在 🚀 里改选单机场链）
-  - {name: 🔯 自动兜底, type: fallback, proxies: [♻️ 便宜主备1, ♻️ 便宜主备, 🔯 主备切换], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
+  # 跨机场自动：cheap → cheap1 → stable（其他流量默认 cheap 靠它；想指定机场就在 🚀 里改选单机场链）
+  - {name: 🔯 自动兜底, type: fallback, proxies: [♻️ 便宜主备, ♻️ 便宜主备1, 🔯 主备切换], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
 
   # stable（渔云，质量机场）：GitHub API / 游戏 / e-hentai 用，四条链按地区区分
-  - {name: 🔯 主备切换, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: 🔯 主备切换|非港台, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
-  - {name: 🔯 主备切换|非日本, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
-  - {name: 🔯 主备切换|港澳台, type: fallback, use: [stable], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *hktw, max-failed-times: 1}
+  - {name: 🔯 主备切换, type: url-test, use: [stable], url: "https://www.gstatic.com/generate_204", tolerance: 100, max-failed-times: 1}
+  - {name: 🔯 主备切换|非港台, type: url-test, use: [stable], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_hktw, max-failed-times: 1}
+  - {name: 🔯 主备切换|非日本, type: url-test, use: [stable], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_jp, max-failed-times: 1}
+  - {name: 🔯 主备切换|港澳台, type: url-test, use: [stable], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *hktw, max-failed-times: 1}
 
-  # cheap（一分，便宜机场 1）：备胎，四条链同上
-  - {name: ♻️ 便宜主备, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: ♻️ 便宜主备|非港台, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
-  - {name: ♻️ 便宜主备|非日本, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
-  - {name: ♻️ 便宜主备|港澳台, type: fallback, use: [cheap], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *hktw, max-failed-times: 1}
+  # cheap（一分，便宜机场 1）：默认机场，四条链同上
+  - {name: ♻️ 便宜主备, type: url-test, use: [cheap], url: "https://www.gstatic.com/generate_204", tolerance: 100, max-failed-times: 1}
+  - {name: ♻️ 便宜主备|非港台, type: url-test, use: [cheap], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_hktw, max-failed-times: 1}
+  - {name: ♻️ 便宜主备|非日本, type: url-test, use: [cheap], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_jp, max-failed-times: 1}
+  - {name: ♻️ 便宜主备|港澳台, type: url-test, use: [cheap], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *hktw, max-failed-times: 1}
 
-  # cheap1（猫咪，便宜机场 2）：默认机场，四条链同上
-  - {name: ♻️ 便宜主备1, type: fallback, use: [cheap1], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
-  - {name: ♻️ 便宜主备1|非港台, type: fallback, use: [cheap1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_hktw, max-failed-times: 1}
-  - {name: ♻️ 便宜主备1|非日本, type: fallback, use: [cheap1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *no_jp, max-failed-times: 1}
-  - {name: ♻️ 便宜主备1|港澳台, type: fallback, use: [cheap1], url: "https://www.gstatic.com/generate_204", interval: 300, filter: *hktw, max-failed-times: 1}
+  # cheap1（猫咪，便宜机场 2）：备胎，四条链同上
+  - {name: ♻️ 便宜主备1, type: url-test, use: [cheap1], url: "https://www.gstatic.com/generate_204", tolerance: 100, max-failed-times: 1}
+  - {name: ♻️ 便宜主备1|非港台, type: url-test, use: [cheap1], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_hktw, max-failed-times: 1}
+  - {name: ♻️ 便宜主备1|非日本, type: url-test, use: [cheap1], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_jp, max-failed-times: 1}
+  - {name: ♻️ 便宜主备1|港澳台, type: url-test, use: [cheap1], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *hktw, max-failed-times: 1}
 
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT, 🚀 节点选择]}
-  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, ♻️ 便宜主备1, ♻️ 便宜主备, 🔯 主备切换, 🎯 全球直连]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, ♻️ 便宜主备, ♻️ 便宜主备1, 🔯 主备切换, 🎯 全球直连]}
 
 rule-providers:
   # ══ 自建清单：手工源是 rules/*.list（唯一手改的地方）══
