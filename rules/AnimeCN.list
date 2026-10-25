@@ -22,6 +22,7 @@ DOMAIN-SUFFIX,a1.itc.cn
 DOMAIN-SUFFIX,account.youku.com
 DOMAIN-SUFFIX,acfun.cn
 DOMAIN-SUFFIX,acg.youku.com
+DOMAIN-SUFFIX,anifun.cn
 DOMAIN-SUFFIX,api.bilibili.com
 DOMAIN-SUFFIX,api.dandanplay.net
 DOMAIN-SUFFIX,assets.anixplayer.net
@@ -36,6 +37,7 @@ DOMAIN-SUFFIX,css.tv.itc.cn
 DOMAIN-SUFFIX,dandanplay.com
 DOMAIN-SUFFIX,dandanplay.net
 DOMAIN-SUFFIX,display-sc.miguvideo.com
+DOMAIN-SUFFIX,dmmandao.com.cn
 DOMAIN-SUFFIX,film.qq.com
 DOMAIN-SUFFIX,fino.svc.litv.tv
 DOMAIN-SUFFIX,honey.mgtv.com
@@ -67,7 +69,9 @@ DOMAIN-SUFFIX,miguvideo.com
 DOMAIN-SUFFIX,mikanime.tv
 DOMAIN-SUFFIX,msg-intl.qy.net
 DOMAIN-SUFFIX,my.tv.sohu.com
+DOMAIN-SUFFIX,omofuns.com
 DOMAIN-SUFFIX,pptv.com
+DOMAIN-SUFFIX,projectjust.xyz
 DOMAIN-SUFFIX,puui.qpic.cn
 DOMAIN-SUFFIX,qy.net
 DOMAIN-SUFFIX,s1.hdslb.com
@@ -76,6 +80,7 @@ DOMAIN-SUFFIX,sohu.com
 DOMAIN-SUFFIX,static.hitv.com
 DOMAIN-SUFFIX,static.wetvinfo.com
 DOMAIN-SUFFIX,t.youku.com
+DOMAIN-SUFFIX,ttiandman.com.cn
 DOMAIN-SUFFIX,v.qq.com
 DOMAIN-SUFFIX,v.youku.com
 DOMAIN-SUFFIX,vfiles.gtimg.cn

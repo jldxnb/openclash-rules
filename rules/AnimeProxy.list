@@ -11,8 +11,10 @@
 #     聚合站换域后这里会跟着更新；想固定某条不被上游影响，把它挪到手工区。
 #
 # 已知取舍：
-#   - 「代理·存疑」区：面向大陆用户的中文聚合站（樱花/风车/AGE/稀饭/次元城等），托管墙外、
-#     未验证直连，默认按代理放；你实测直连可用的话，把它挪到 AnimeCN.list 手工区。
+#   - 「代理·存疑」区：面向大陆用户的中文聚合站（樱花/风车/AGE/稀饭/次元城等），默认按代理放。
+#     2026-10-25 用真实大陆直连复测过 74 条：52 条能直连，但多数明显更慢（Cloudflare 绕远端边缘），
+#     只有 5 条直连不慢于代理（已挪 AnimeCN）、6 条已无解析（已剔除）——判据见 anime-sites.md §8.5。
+#     「能直连」不等于「该直连」：直连实测不慢于代理再挪，别只凭打开得了就改。
 #   - 屏蔽 / 限制日本 IP 的站（hanime1 家族、hanime.tv 系，证据见 anime-sites.md §5/§8.4）
 #     就收在本清单尾部：原 rules/AnimeNoJP.list（更早叫 NoJP.list）于 2026-10-06 删除、
 #     内容并入本清单。配置里 anime_proxy 排在漫画清单之前命中，它们仍落「🎌 漫画动漫」
@@ -374,7 +376,9 @@ DOMAIN-SUFFIX,ytanime.tv
 DOMAIN-SUFFIX,zbkatv.cc
 DOMAIN-SUFFIX,zzzfun.com
 DOMAIN-SUFFIX,zzzfun.org
-# ---- 代理·存疑：面向大陆但托管墙外（实测直连可用可挪到 AnimeCN.list 手工区；anime-sites.md §8.3）----
+# ---- 代理·存疑：面向大陆但托管墙外，默认按代理放。2026-10-25 真实大陆直连复测 74 条：
+#      52 条可直连但多数明显更慢（Cloudflare 落远端边缘），直连不慢于代理的 5 条已挪 AnimeCN.list、
+#      6 条无解析已剔除；判据与逐条数据见 anime-sites.md §8.5 ----
 DOMAIN-SUFFIX,5dm.dev
 DOMAIN-SUFFIX,age.tv
 DOMAIN-SUFFIX,ageapp.app
@@ -387,7 +391,6 @@ DOMAIN-SUFFIX,agefans.com
 DOMAIN-SUFFIX,agefans.la
 DOMAIN-SUFFIX,ani.girigirilove.com
 DOMAIN-SUFFIX,anibk.com
-DOMAIN-SUFFIX,anifun.cn
 DOMAIN-SUFFIX,anime.girigirilove.com
 DOMAIN-SUFFIX,animefenix2.tv
 DOMAIN-SUFFIX,animetake.tv
@@ -408,8 +411,6 @@ DOMAIN-SUFFIX,dlidli.app
 DOMAIN-SUFFIX,dm.xifanacg.com
 DOMAIN-SUFFIX,dm530.in
 DOMAIN-SUFFIX,dm530.org
-DOMAIN-SUFFIX,dm530w6.com
-DOMAIN-SUFFIX,dmmandao.com.cn
 DOMAIN-SUFFIX,fantuantv.com
 DOMAIN-SUFFIX,fcdm22.com
 DOMAIN-SUFFIX,fcdmtv.cc
@@ -427,27 +428,19 @@ DOMAIN-SUFFIX,kimoitv.com
 DOMAIN-SUFFIX,kuroiru.co
 DOMAIN-SUFFIX,luffytv.online
 DOMAIN-SUFFIX,megaplay.buzz
-DOMAIN-SUFFIX,mobile.meinadi.cn
 DOMAIN-SUFFIX,myani.org
 DOMAIN-SUFFIX,next.xifanacg.com
-DOMAIN-SUFFIX,nkdm.hkdrj.cn
-DOMAIN-SUFFIX,omofuns.com
 DOMAIN-SUFFIX,p.bfvp26.com
 DOMAIN-SUFFIX,piratexplay.com
-DOMAIN-SUFFIX,projectjust.xyz
 DOMAIN-SUFFIX,qudman.com.cn
-DOMAIN-SUFFIX,tokuzilla.net
-DOMAIN-SUFFIX,ttiandman.com.cn
 DOMAIN-SUFFIX,tvtfun.net
 DOMAIN-SUFFIX,www.xuandm.com
 DOMAIN-SUFFIX,www.yhdmtv.cc
 DOMAIN-SUFFIX,xifan.moe
-DOMAIN-SUFFIX,xifanacg.com
 DOMAIN-SUFFIX,xuandm.com
 DOMAIN-SUFFIX,yhdm.so
 DOMAIN-SUFFIX,yhdmtv.cc
 DOMAIN-SUFFIX,yhpdm.net
-DOMAIN-SUFFIX,yinghuacd.com
 DOMAIN-SUFFIX,yinghuafanju.com.cn
 # ---- 屏蔽日本 IP 的站（hanime1 家族 / hanime.tv 系；原 NoJP 清单已并入本清单）----
 DOMAIN-KEYWORD,hanime1

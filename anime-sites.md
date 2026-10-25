@@ -12,7 +12,7 @@
 |---|---|---|
 | 🟢 **直连** | 国内网络可直连（国内平台，或 GreatFire 未封锁 + 证据） | 建议指向直连策略组（如 🎯 全球直连） |
 | 🔴 **代理** | 需代理（被墙 / 海外服务 / 地区限制） | 建议指向代理组（如 🚀 节点选择） |
-| 🟡 **代理·存疑** | 面向大陆用户但托管墙外、或未验证直连 | **默认按代理放**；实测直连可用再挪去直连 |
+| 🟡 **代理·存疑** | 面向大陆用户但托管墙外、或未验证直连 | **默认按代理放**；实测直连可用**且不比代理慢**再挪去直连（2026-10-25 大陆直连复测：74 条里 52 条可直连，但多数更慢，仅 5 条挪入直连，见 §8.5） |
 | ⚠️ **非日本** | 屏蔽 / 限制日本 IP 的站（hanime1 家族等） | 必须走「非日本节点」组（现为 `rules/AnimeNoJP.list`，原 NoJP.list） |
 
 ### 分流建议
@@ -165,13 +165,13 @@
 
 #### Animeko
 - 类别: 工具（开源追番/弹幕播放器）
-- 域名: myani.org
-- 性质: 开源播放器官网（实测标题「Animeko」）
-- 来源: [myani.org 实测](https://myani.org/)；[ACG导航收录](https://nav.acgsq.com/)（条目「Animeko」）
-- 后续更新入口: 官网/GitHub 仓库
-- 快测: myani.org 200
-- 大陆可达性: 存疑（小站，境外托管，未逐一验证大陆直连）
-- 备注: 与弹弹play同类的开源工具
+- 域名: myani.org | www.myani.org | d.myani.org | d2.myani.org | static.myani.org | danmaku-global.myani.org | danmaku-cn.myani.org | auth.myani.org
+- 性质: 开源追番客户端 Animeko（原 Ani，[open-ani/animeko](https://github.com/open-ani/animeko)；新官网 animeko.org）。myani.org 是旧官网，子域仍是现役基础设施：`d.`/`d2.` = 官网与 App 内更新的安装包镜像（Cloudflare）；`static.` = Bangumi 封面图（CF 缓存）；`danmaku-global`/`danmaku-cn` = 更新检查与弹幕服务（CF → Railway）；`auth.` = 账号（Railway）；旧 `danmaku.myani.org`（阿里云）已不通
+- 来源: [Ani 官网上线讨论 #404](https://github.com/open-ani/animeko/discussions/404)；[更新 API 实测](https://danmaku-global.myani.org/v1/updates/incremental/details?clientVersion=6.3.0&clientPlatform=windows&clientArch=x86_64&releaseClass=stable)（返回 `d2.myani.org` 下载地址，备线 ghfast.top）；crt.sh 子域枚举
+- 后续更新入口: GitHub 仓库 Releases / animeko.org
+- 快测: myani.org 200 / d2.myani.org 404（CF Pages 根路径，正常）/ static.myani.org 封面图 200 image/jpeg / danmaku-global 404（API 根路径，正常）
+- 大陆可达性: **直连可通但明显更慢 → 维持代理**（2026-10-25 上海电信真实直连实测：官网 TTFB 0.7–4.2s、封面图约 70KB/s；代理 TTFB 0.2s、封面 474KB/s。直连 CF 边缘落到 `colo=AMS`，代理走 HKG；Railway 的 danmaku-cn/auth 直连 0.7–4.0s vs 代理 0.24–0.58s）
+- 备注: 所以留在 `AnimeProxy.list` 的「代理·存疑」区，不挪直连；若哪天节点很差、要省流量，可把 `myani.org` 挪到 AnimeCN.list 试直连（能开，只是慢）
 
 ---
 
@@ -302,8 +302,8 @@
 - 来源: [必应检索实测](https://cn.bing.com/search?q=%E5%8A%A8%E6%BC%AB%E5%B2%9B)（标题逐一实测）；各站根域 curl 实测
 - 后续更新入口: 无
 - 快测: dmmandao.com.cn 200 / ttiandman.com.cn 200 / qudman.com.cn 200 / anifun.cn 200 / anibk.com 200
-- 大陆可达性: 存疑（.com.cn 新域，IP 归属混杂 [如 dmmandao.com.cn 南非 IP]，未验证大陆直连）
-- 备注: 2025 年以来出现一批 .com.cn 后缀动漫克隆站，疑似 SEO 批量建站，寿命短
+- 大陆可达性: **按域名分**（2026-10-25 上海电信真实直连 vs 代理 TTFB）：`anifun.cn` 0.85s vs 1.94s（腾讯云上海）/ `dmmandao.com.cn` 0.11s vs 0.16s / `ttiandman.com.cn` 0.50s vs 0.61s → 直连不慢，已挪 `AnimeCN.list`；`qudman.com.cn` 2.68s vs 2.28s、`anibk.com` 1.79s vs 0.21s → 直连太慢，留在 `AnimeProxy.list`
+- 备注: 2025 年以来出现一批 .com.cn 后缀动漫克隆站，疑似 SEO 批量建站，寿命短；同一站群不同域名的线路差异极大，**必须按域名实测**，不能整组一刀切
 
 #### 动漫屋（漫画站）
 - 类别: 国内聚合（以漫画为主，非番剧视频）
@@ -2607,11 +2607,20 @@ www3.animeflv.net                           OK/OK          h301
 - `nikedm.com`
 - `www.xifan.moe`
 
+**2026-10-25 复测剔除**（Cloudflare DoH + Google DoH 均 NODATA / NXDOMAIN，直连与代理都不通，多为停放/弃用）：
+- `dm530w6.com`
+- `mobile.meinadi.cn`
+- `nkdm.hkdrj.cn`
+- `tokuzilla.net`
+- `xifanacg.com`（仅 apex 无解析；`dm.` / `next.` 子域仍解析，已在清单里单列）
+- `yinghuacd.com`
+
 ## 8. 附录：国内直连 / 海外代理 域名清单
 
-以下清单由本文全部域名自动生成（已剔除失效域名并做子域合并），按「用国内网络能否直接访问」拆分：
+以下清单由本文全部域名自动生成（已剔除失效域名并做子域合并），按「用国内网络能否直接访问」拆分。
+2026-10-25 对「代理·存疑」区做过一次**真实大陆直连复测**：52/74 能直连但多数明显更慢，仅 5 条直连不慢于代理（挪入 §8.1）、6 条已无解析（剔除），方法与逐条数据见 §8.5。
 
-**国内直连 74 条 ｜ 海外代理 436 条（其中 74 条属「代理·存疑」）｜ 其中 9 条需走「非日本节点」**。
+**国内直连 79 条 ｜ 海外代理 425 条（其中 63 条属「代理·存疑」）｜ 其中 9 条需走「非日本节点」**。
 
 ### 8.1 国内直连
 
@@ -2621,6 +2630,7 @@ DOMAIN-SUFFIX,a1.itc.cn
 DOMAIN-SUFFIX,account.youku.com
 DOMAIN-SUFFIX,acfun.cn
 DOMAIN-SUFFIX,acg.youku.com
+DOMAIN-SUFFIX,anifun.cn
 DOMAIN-SUFFIX,api.bilibili.com
 DOMAIN-SUFFIX,api.dandanplay.net
 DOMAIN-SUFFIX,assets.anixplayer.net
@@ -2635,6 +2645,7 @@ DOMAIN-SUFFIX,css.tv.itc.cn
 DOMAIN-SUFFIX,dandanplay.com
 DOMAIN-SUFFIX,dandanplay.net
 DOMAIN-SUFFIX,display-sc.miguvideo.com
+DOMAIN-SUFFIX,dmmandao.com.cn
 DOMAIN-SUFFIX,film.qq.com
 DOMAIN-SUFFIX,fino.svc.litv.tv
 DOMAIN-SUFFIX,honey.mgtv.com
@@ -2666,7 +2677,9 @@ DOMAIN-SUFFIX,miguvideo.com
 DOMAIN-SUFFIX,mikanime.tv
 DOMAIN-SUFFIX,msg-intl.qy.net
 DOMAIN-SUFFIX,my.tv.sohu.com
+DOMAIN-SUFFIX,omofuns.com
 DOMAIN-SUFFIX,pptv.com
+DOMAIN-SUFFIX,projectjust.xyz
 DOMAIN-SUFFIX,puui.qpic.cn
 DOMAIN-SUFFIX,qy.net
 DOMAIN-SUFFIX,s1.hdslb.com
@@ -2675,6 +2688,7 @@ DOMAIN-SUFFIX,sohu.com
 DOMAIN-SUFFIX,static.hitv.com
 DOMAIN-SUFFIX,static.wetvinfo.com
 DOMAIN-SUFFIX,t.youku.com
+DOMAIN-SUFFIX,ttiandman.com.cn
 DOMAIN-SUFFIX,v.qq.com
 DOMAIN-SUFFIX,v.youku.com
 DOMAIN-SUFFIX,vfiles.gtimg.cn
@@ -2735,7 +2749,6 @@ DOMAIN-SUFFIX,aniclipse.com
 DOMAIN-SUFFIX,anidap.lol
 DOMAIN-SUFFIX,anidex.info
 DOMAIN-SUFFIX,anidoor.me
-DOMAIN-SUFFIX,anifun.cn
 DOMAIN-SUFFIX,anify.to
 DOMAIN-SUFFIX,anihq.cc
 DOMAIN-SUFFIX,anikage.cc
@@ -2881,11 +2894,9 @@ DOMAIN-SUFFIX,dlidli.app
 DOMAIN-SUFFIX,dm.xifanacg.com
 DOMAIN-SUFFIX,dm530.in
 DOMAIN-SUFFIX,dm530.org
-DOMAIN-SUFFIX,dm530w6.com
 DOMAIN-SUFFIX,dmhy.anoneko.com
 DOMAIN-SUFFIX,dmhy.org
 DOMAIN-SUFFIX,dmm.com
-DOMAIN-SUFFIX,dmmandao.com.cn
 DOMAIN-SUFFIX,dongmanhuayuan.myheartsite.com
 DOMAIN-SUFFIX,e-muse.com
 DOMAIN-SUFFIX,e-muse.com.tw
@@ -3002,7 +3013,6 @@ DOMAIN-SUFFIX,miruro.to
 DOMAIN-SUFFIX,miruro.tv
 DOMAIN-SUFFIX,mjtt2.cc
 DOMAIN-SUFFIX,mkissa.to
-DOMAIN-SUFFIX,mobile.meinadi.cn
 DOMAIN-SUFFIX,mobile.unext.jp
 DOMAIN-SUFFIX,moeli-desu.com
 DOMAIN-SUFFIX,monoschinos2.net
@@ -3021,14 +3031,12 @@ DOMAIN-SUFFIX,nicotv.org
 DOMAIN-SUFFIX,nicovideo.jp
 DOMAIN-SUFFIX,nimg.jp
 DOMAIN-SUFFIX,nivod.cc
-DOMAIN-SUFFIX,nkdm.hkdrj.cn
 DOMAIN-SUFFIX,nyaa.si
 DOMAIN-SUFFIX,nyaa.tracker.wf
 DOMAIN-SUFFIX,oauth.unext.jp
 DOMAIN-SUFFIX,octopusmanifest.org
 DOMAIN-SUFFIX,og.bakayaro.live
 DOMAIN-SUFFIX,ohentai.org
-DOMAIN-SUFFIX,omofuns.com
 DOMAIN-SUFFIX,otakuhg.site
 DOMAIN-SUFFIX,p-bstarstatic.akamaized.net
 DOMAIN-SUFFIX,p.bfvp26.com
@@ -3040,7 +3048,6 @@ DOMAIN-SUFFIX,players.streaks.jp
 DOMAIN-SUFFIX,playmogo.com
 DOMAIN-SUFFIX,popgo.org
 DOMAIN-SUFFIX,pornbest.org
-DOMAIN-SUFFIX,projectjust.xyz
 DOMAIN-SUFFIX,qingse.one
 DOMAIN-SUFFIX,qlyyz.xyz
 DOMAIN-SUFFIX,qudman.com.cn
@@ -3072,11 +3079,9 @@ DOMAIN-SUFFIX,sukebei.tracker.wf
 DOMAIN-SUFFIX,sumisora.net
 DOMAIN-SUFFIX,support.unext.jp
 DOMAIN-SUFFIX,telasa.jp
-DOMAIN-SUFFIX,tokuzilla.net
 DOMAIN-SUFFIX,tokyotosho.info
 DOMAIN-SUFFIX,trace.moe
 DOMAIN-SUFFIX,tsdm39.com
-DOMAIN-SUFFIX,ttiandman.com.cn
 DOMAIN-SUFFIX,tu.ts-dm.net
 DOMAIN-SUFFIX,tucaptions.org
 DOMAIN-SUFFIX,tvanime.tv
@@ -3116,7 +3121,6 @@ DOMAIN-SUFFIX,xanime.me
 DOMAIN-SUFFIX,xcytv.cc
 DOMAIN-SUFFIX,xiaoxintv.cc
 DOMAIN-SUFFIX,xifan.moe
-DOMAIN-SUFFIX,xifanacg.com
 DOMAIN-SUFFIX,xkytv.cc
 DOMAIN-SUFFIX,xuandm.com
 DOMAIN-SUFFIX,yenime.net
@@ -3124,7 +3128,6 @@ DOMAIN-SUFFIX,yhdm.la
 DOMAIN-SUFFIX,yhdm.so
 DOMAIN-SUFFIX,yhdmtv.cc
 DOMAIN-SUFFIX,yhpdm.net
-DOMAIN-SUFFIX,yinghuacd.com
 DOMAIN-SUFFIX,yinghuafanju.com.cn
 DOMAIN-SUFFIX,yomi.to
 DOMAIN-SUFFIX,ytanime.tv
@@ -3133,10 +3136,12 @@ DOMAIN-SUFFIX,zzzfun.com
 DOMAIN-SUFFIX,zzzfun.org
 ```
 
-### 8.3 「代理·存疑」子集（默认按代理放；大陆实测直连可用的话挪到 8.1）
+### 8.3 「代理·存疑」子集（2026-10-25 实测后仍留代理的 63 条；直连不占优，方法与数据见 §8.5）
+
+> 2026-10-25 真实大陆直连复测：74 条中 52 条 HTTPS 可直连，但 35 条明显慢于代理 → 继续按代理放；
+> 直连不慢于代理的 5 条已挪 §8.1，6 条已无解析被剔除（见 §7）。「能直连」不等于「该直连」。
 
 ```yaml
-DOMAIN-SUFFIX,dmmandao.com.cn
 DOMAIN-SUFFIX,p.bfvp26.com
 DOMAIN-SUFFIX,bbs.popgo.org
 DOMAIN-SUFFIX,cn-yinghuadm.com.cn
@@ -3146,12 +3151,9 @@ DOMAIN-SUFFIX,girigirilove.com
 DOMAIN-SUFFIX,luffytv.online
 DOMAIN-SUFFIX,agedm.com
 DOMAIN-SUFFIX,fcdm22.com
-DOMAIN-SUFFIX,nkdm.hkdrj.cn
 DOMAIN-SUFFIX,agefans.com
 DOMAIN-SUFFIX,cycdm01.top
 DOMAIN-SUFFIX,yinghuafanju.com.cn
-DOMAIN-SUFFIX,mobile.meinadi.cn
-DOMAIN-SUFFIX,xifanacg.com
 DOMAIN-SUFFIX,cn-yinghuadman.com.cn
 DOMAIN-SUFFIX,bbs.kfmax.com
 DOMAIN-SUFFIX,xuandm.com
@@ -3160,23 +3162,18 @@ DOMAIN-SUFFIX,agedm.org
 DOMAIN-SUFFIX,img.picbf.com
 DOMAIN-SUFFIX,megaplay.buzz
 DOMAIN-SUFFIX,myani.org
-DOMAIN-SUFFIX,anifun.cn
 DOMAIN-SUFFIX,animefenix2.tv
 DOMAIN-SUFFIX,agedm.live
 DOMAIN-SUFFIX,bbs.sumisora.net
 DOMAIN-SUFFIX,animetake.tv
 DOMAIN-SUFFIX,dlidli.app
 DOMAIN-SUFFIX,xifan.moe
-DOMAIN-SUFFIX,projectjust.xyz
-DOMAIN-SUFFIX,dm530w6.com
 DOMAIN-SUFFIX,gugu3.com
 DOMAIN-SUFFIX,girigiri.cn
 DOMAIN-SUFFIX,bestdubbedanime.com
-DOMAIN-SUFFIX,yinghuacd.com
 DOMAIN-SUFFIX,piratexplay.com
 DOMAIN-SUFFIX,apps.fengctv.com.cn
 DOMAIN-SUFFIX,img2.xfmanga.top
-DOMAIN-SUFFIX,omofuns.com
 DOMAIN-SUFFIX,kawaiifu.com
 DOMAIN-SUFFIX,www.xuandm.com
 DOMAIN-SUFFIX,www.yhdmtv.cc
@@ -3193,7 +3190,6 @@ DOMAIN-SUFFIX,dilidili51.com
 DOMAIN-SUFFIX,img.lzipic.com
 DOMAIN-SUFFIX,next.xifanacg.com
 DOMAIN-SUFFIX,qudman.com.cn
-DOMAIN-SUFFIX,ttiandman.com.cn
 DOMAIN-SUFFIX,kimoitv.com
 DOMAIN-SUFFIX,kuroiru.co
 DOMAIN-SUFFIX,yhdm.so
@@ -3206,7 +3202,6 @@ DOMAIN-SUFFIX,agedm.me
 DOMAIN-SUFFIX,dm530.org
 DOMAIN-SUFFIX,anime.girigirilove.com
 DOMAIN-SUFFIX,fengchedm.cc
-DOMAIN-SUFFIX,tokuzilla.net
 DOMAIN-SUFFIX,fantuantv.com
 DOMAIN-SUFFIX,cycity.pro
 DOMAIN-SUFFIX,anisnatch.site
@@ -3232,6 +3227,125 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 > **（2026-10-06 晚已完成）** 这组域名已收进 `rules/AnimeNoJP.list`（原 `NoJP.list` 改名），
 > 并在 `rules/AnimeProxy.list` 尾部留了备用条目；漫画侧同类清单 `rules/MangaNoJP.list` 一并建立。
 
+### 8.5 2026-10-25 大陆直连复测（「代理·存疑」74 条复核）
+
+§6 的实测是在**日本代理出口**上做的，只能证明「站点存活」，不能证明大陆可达——「代理·存疑」因此默认按代理放。
+2026-10-25 用**真实大陆直连**把这 74 条全部复测了一遍。结论：**能直连的不少，但直连普遍更慢，默认代理仍然合理**。
+
+**测试方法**（Windows + mihomo TUN 全局代理 + 上海电信 AS4812）：
+
+- 本机所有流量被 TUN 劫持，普通 curl 测不到真实直连；用 `curl --interface <WLAN IP>` 把连接绑定到物理网卡，
+  绕开 TUN 直接从 WLAN 发出（mihomo 在 Windows 用 `IP_UNICAST_IF` 实现同样的接口绑定）。
+- **方法可信度验证**：同一命令访问 `ip-api.com` 得到 `180.165.37.199 / China Telecom (AS4812)`（真实出口），
+  走代理则是 `13.114.139.171 / AWS Tokyo`；对照组 `www.baidu.com` 直连 200，`www.google.com` / `www.youtube.com`
+  直连 15s 超时——说明绑定出口就是真实大陆网络、GFW 行为正常，不是「假直连」。
+- 每条域名：Cloudflare DoH 取 A 记录 → 直连 `https://域名/`（`--resolve` 固定 IP，最多试 2 个 IP）→ 同一请求走代理；
+  记录 HTTP 状态与 TCP/TLS/首字节时间（TTFB）。**单次采样**，数值只作量级参考；重复 3 次采样的 13 条候选也未见结论反转。
+
+**结果分布（74 条）**：
+
+| 判定 | 条数 | 处置 |
+|---|---|---|
+| HTTPS 直连可通 | 52 | 5 条直连不慢于代理 → 挪 `AnimeCN.list`（§8.1）；其余 47 条直连明显更慢 → 保留代理 |
+| 仅 HTTP 直连通、HTTPS 不通 | 10 | 保留代理（浏览器 / App 走 HTTPS） |
+| 直连完全不通 | 5 | 保留代理 |
+| 无 A 记录 | 5 | 4 条双解析器均无解析 → 剔除（§7）；`cycanime.com` 的 www 仍 302 → 保留 |
+| NXDOMAIN | 2 | 剔除（§7） |
+
+**直连不慢于代理的 5 条**（3 次采样中位数，TTFB 秒）：
+
+| 域名 | 直连 | 代理 |
+|---|---|---|
+| anifun.cn | 0.85 | 1.94 |
+| dmmandao.com.cn | 0.11 | 0.16 |
+| omofuns.com | 0.42 | 1.30 |
+| projectjust.xyz | 0.73 | 1.01 |
+| ttiandman.com.cn | 0.50 | 0.61 |
+
+**直连可通但慢于代理的典型**（>1.5 倍的 35 条）：Cloudflare 站点在大陆多落到远端边缘
+（如 myani.org 直连 `colo=AMS`、代理 `HKG`），首字节 0.7–8.5s vs 代理 0.2–0.9s：
+`5dm.dev` 8.50 vs 0.29、`bbs.kfmax.com` 5.76 vs 0.95、`tvtfun.net` 4.99 vs 0.64、`img.lzipic.com` 3.07 vs 0.37。
+**所以「能打开」不等于「该直连」**——这些继续走代理，别只看可达性就搬。
+
+**逐条明细**（直连 TTFB 取可用 IP 的最好值；其中 13 条另做 3 次采样、表中优先用中位数；「—」= 无 HTTP 响应；代理为当时运行中的香港节点，仅供参考）：
+
+| 域名 | 直连判定 | 直连 TTFB(s) | 代理 TTFB(s) | 处置 |
+|---|---|---|---|---|
+| 5dm.dev | 直连可通 | 8.50 | 0.29 | 留代理（直连更慢） |
+| ageapp.app | 直连可通 | 2.59 | 0.87 | 留代理（直连更慢） |
+| ani.girigirilove.com | 直连可通 | 1.58 | 0.65 | 留代理（直连更慢） |
+| anibk.com | 直连可通 | 1.79 | 0.21 | 留代理（直连更慢） |
+| anifun.cn | 直连可通 | 0.85 | 1.94 | → 挪直连（§8.1） |
+| animefenix2.tv | 直连可通 | 2.74 | 0.18 | 留代理（直连更慢） |
+| animetake.tv | 直连可通 | 2.07 | 0.83 | 留代理（直连更慢） |
+| anisnatch.site | 直连可通 | 1.18 | 0.59 | 留代理（直连更慢） |
+| app.xifandm.net | 直连可通 | 0.86 | 0.25 | 留代理（直连更慢） |
+| apps.fengctv.com.cn | 直连可通 | 3.84 | 0.54 | 留代理（直连更慢） |
+| bbs.kfmax.com | 直连可通 | 5.76 | 0.95 | 留代理（直连更慢） |
+| bbs.popgo.org | 直连可通 | 3.97 | 0.82 | 留代理（直连更慢） |
+| bbs.sumisora.net | 直连可通 | 1.48 | 1.25 | 留代理（直连更慢） |
+| bestdubbedanime.com | 直连可通 | 0.85 | 0.27 | 留代理（直连更慢） |
+| cn-yinghuadm.com.cn | 直连可通 | 2.04 | 1.06 | 留代理（直连更慢） |
+| cn-yinghuadman.com.cn | 直连可通 | 3.13 | 2.24 | 留代理（直连更慢） |
+| cycity.pro | 直连可通 | 1.82 | 0.40 | 留代理（直连更慢） |
+| dilidili51.com | 直连可通 | 2.64 | 0.79 | 留代理（直连更慢） |
+| dlidli.app | 直连可通 | 2.82 | 0.70 | 留代理（直连更慢） |
+| dm.xifanacg.com | 直连可通 | 0.78 | 0.17 | 留代理（直连更慢） |
+| dm530.in | 直连可通 | 1.38 | 0.53 | 留代理（直连更慢） |
+| dm530.org | 直连可通 | 0.94 | 0.40 | 留代理（直连更慢） |
+| dmmandao.com.cn | 直连可通 | 0.11 | 0.16 | → 挪直连（§8.1） |
+| fantuantv.com | 直连可通 | 0.89 | 0.70 | 留代理（直连更慢） |
+| fcdm22.com | 直连可通 | 1.30 | 0.57 | 留代理（直连更慢） |
+| fcdmtv.cc | 直连可通 | 1.87 | 0.31 | 留代理（直连更慢） |
+| fengchedm.com | 直连可通 | 1.06 | 0.44 | 留代理（直连更慢） |
+| girigiri.cn | 直连可通 | 2.02 | 1.54 | 留代理（直连更慢） |
+| girigirilove.com | 直连可通 | 1.72 | 0.37 | 留代理（直连更慢） |
+| img.lzipic.com | 直连可通 | 3.07 | 0.37 | 留代理（直连更慢） |
+| img.picbf.com | 直连可通 | 2.95 | 0.88 | 留代理（直连更慢） |
+| img2.xfmanga.top | 直连可通 | 1.72 | 0.84 | 留代理（直连更慢） |
+| imomoe.ai | 直连可通 | 3.63 | 1.69 | 留代理（直连更慢） |
+| kawaiifu.com | 直连可通 | 0.90 | 0.46 | 留代理（直连更慢） |
+| kimoitv.com | 直连可通 | 1.62 | 0.33 | 留代理（直连更慢） |
+| kuroiru.co | 直连可通 | 0.69 | 0.18 | 留代理（直连更慢） |
+| luffytv.online | 直连可通 | 0.95 | 1.08 | 留代理（直连更慢） |
+| megaplay.buzz | 直连可通 | 1.77 | 0.18 | 留代理（直连更慢） |
+| myani.org | 直连可通 | 4.23 | 0.20 | 留代理（直连更慢） |
+| next.xifanacg.com | 直连可通 | 2.43 | 0.65 | 留代理（直连更慢） |
+| omofuns.com | 直连可通 | 0.42 | 1.30 | → 挪直连（§8.1） |
+| p.bfvp26.com | 直连可通 | 1.62 | 1.00 | 留代理（直连更慢） |
+| piratexplay.com | 直连可通 | 2.22 | 1.29 | 留代理（直连更慢） |
+| projectjust.xyz | 直连可通 | 0.73 | 1.01 | → 挪直连（§8.1） |
+| qudman.com.cn | 直连可通 | 2.68 | 2.28 | 留代理（直连更慢） |
+| ttiandman.com.cn | 直连可通 | 0.50 | 0.61 | → 挪直连（§8.1） |
+| tvtfun.net | 直连可通 | 4.99 | 0.64 | 留代理（直连更慢） |
+| www.yhdmtv.cc | 直连可通 | 0.39 | 0.46 | 留代理（直连更慢） |
+| xifan.moe | 直连可通 | 1.98 | 0.34 | 留代理（直连更慢） |
+| yhdm.so | 直连可通 | 5.48 | 1.31 | 留代理（直连更慢） |
+| yhdmtv.cc | 直连可通 | 1.70 | 0.46 | 留代理（直连更慢） |
+| yinghuafanju.com.cn | 直连可通 | 3.97 | 0.84 | 留代理（直连更慢） |
+| age.tv | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 0.32 | 留代理（HTTPS 直连不通） |
+| agedm.com | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 1.56 | 留代理（HTTPS 直连不通） |
+| agedm.live | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 1.35 | 留代理（HTTPS 直连不通） |
+| agedm.me | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 0.28 | 留代理（HTTPS 直连不通） |
+| agedm.org | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 5.00 | 留代理（HTTPS 直连不通） |
+| agefans.com | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 0.18 | 留代理（HTTPS 直连不通） |
+| agefans.la | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 5.51 | 留代理（HTTPS 直连不通） |
+| anime.girigirilove.com | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 0.47 | 留代理（HTTPS 直连不通） |
+| cycdm01.top | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 1.50 | 留代理（HTTPS 直连不通） |
+| fengchedm.cc | 仅 HTTP 直连（HTTPS 被阻断/不通） | — | 1.58 | 留代理（HTTPS 直连不通） |
+| agedm.vip | 直连不通 | — | 0.00 | 留代理（直连不通） |
+| gugu3.com | 直连不通 | — | 0.00 | 留代理（直连不通） |
+| www.xuandm.com | 直连不通 | — | 0.28 | 留代理（直连不通） |
+| xuandm.com | 直连不通 | — | 0.33 | 留代理（直连不通） |
+| yhpdm.net | 直连不通 | — | 0.00 | 留代理（直连不通） |
+| cycanime.com | 无 A 记录 | — | 4.56 | 保留代理（apex 无 A，www 仍 302） |
+| nkdm.hkdrj.cn | 无 A 记录 | — | 4.32 | → 剔除（§7） |
+| tokuzilla.net | 无 A 记录 | — | 4.19 | → 剔除（§7） |
+| xifanacg.com | 无 A 记录 | — | 5.67 | → 剔除（§7） |
+| yinghuacd.com | 无 A 记录 | — | 3.19 | → 剔除（§7） |
+| dm530w6.com | NXDOMAIN | — | 2.19 | → 剔除（§7） |
+| mobile.meinadi.cn | NXDOMAIN | — | 2.16 | → 剔除（§7） |
+
 ## 9. 定期复查指南
 
 **复查节奏**：正版平台（国内 / 日系）域名稳定，**每季度抽查**；中文聚合站与海外聚合站高变动，建议**每月**。
@@ -3244,3 +3358,4 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 | BT / 字幕组 | 蜜柑双入口、dmhy 状态 | §4 各条目的官方 TG / 发布渠道 |
 | hanime1 家族 | 域名与"日本节点"限制变化 | [Han1meViewer 仓库](https://github.com/misaka10032w/Han1meViewer)（官方域名数组在 Constants.kt） |
 | 全局 | 大陆可达性复核 | 上述站点的官方公告 + GreatFire 查询 |
+| 直连 / 代理取舍（存疑区） | 真实大陆直连实测 vs 代理 TTFB | 本机有 TUN/全局代理时，用 `curl --interface <物理网卡 IP>` 绕开 TUN 直连（方法见 §8.5），「能直连」不等于「该直连」 |
