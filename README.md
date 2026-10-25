@@ -97,13 +97,14 @@ rule-providers:
 把 `configs/mihomo/three-redir-host.yaml`（桌面）或 `three-fake-ip.yaml`（手机 / TUN）
 的内容喂给客户端。**必须先替换占位符**（见下一节），否则订阅拉不下来。
 
-`three-*` 是 stable-first 的设计：默认「🔯 自动兜底」按 stable → stable1 → cheap 的顺序故障转移。
+`three-*` 是 **1 个质量机场（stable）+ 2 个便宜机场（cheap / cheap1）**：GitHub API、游戏、e-hentai
+默认用 stable，其余流量默认走 cheap1（「🔯 自动兜底」的顺序是 cheap1 → cheap → stable）。
 
 配置里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
 
 | 组 | 作用 |
 |---|---|
-| `🔯 自动兜底` | 跨机场故障转移：`stable` → `stable1` → `cheap`（`🚀 节点选择` 的默认项） |
+| `🔯 自动兜底` | 跨机场故障转移：`cheap1` → `cheap` → `stable`（`🚀 节点选择` 的默认项，也就是「其他流量默认 cheap1」） |
 | `🔯 主备切换*`、`♻️ 便宜主备*` | 都是 `fallback` 类型：默认用列表里第一个健康的节点，**也可以在面板里点选一个首选节点**（选择会持久化），该节点失效时自动切到下一个健康的 |
 | `🐙 GitHub API` | GitHub 低流量接口（`api.github.com` / `api.mcp.github.com` / `scanning-api.github.com` / `lfs.github.com`）单独成组：接口频率按出口 IP 计、要干净节点，默认 stable 链；可切便宜链或候选里的任一节点 |
 | `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
@@ -113,22 +114,25 @@ rule-providers:
 
 三份订阅（provider）和它们默认承接的流量：
 
-| provider | 机场 | 默认承接 |
+| provider | 机场 | 角色与默认承接 |
 |---|---|---|
-| `stable` | 渔云 | `🚀 节点选择` 默认链（经 `🔯 自动兜底`）、`🔯 主备切换*`、`🎮 游戏`、`✈️ Speedtest`；AI / 漫画动漫等按地区过滤的链也用它的非港台 / 非日本节点 |
-| `stable1` | 猫咪 | `🔯 主备切换1*` 各链；`🔯 自动兜底` 的第二跳 |
-| `cheap` | 一分 | `♻️ 便宜主备`、`🎬 流媒体`；`🔯 自动兜底` 的最后一跳、`🐟 漏网之鱼` 的候选 |
+| `stable` | 渔云 | 质量机场：`🐙 GitHub API`、`🎮 游戏`、`🔞 e-hentai` 默认用它（`🔯 主备切换*` 四条地区链） |
+| `cheap` | 一分 | 便宜机场 1（备胎）：`♻️ 便宜主备*` 四条地区链；`🔯 自动兜底` 的第二跳 |
+| `cheap1` | 猫咪 | 便宜机场 2（**默认**）：其余流量默认走它（`♻️ 便宜主备1*` 四条地区链）；`🔯 自动兜底` 的第一跳 |
 
 分流口径：
 
-- **默认全走 `🔯 自动兜底`**（`🚀 节点选择` 的默认项）：stable → stable1 → cheap 依次故障转移；
-  想指定机场就在 `🚀 节点选择` 里改选单机场链（`🔯 主备切换` / `🔯 主备切换1` / `♻️ 便宜主备`）。
+- **默认 cheap1，关键流量 stable**：`🚀 节点选择` 默认 `🔯 自动兜底`（cheap1 → cheap → stable）；
+  `🐙 GitHub API` / `🎮 游戏` / `🔞 e-hentai` 默认 stable 链（e-hentai 用 stable 的非日本链）。
+  AI / 漫画动漫 / 流媒体 / Speedtest 等「其他」组默认 cheap1；B站番剧、微软服务、全球直连的默认项仍是
+  `DIRECT`。想指定机场就在对应组里改选单机场链（`🔯 主备切换` / `♻️ 便宜主备1` / `♻️ 便宜主备`）。
 - **GitHub 拆两段**：低流量接口 →「🐙 GitHub API」（默认 stable 的干净出口）：`api.github.com` 是
   REST + GraphQL 入口、频率按出口 IP 记（未认证 60 次/小时），共用出口容易把额度耗光，所以单独成组；
   `api.mcp.github.com`（MCP）/ `scanning-api.github.com`（代码扫描）/ `lfs.github.com` 也进组。
-  其余 GitHub（网页、`raw.`、`codeload`、Release 资产）→ `🚀 节点选择`。
+  其余 GitHub（网页、`raw.`、`codeload`、Release 资产）→ `🚀 节点选择`（默认 cheap1）。
 - **AI / Copilot**：`ai` 清单与 `GEOSITE,category-ai-!cn`（含 `api.githubcopilot.com` 等 Copilot 接口）
-  → `🤖 AI`（默认 stable 的非港台链）。Google 走 `🤖 AI` 同样是旧配置的取舍（账号风控对出口 IP 敏感）。
+  → `🤖 AI`（默认 cheap1 的非港台链；stable / cheap 的非港台链作候选）。Google 走 `🤖 AI` 是旧配置的取舍
+  （账号风控对出口 IP 敏感）；想让 AI 也用 stable，在面板把它切到 `🔯 主备切换|非港台` 即可。
 - **游戏 / B站港澳台 / 流媒体 / Speedtest**：各有独立组，按需在面板切换（见上一节的组表）。
 - **例外：`opencode.ai` 走直连**（`rules/DirectOwn.list` → `RULE-SET,direct1,DIRECT` 最先命中）：
   OpenCode Zen 模型网关，DeepSeek Harness / opencode 的模型调用都发到这里。2026-10-25 实测大陆直连
@@ -139,10 +143,10 @@ rule-providers:
 
 | 想做的事 | 改哪个组 |
 |---|---|
-| 「其他」流量改用 stable1 / cheap | `🚀 节点选择` → `🔯 主备切换1` / `♻️ 便宜主备` |
-| 兜底流量也想用 stable 的干净 IP | `🐟 漏网之鱼` → `🔯 主备切换` / `🔯 自动兜底` |
+| 「其他」流量改用 cheap / stable | `🚀 节点选择` → `♻️ 便宜主备` / `🔯 主备切换` |
+| 兜底流量也想用 stable 的干净 IP | `🐟 漏网之鱼` → `🔯 主备切换`（默认仍是 cheap1） |
 | 游戏想换机场 | `🎮 游戏` → `♻️ 便宜主备` 等候选 |
-| GitHub API 想换出口 | `🐙 GitHub API` → 候选里的 cheap 链，或直接在 `include-all` 里点一个具体节点 |
+| GitHub API 想换出口 | `🐙 GitHub API` → 候选里的 `♻️ 便宜主备1` / `♻️ 便宜主备`，或直接在 `include-all` 里点一个具体节点 |
 | Google 也改走便宜机场 | 把 `GEOSITE,google` / `GEOIP,google` 两条规则改指 `🚀 节点选择`（rules 里已留注释） |
 
 ## GitHub 低流量接口单独成组（`🐙 GitHub API`）
@@ -158,7 +162,8 @@ GitHub 接口的频率按**出口 IP** 计（未认证 REST 60 次/小时；带 
 | `DOMAIN,lfs.github.com` | `🐙 GitHub API` | LFS batch API（请求很小，对象字节在 CDN 主机） |
 | `GEOSITE,github` | `🚀 节点选择` | 其余 GitHub：网页、`raw.`、`codeload`、Release 资产 |
 
-- 组默认 stable（渔云）链；额度被耗光时在面板把这一组换到别的节点即可，**不影响 `🚀 节点选择` 上的其它流量**。
+- 组默认 stable（渔云）链；额度被耗光时在面板把它切到 `♻️ 便宜主备1` / `♻️ 便宜主备` 或任一具体节点，
+  **不影响 `🚀 节点选择` 上的其它流量**。
 - 为什么不能只留 `GEOSITE,github` 一把梭：geosite 里的 `+.github.com` / `+.githubusercontent.com`
   会把整域接走，接口规则必须写在它前面。
 - Copilot 的接口（`api.githubcopilot.com` 等）仍由 `GEOSITE,category-ai-!cn` 接住 → `🤖 AI`；
@@ -268,7 +273,8 @@ rules:
 | 上游 blackmatrix7 的 `BiliBili.list`（provider 名 `bilibili_cdn`，**直接引用 URL，不复制进仓库**） | B站系其余域名：全部 CDN / PCDN 主机、四个 akamai 镜像（含港澳台番剧的海外 UPOS `upos-hz-mirrorakam`）、`biliplus` / `hdslb` / App 包名等 | `🎯 全球直连` |
 
 - **📺 B站番剧**：默认 `DIRECT`——与不加这份清单时行为完全一致。要看港澳台限定番剧时，把这一组
-  切到「🔯 主备切换|港澳台」或「🔯 主备切换|港澳台1」（各机场的 stable 链）。
+  切到某一家的港澳台链：「🔯 主备切换|港澳台」（stable）/「♻️ 便宜主备1|港澳台」（cheap1）/
+  「♻️ 便宜主备|港澳台」（cheap），三组都在候选里。
   过滤器 `hktw` 只收香港 / 台湾节点。
   港澳台限制是在**接口层**判定的，所以只有判定 / 取址域名进这个组；视频 CDN（`upos-*` / `mcdn`、
   四个 akamai 镜像）由 `bilibili_cdn` 保持直连——播放地址是签名直链，CDN 不做地区判定，走代理只会更慢。
@@ -315,7 +321,7 @@ rules:
 
 | 位置 | 当前值 | 要改成 |
 |---|---|---|
-| `configs/mihomo/*.yaml` | `url: "订阅"` ×3（stable / stable1 / cheap 三个机场） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
+| `configs/mihomo/*.yaml` | `url: "订阅"` ×3（stable / cheap / cheap1 三个机场） | 三个订阅链接，或删掉不用的 provider 及其策略组 |
 | `configs/mihomo/*.yaml` | `authentication: - name:passwd` | 真实 `用户名:密码`；同时建议 `allow-lan: false` |
 | `configs/mihomo/*.yaml` | `external-controller: 0.0.0.0:9090` + `secret: ""` | 改为 `127.0.0.1:9090` 并设置非空 `secret`（当前等于把控制面板无密码开放给整个局域网） |
 | `configs/mihomo/*.yaml` | DNS `127.0.0.1:5225` | 设备上确有本地 DNS 服务时保留，否则改公共 DNS |
