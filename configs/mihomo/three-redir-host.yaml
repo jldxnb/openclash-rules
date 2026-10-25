@@ -12,7 +12,15 @@ proxy-providers:
   #   · health-check.interval：fallback 组的切换灵敏度完全取决于它；
   #   · lazy: true —— 只有该机场被实际使用时才做健康检查（省电省流量），
   #     代价是切到久未使用的机场时，头几秒的存活状态可能还是过期的；
-  #   · 某个机场的订阅必须经代理才能拉到时，删掉它那行 `proxy: DIRECT`（就会改成按规则走）。
+  #   · `proxy: DIRECT` 只决定【拉订阅/规则文件】的出口（直连拉，不占代理流量），
+  #     **不参与平时上网的分流**——流量走哪条规则由下面的 rules / proxy-groups 决定；
+  #     三个订阅地址实测都能直连、且比走代理快 1~2 秒，所以默认 DIRECT。
+  #   · 某个机场的订阅被墙、直连拉不到时，只在那一个 provider 里覆盖（YAML `<<` 合并会被显式键覆盖）：
+  #       cheap:
+  #         <<: *provider_base
+  #         proxy: 🚀 节点选择     # 或某个组名 / 某个节点名；删掉这行则按 rules 匹配（通常经代理组）
+  #         url: "订阅"
+  #     冷启动时代理组可能还没有节点、本地又没缓存文件，第一次拉取可能失败，mihomo 会按退避重试。
   # 角色：stable = 质量机场（GitHub API / 游戏 / e-hentai 默认用它）；
   #       cheap、cheap1 = 两个便宜机场，其余流量默认走 cheap1。
   stable: &provider_base
