@@ -152,6 +152,10 @@ DNS / 嗅探 / TUN 段，但**策略组与 rules 按新角色改写**（组有�
 - **最后兜底**：`🔯 自动兜底` 与 `🐟 漏网之鱼` 默认 `♻️ 便宜主备|非日本`（cheap 的非日本节点）；
   三家机场的链都在候选里（`🐟` 还开了 `include-all`，任一原始节点都能直接点选），
   stable 只在便宜机场都不可用时才上（`自动兜底` 的最后一跳）。
+- **例外：`opencode.ai` 走直连**（`rules/DirectOwn.list` → `RULE-SET,direct1,DIRECT` 最先命中）：OpenCode Zen
+  模型网关，DeepSeek Harness / opencode 的模型调用请求都发到这里。2026-10-25 实测大陆直连 TTFB 0.9–1.0s，
+  走代理经日本节点 1.2–3.6s 且抖动大（直连 CF 落 BOS/EWR、代理落 PDX），直连更快也更省机场流量；
+  不想要这条时删掉该清单里那一行即可回落 `GEOSITE,category-ai-!cn` 的代理。
 
 面板里可以随时切换（不用编辑文件）：
 

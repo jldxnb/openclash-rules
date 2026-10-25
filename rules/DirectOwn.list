@@ -31,3 +31,10 @@ DOMAIN-SUFFIX,age.tv
 DOMAIN-SUFFIX,agefans.com
 DOMAIN-SUFFIX,agedm.org
 DOMAIN-SUFFIX,agedm.tv
+
+
+# OpenCode Zen 模型网关（DeepSeek Harness / opencode 的模型调用请求都发到这里）
+# 2026-10-25 实测：大陆直连比走代理更快更稳——直连 TTFB 0.9~1.0s（CF 边缘落 BOS/EWR），
+# 走代理经日本节点 1.2~3.6s 且抖动大（CF 边缘落 PDX）；模型调用量不小，直连还能省机场流量。
+# 若哪天直连变差：删掉下面这行，就会回落 GEOSITE,category-ai-!cn → 🤖 AI 组的代理。
+DOMAIN-SUFFIX,opencode.ai
