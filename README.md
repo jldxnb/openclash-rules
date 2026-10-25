@@ -97,7 +97,7 @@ rule-providers:
 把 `configs/mihomo/three-redir-host.yaml`（桌面）或 `three-fake-ip.yaml`（手机 / TUN）
 的内容喂给客户端。**必须先替换占位符**（见下一节），否则订阅拉不下来。
 
-`three-*` 是 **1 个质量机场（stable）+ 2 个便宜机场（cheap / cheap1）**：GitHub API、游戏、e-hentai
+`three-*` 是 **1 个质量机场（stable）+ 2 个便宜机场（cheap / cheap1）**：GitHub API、游戏、漫画动漫、e-hentai
 默认用 stable，其余流量默认走 cheap（一分）（「🔯 自动兜底」的顺序是 cheap → cheap1 → stable）。
 
 配置里几个可以随时切换的分流开关（在面板里改即可，不用编辑文件）：
@@ -116,15 +116,15 @@ rule-providers:
 
 | provider | 机场 | 角色与默认承接 |
 |---|---|---|
-| `stable` | 渔云 | 质量机场：`🐙 GitHub API`、`🎮 游戏`、`🔞 e-hentai` 默认用它（`🔯 主备切换*` 四条地区链） |
+| `stable` | 渔云 | 质量机场：`🐙 GitHub API`、`🎮 游戏`、`🎌 漫画动漫`、`🔞 e-hentai` 默认用它（`🔯 主备切换*` 四条地区链） |
 | `cheap` | 一分 | 便宜机场 1（**默认**）：其余流量默认走它（`♻️ 便宜主备*` 四条地区链）；`🔯 自动兜底` 的第一跳 |
 | `cheap1` | 猫咪 | 便宜机场 2（备胎）：`♻️ 便宜主备1*` 四条地区链；`🔯 自动兜底` 的第二跳 |
 
 分流口径：
 
 - **默认 cheap，关键流量 stable**：`🚀 节点选择` 默认 `🔯 自动兜底`（cheap → cheap1 → stable）；
-  `🐙 GitHub API` / `🎮 游戏` / `🔞 e-hentai` 默认 stable 链（e-hentai 用 stable 的非日本链）。
-  AI / 漫画动漫 / 流媒体 / Speedtest 等「其他」组默认 cheap；B站番剧、微软服务、全球直连的默认项仍是
+  `🐙 GitHub API` / `🎮 游戏` / `🎌 漫画动漫` / `🔞 e-hentai` 默认 stable 链（漫画动漫、e-hentai 用 stable 的非日本链）。
+  AI / 流媒体 / Speedtest 等「其他」组默认 cheap；B站番剧、微软服务、全球直连的默认项仍是
   `DIRECT`。想指定机场就在对应组里改选单机场链（`🔯 主备切换` / `♻️ 便宜主备1` / `♻️ 便宜主备`）。
 - **GitHub 拆两段**：低流量接口 →「🐙 GitHub API」（默认 stable 的干净出口）：`api.github.com` 是
   REST + GraphQL 入口、频率按出口 IP 记（未认证 60 次/小时），共用出口容易把额度耗光，所以单独成组；

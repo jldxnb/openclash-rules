@@ -21,7 +21,7 @@ proxy-providers:
   #         proxy: 🚀 节点选择     # 或某个组名 / 某个节点名；删掉这行则按 rules 匹配（通常经代理组）
   #         url: "订阅"
   #     冷启动时代理组可能还没有节点、本地又没缓存文件，第一次拉取可能失败，mihomo 会按退避重试。
-  # 角色：stable = 质量机场（GitHub API / 游戏 / e-hentai 默认用它）；
+  # 角色：stable = 质量机场（GitHub API / 游戏 / 漫画动漫 / e-hentai 默认用它）；
   #       cheap、cheap1 = 两个便宜机场，其余流量默认走 cheap（一分）。
   stable: &provider_base
     type: http
@@ -174,12 +174,12 @@ proxy-groups:
   # AI 属于「其他」→ 默认 cheap 的非港台链（cheap1 / stable 的非港台链作候选）
   - {name: 🤖 AI, type: select, proxies: [♻️ 便宜主备|非港台, ♻️ 便宜主备1|非港台, 🔯 主备切换|非港台], include-all: true, filter: *no_hktw}
   # GitHub 低流量接口单独成组：限频按出口 IP 记（未认证 REST 60 次/小时），固定一个干净出口更稳；
-  # 它是三个默认走 stable 的组之一（另两个是 🎮 游戏、🔞 e-hentai）。
+  # 它是四个默认走 stable 的组之一（另三个是 🎮 游戏、🎌 漫画动漫、🔞 e-hentai）。
   - {name: 🐙 GitHub API, type: select, proxies: [🔯 主备切换, ♻️ 便宜主备, ♻️ 便宜主备1], include-all: true}
   # 游戏默认 stable（延迟优先，不做地区限制）
   - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换, ♻️ 便宜主备, ♻️ 便宜主备1], include-all: true}
-  # 漫画动漫属于「其他」→ 默认 cheap 的非日本链
-  - {name: 🎌 漫画动漫, type: select, proxies: [♻️ 便宜主备|非日本, ♻️ 便宜主备1|非日本, 🔯 主备切换|非日本], include-all: true, filter: *no_jp}
+  # 漫画动漫也默认 stable（不少动漫站对日本 IP 有限制，仍用非日本链）
+  - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|非日本, ♻️ 便宜主备|非日本, ♻️ 便宜主备1|非日本], include-all: true, filter: *no_jp}
   # e-hentai 默认 stable：图站额度按 IP 记，换机场 / 换节点都在这里切；exhentai 对日本 IP 有限制，排除日本
   - {name: 🔞 e-hentai, type: select, proxies: [🔯 主备切换|非日本, ♻️ 便宜主备|非日本, ♻️ 便宜主备1|非日本], include-all: true, filter: *no_jp}
   # 微软服务默认直连：Windows 更新 / Office 下载走直连更快，也避免影响「手机连接」的局域网配对
@@ -194,7 +194,7 @@ proxy-groups:
   # 跨机场自动：cheap → cheap1 → stable（其他流量默认 cheap 靠它；想指定机场就在 🚀 里改选单机场链）
   - {name: 🔯 自动兜底, type: fallback, proxies: [♻️ 便宜主备, ♻️ 便宜主备1, 🔯 主备切换], url: "https://www.gstatic.com/generate_204", interval: 300, max-failed-times: 1}
 
-  # stable（渔云，质量机场）：GitHub API / 游戏 / e-hentai 用，四条链按地区区分
+  # stable（渔云，质量机场）：GitHub API / 游戏 / 漫画动漫 / e-hentai 用，四条链按地区区分
   - {name: 🔯 主备切换, type: url-test, use: [stable], url: "https://www.gstatic.com/generate_204", tolerance: 100, max-failed-times: 1}
   - {name: 🔯 主备切换|非港台, type: url-test, use: [stable], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_hktw, max-failed-times: 1}
   - {name: 🔯 主备切换|非日本, type: url-test, use: [stable], url: "https://www.gstatic.com/generate_204", tolerance: 100, filter: *no_jp, max-failed-times: 1}
