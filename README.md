@@ -105,6 +105,7 @@ rule-providers:
 |---|---|
 | `🔯 自动兜底` | 跨机场故障转移：`stable` → `stable1` → `cheap`（`🚀 节点选择` 的默认项） |
 | `🔯 主备切换*`、`♻️ 便宜主备*` | 都是 `fallback` 类型：默认用列表里第一个健康的节点，**也可以在面板里点选一个首选节点**（选择会持久化），该节点失效时自动切到下一个健康的 |
+| `🐙 GitHub API` | GitHub 低流量接口（`api.github.com` / `api.mcp.github.com` / `scanning-api.github.com` / `lfs.github.com`）单独成组：接口频率按出口 IP 计、要干净节点，默认 stable 链；可切便宜链或候选里的任一节点 |
 | `🎯 全球直连` | 切到 `🚀 节点选择` 可让所有国内直连流量也走代理 |
 | `🐟 漏网之鱼` | 兜底流量，默认走 `🚀 节点选择`；可切成直连或任一机场链（`🔯 主备切换` / `🔯 主备切换1` / `♻️ 便宜主备`） |
 
@@ -122,8 +123,10 @@ rule-providers:
 
 - **默认全走 `🔯 自动兜底`**（`🚀 节点选择` 的默认项）：stable → stable1 → cheap 依次故障转移；
   想指定机场就在 `🚀 节点选择` 里改选单机场链（`🔯 主备切换` / `🔯 主备切换1` / `♻️ 便宜主备`）。
-- **GitHub**：低流量接口（`api.github.com` 的 REST + GraphQL）与其余 GitHub 流量暂时都在
-  `🚀 节点选择`（默认 stable 链）。
+- **GitHub 拆两段**：低流量接口 →「🐙 GitHub API」（默认 stable 的干净出口）：`api.github.com` 是
+  REST + GraphQL 入口、频率按出口 IP 记（未认证 60 次/小时），共用出口容易把额度耗光，所以单独成组；
+  `api.mcp.github.com`（MCP）/ `scanning-api.github.com`（代码扫描）/ `lfs.github.com` 也进组。
+  其余 GitHub（网页、`raw.`、`codeload`、Release 资产）→ `🚀 节点选择`。
 - **AI / Copilot**：`ai` 清单与 `GEOSITE,category-ai-!cn`（含 `api.githubcopilot.com` 等 Copilot 接口）
   → `🤖 AI`（默认 stable 的非港台链）。Google 走 `🤖 AI` 同样是旧配置的取舍（账号风控对出口 IP 敏感）。
 - **游戏 / B站港澳台 / 流媒体 / Speedtest**：各有独立组，按需在面板切换（见上一节的组表）。
@@ -139,7 +142,27 @@ rule-providers:
 | 「其他」流量改用 stable1 / cheap | `🚀 节点选择` → `🔯 主备切换1` / `♻️ 便宜主备` |
 | 兜底流量也想用 stable 的干净 IP | `🐟 漏网之鱼` → `🔯 主备切换` / `🔯 自动兜底` |
 | 游戏想换机场 | `🎮 游戏` → `♻️ 便宜主备` 等候选 |
+| GitHub API 想换出口 | `🐙 GitHub API` → 候选里的 cheap 链，或直接在 `include-all` 里点一个具体节点 |
 | Google 也改走便宜机场 | 把 `GEOSITE,google` / `GEOIP,google` 两条规则改指 `🚀 节点选择`（rules 里已留注释） |
+
+## GitHub 低流量接口单独成组（`🐙 GitHub API`）
+
+GitHub 接口的频率按**出口 IP** 计（未认证 REST 60 次/小时；带 token 按 token 算，但同一个出口被多个
+工具共用时仍会互相拖累），所以把接口和其余 GitHub 流量分开，接口固定用质量链的干净出口：
+
+| 规则（都排在 `GEOSITE,github` 之前） | 走哪个组 | 说明 |
+|---|---|---|
+| `DOMAIN,api.github.com` | `🐙 GitHub API` | REST + GraphQL 入口 |
+| `DOMAIN,api.mcp.github.com` | `🐙 GitHub API` | GitHub MCP 远程端点 |
+| `DOMAIN,scanning-api.github.com` | `🐙 GitHub API` | Copilot 代码扫描 API |
+| `DOMAIN,lfs.github.com` | `🐙 GitHub API` | LFS batch API（请求很小，对象字节在 CDN 主机） |
+| `GEOSITE,github` | `🚀 节点选择` | 其余 GitHub：网页、`raw.`、`codeload`、Release 资产 |
+
+- 组默认 stable（渔云）链；额度被耗光时在面板把这一组换到别的节点即可，**不影响 `🚀 节点选择` 上的其它流量**。
+- 为什么不能只留 `GEOSITE,github` 一把梭：geosite 里的 `+.github.com` / `+.githubusercontent.com`
+  会把整域接走，接口规则必须写在它前面。
+- Copilot 的接口（`api.githubcopilot.com` 等）仍由 `GEOSITE,category-ai-!cn` 接住 → `🤖 AI`；
+  想让它也进 `🐙 GitHub API`，照上表再加精确规则即可。
 
 ## 漫画 / 动漫规则集（MangaCN、MangaProxyNoEH、AnimeCN、AnimeProxy）
 

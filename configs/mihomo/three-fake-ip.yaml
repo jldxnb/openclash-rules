@@ -170,6 +170,9 @@ x-node-filters:
 proxy-groups:
   - {name: 🚀 节点选择, type: select, proxies: [🔯 自动兜底, 🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
   - {name: 🤖 AI, type: select, proxies: [🔯 主备切换|非港台, 🔯 主备切换|非港台1], include-all: true, filter: *no_hktw}
+  # GitHub 低流量接口单独成组：限频按出口 IP 记（未认证 REST 60 次/小时），固定一个干净出口更稳；
+  # 默认 stable（渔云）链，嫌占 stable 流量可在面板切到便宜链或候选里的任一节点。
+  - {name: 🐙 GitHub API, type: select, proxies: [🔯 主备切换, 🔯 主备切换1, ♻️ 便宜主备], include-all: true}
   # 游戏不做地区限制：港澳台节点延迟低，打游戏反而更合适，所以候选直接用不限地区的链
   - {name: 🎮 游戏, type: select, proxies: [🔯 主备切换, 🔯 主备切换1], include-all: true}
   - {name: 🎌 漫画动漫, type: select, proxies: [🔯 主备切换|非日本, 🔯 主备切换|非日本1], include-all: true, filter: *no_jp}
@@ -343,6 +346,14 @@ rules:
   - GEOSITE,private,DIRECT
   - GEOSITE,apple-cn,🎯 全球直连
   - GEOSITE,google-cn,🎯 全球直连
+  # ── GitHub：低流量接口 / 其余两段 ──
+  # 低流量接口单独走「🐙 GitHub API」：按出口 IP 计频率（未认证 REST 60 次/小时，GraphQL 也在
+  # api.github.com），固定一个干净出口比共用出口稳。必须排在 GEOSITE,github 之前——geosite 里的
+  # +.github.com 会把整域接走。其余 GitHub（网页 / raw / codeload / Release 资产）仍 → 🚀 节点选择。
+  - DOMAIN,api.github.com,🐙 GitHub API
+  - DOMAIN,api.mcp.github.com,🐙 GitHub API      # GitHub MCP 远程端点
+  - DOMAIN,scanning-api.github.com,🐙 GitHub API # Copilot 代码扫描 API
+  - DOMAIN,lfs.github.com,🐙 GitHub API          # LFS batch API（对象字节在 CDN 主机上）
   - GEOSITE,github,🚀 节点选择
   - GEOSITE,youtube,🎬 流媒体
   - GEOSITE,twitter,🎬 流媒体
