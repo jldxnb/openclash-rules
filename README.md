@@ -223,7 +223,7 @@ GitHub 接口的频率按**出口 IP** 计（未认证 REST 60 次/小时；带 
 |---|---|---|
 | `rules/MangaCN.list` | 漫画 / 网漫 / 同人 · 国内直连 | v2fly 的 manhuagui / manhuaren / copymanga 等 data 文件 |
 | `rules/MangaProxyNoEH.list`（原 `MangaProxy.list`，2026-10-06 改名） | 漫画 / 网漫 / 同人 · 海外代理（**不含 e-hentai 家族**） | 同上（18comic / haitang / boylove / pixiv / dlsite / dmm-porn；e-hentai 家族已拆出，见下一节） |
-| `rules/AnimeCN.list` | 动漫 · 国内直连（国内平台动漫区 + CDN、国际版未被墙域） | 无（国内平台域名稳定，纯手工维护） |
+| `rules/AnimeCN.list` | 动漫 · 国内直连（国内平台动漫区 + CDN、国际版未被墙域、Animeko 实测直连的源站 / 视频 CDN） | 无（国内平台域名稳定，纯手工维护） |
 | `rules/AnimeProxy.list` | 动漫 · 海外代理（日系 / 海外聚合 / BT·字幕组 / 成人向） | FMHY 的 Anime Streaming / Downloading / Torrenting / Tracking 小节 |
 
 域名来源与逐条实测记录：漫画见 [manga-sites.md](manga-sites.md)，动漫见 [anime-sites.md](anime-sites.md)。
@@ -246,6 +246,8 @@ exhentai / manhuagui，证据分档见文件头注释）。**两份清单目前�
   普遍比代理慢（Cloudflare 落远端边缘），只有 5 条直连不慢于代理而挪进 `AnimeCN.list`、6 条已无
   解析被剔除——判据与逐条数据见 `anime-sites.md` §8.5。**「能直连」不等于「该直连」**，
   下次复查也按这套口径：直连实测不慢于代理再挪。
+
+2026-10-25 晚又审计了 Animeko（开源追番客户端）实际使用的 24 个动画源与视频 CDN：15 条源站 / CDN 直连可用且不慢于代理（或代理被 403/超时）而挪进 `AnimeCN.list`，其余留代理（BT 站 / CF 挑战 / 直连更慢）。顺带查明：「🎌 漫画动漫」组里流量的大头其实是 Animeko 自身基础设施（`myani.org` 的封面 / 弹幕 / 更新），这些确实需要节点、维持代理——路由统计与逐条数据见 `anime-sites.md` §8.6。
 
 在配置里引用（沿用「list 与 mrs」的做法：域名部分用 mrs，关键词部分用 rest 文本；
 AnimeCN / AnimeProxy 没有关键词条目，所以不需要 rest provider）：

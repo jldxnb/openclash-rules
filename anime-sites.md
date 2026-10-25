@@ -171,7 +171,7 @@
 - 后续更新入口: GitHub 仓库 Releases / animeko.org
 - 快测: myani.org 200 / d2.myani.org 404（CF Pages 根路径，正常）/ static.myani.org 封面图 200 image/jpeg / danmaku-global 404（API 根路径，正常）
 - 大陆可达性: **直连可通但明显更慢 → 维持代理**（2026-10-25 上海电信真实直连实测：官网 TTFB 0.7–4.2s、封面图约 70KB/s；代理 TTFB 0.2s、封面 474KB/s。直连 CF 边缘落到 `colo=AMS`，代理走 HKG；Railway 的 danmaku-cn/auth 直连 0.7–4.0s vs 代理 0.24–0.58s）
-- 备注: 所以留在 `AnimeProxy.list` 的「代理·存疑」区，不挪直连；若哪天节点很差、要省流量，可把 `myani.org` 挪到 AnimeCN.list 试直连（能开，只是慢）
+- 备注: 所以留在 `AnimeProxy.list` 的「代理·存疑」区，不挪直连；若哪天节点很差、要省流量，可把 `myani.org` 挪到 AnimeCN.list 试直连（能开，只是慢）；其**动画源订阅 / 视频 CDN** 的单独审计见 §8.6（2026-10-25：15 条源站 / CDN 改直连，myani 基础设施维持代理）
 
 ---
 
@@ -212,7 +212,7 @@
 - 来源: [dm.xifanacg.com 首页实测](https://dm.xifanacg.com/)（标题「稀饭动漫 Next」；引用 img2.xfmanga.top×169、next.xifanacg.com）；[xifan.moe 实测](https://xifan.moe/)（标题「稀饭ACG - 连接动漫、漫画、游戏与二次元世界」）；[app.xifandm.net 实测](https://app.xifandm.net/)（标题「下载 App · 稀饭动漫 Next」）
 - 后续更新入口: App 下载页 app.xifandm.net（随站更新）
 - 快测: dm.xifanacg.com 200 / xifan.moe 200 / app.xifandm.net 200
-- 大陆可达性: 存疑（ip-api: xifan.moe 日本 Tencent Cloud；站点为大陆用户向盗版站，时通时断）
+- 大陆可达性: 存疑（ip-api: xifan.moe 日本 Tencent Cloud；站点为大陆用户向盗版站，时通时断）；2026-10-25 Animeko 源审计实测其源站直连不慢于代理，源站已改直连（§8.6）
 - 备注: 搜索另见 dick.xfani.com 等备用域（未逐一验证）
 
 #### 次元城动漫
@@ -232,7 +232,7 @@
 - 来源: [www.girigirilove.com 实测](https://www.girigirilove.com/)（标题「GiriGiriLove 爱站 - 免费高清动漫在线观看｜追番弹幕动漫网站」）；[girigiri.cn 实测](https://girigiri.cn/)（标题「Girigiri动漫 - 全球新番漫画同步追更神器」）
 - 后续更新入口: 无固定发布页
 - 快测: girigirilove.com 200 / www.girigirilove.com 200 / anime.girigirilove.com 空响应（200 链路异常，疑 JS/区域限制） / girigiri.cn 200
-- 大陆可达性: 存疑（ip-api: girigirilove.com Cloudflare；社区有「需挂梯子更流畅」的反馈）
+- 大陆可达性: 存疑（ip-api: girigirilove.com Cloudflare；社区有「需挂梯子更流畅」的反馈）；2026-10-25 Animeko 源审计实测 ani. / bg. / m3u8. 直连不慢于代理，已改直连（§8.6）
 - 备注: 无
 
 #### 嘀哩嘀哩（D站）
@@ -2619,8 +2619,9 @@ www3.animeflv.net                           OK/OK          h301
 
 以下清单由本文全部域名自动生成（已剔除失效域名并做子域合并），按「用国内网络能否直接访问」拆分。
 2026-10-25 对「代理·存疑」区做过一次**真实大陆直连复测**：52/74 能直连但多数明显更慢，仅 5 条直连不慢于代理（挪入 §8.1）、6 条已无解析（剔除），方法与逐条数据见 §8.5。
+2026-10-25 晚又按 Animeko 动画源审计（§8.6）挪入 15 条（其中 5 条原属「代理·存疑」子集，另 10 条为新收录的源站 / 视频 CDN）。
 
-**国内直连 79 条 ｜ 海外代理 425 条（其中 63 条属「代理·存疑」）｜ 其中 9 条需走「非日本节点」**。
+**国内直连 94 条 ｜ 海外代理 420 条（其中 58 条属「代理·存疑」）｜ 其中 9 条需走「非日本节点」**。
 
 ### 8.1 国内直连
 
@@ -2633,6 +2634,7 @@ DOMAIN-SUFFIX,acg.youku.com
 DOMAIN-SUFFIX,anifun.cn
 DOMAIN-SUFFIX,api.bilibili.com
 DOMAIN-SUFFIX,api.dandanplay.net
+DOMAIN-SUFFIX,api.xifanacg.com
 DOMAIN-SUFFIX,assets.anixplayer.net
 DOMAIN-SUFFIX,b23.tv
 DOMAIN-SUFFIX,bangumi.bilibili.com
@@ -2645,9 +2647,13 @@ DOMAIN-SUFFIX,css.tv.itc.cn
 DOMAIN-SUFFIX,dandanplay.com
 DOMAIN-SUFFIX,dandanplay.net
 DOMAIN-SUFFIX,display-sc.miguvideo.com
+DOMAIN-SUFFIX,dm.xifanacg.com
+DOMAIN-SUFFIX,dm1.xfdm.pro
 DOMAIN-SUFFIX,dmmandao.com.cn
 DOMAIN-SUFFIX,film.qq.com
 DOMAIN-SUFFIX,fino.svc.litv.tv
+DOMAIN-SUFFIX,garden.breadio.wiki
+DOMAIN-SUFFIX,girigirilove.com
 DOMAIN-SUFFIX,honey.mgtv.com
 DOMAIN-SUFFIX,i0.hdslb.com
 DOMAIN-SUFFIX,i1.hdslb.com
@@ -2677,6 +2683,7 @@ DOMAIN-SUFFIX,miguvideo.com
 DOMAIN-SUFFIX,mikanime.tv
 DOMAIN-SUFFIX,msg-intl.qy.net
 DOMAIN-SUFFIX,my.tv.sohu.com
+DOMAIN-SUFFIX,next.xifanacg.com
 DOMAIN-SUFFIX,omofuns.com
 DOMAIN-SUFFIX,pptv.com
 DOMAIN-SUFFIX,projectjust.xyz
@@ -2699,11 +2706,20 @@ DOMAIN-SUFFIX,vv.video.qq.com
 DOMAIN-SUFFIX,wapx.cmvideo.cn
 DOMAIN-SUFFIX,wetv.vip
 DOMAIN-SUFFIX,wetvinfo.com
+DOMAIN-SUFFIX,www.didahd.pro
+DOMAIN-SUFFIX,www.dilidili.io
+DOMAIN-SUFFIX,www.fqdm.cc
+DOMAIN-SUFFIX,www.haixingdmx.com
+DOMAIN-SUFFIX,www.hc34567.com
+DOMAIN-SUFFIX,www.rebozj.pro
+DOMAIN-SUFFIX,www.vdm5.com
 DOMAIN-SUFFIX,www.youku.com
 DOMAIN-SUFFIX,www.youku.tv
+DOMAIN-SUFFIX,xfvod.pro
 DOMAIN-SUFFIX,ykimg.alicdn.com
 DOMAIN-SUFFIX,youku.com
 DOMAIN-SUFFIX,youku.tv
+DOMAIN-SUFFIX,yzzy30-play.com
 ```
 
 ### 8.2 海外代理
@@ -2740,7 +2756,6 @@ DOMAIN-SUFFIX,akuma.moe
 DOMAIN-SUFFIX,allmanga.to
 DOMAIN-SUFFIX,ani.baha.tw
 DOMAIN-SUFFIX,ani.gamer.com.tw
-DOMAIN-SUFFIX,ani.girigirilove.com
 DOMAIN-SUFFIX,ani.pm
 DOMAIN-SUFFIX,anibk.com
 DOMAIN-SUFFIX,anichan.to
@@ -2765,7 +2780,6 @@ DOMAIN-SUFFIX,anikuro.to
 DOMAIN-SUFFIX,anilight.live
 DOMAIN-SUFFIX,anilist.co
 DOMAIN-SUFFIX,anime-jl.net
-DOMAIN-SUFFIX,anime.girigirilove.com
 DOMAIN-SUFFIX,anime.nexus
 DOMAIN-SUFFIX,anime.nicovideo.jp
 DOMAIN-SUFFIX,anime1.me
@@ -2891,7 +2905,6 @@ DOMAIN-SUFFIX,dce-frontoffice.imggaming.com
 DOMAIN-SUFFIX,dic.nicovideo.jp
 DOMAIN-SUFFIX,dilidili51.com
 DOMAIN-SUFFIX,dlidli.app
-DOMAIN-SUFFIX,dm.xifanacg.com
 DOMAIN-SUFFIX,dm530.in
 DOMAIN-SUFFIX,dm530.org
 DOMAIN-SUFFIX,dmhy.anoneko.com
@@ -2920,7 +2933,6 @@ DOMAIN-SUFFIX,gamer-cds.cdn.hinet.net
 DOMAIN-SUFFIX,gamer.com.tw
 DOMAIN-SUFFIX,gamer2-cds.cdn.hinet.net
 DOMAIN-SUFFIX,girigiri.cn
-DOMAIN-SUFFIX,girigirilove.com
 DOMAIN-SUFFIX,gugu3.com
 DOMAIN-SUFFIX,hacg.casa
 DOMAIN-SUFFIX,hacg.la
@@ -3023,7 +3035,6 @@ DOMAIN-SUFFIX,mytvsuper.com
 DOMAIN-SUFFIX,navi.telasa.jp
 DOMAIN-SUFFIX,nekowatch.xyz
 DOMAIN-SUFFIX,news.nicovideo.jp
-DOMAIN-SUFFIX,next.xifanacg.com
 DOMAIN-SUFFIX,nhplayer.com
 DOMAIN-SUFFIX,nicoprofile.nimg.jp
 DOMAIN-SUFFIX,nicotv.me
@@ -3136,10 +3147,11 @@ DOMAIN-SUFFIX,zzzfun.com
 DOMAIN-SUFFIX,zzzfun.org
 ```
 
-### 8.3 「代理·存疑」子集（2026-10-25 实测后仍留代理的 63 条；直连不占优，方法与数据见 §8.5）
+### 8.3 「代理·存疑」子集（2026-10-25 实测后仍留代理的 58 条；直连不占优，方法与数据见 §8.5）
 
 > 2026-10-25 真实大陆直连复测：74 条中 52 条 HTTPS 可直连，但 35 条明显慢于代理 → 继续按代理放；
 > 直连不慢于代理的 5 条已挪 §8.1，6 条已无解析被剔除（见 §7）。「能直连」不等于「该直连」。
+> 2026-10-25 晚 Animeko 源审计又把 girigiri / xifanacg 系 5 条挪进 §8.1（见 §8.6），本子集剩 58 条。
 
 ```yaml
 DOMAIN-SUFFIX,p.bfvp26.com
@@ -3147,7 +3159,6 @@ DOMAIN-SUFFIX,bbs.popgo.org
 DOMAIN-SUFFIX,cn-yinghuadm.com.cn
 DOMAIN-SUFFIX,dm530.in
 DOMAIN-SUFFIX,anibk.com
-DOMAIN-SUFFIX,girigirilove.com
 DOMAIN-SUFFIX,luffytv.online
 DOMAIN-SUFFIX,agedm.com
 DOMAIN-SUFFIX,fcdm22.com
@@ -3157,7 +3168,6 @@ DOMAIN-SUFFIX,yinghuafanju.com.cn
 DOMAIN-SUFFIX,cn-yinghuadman.com.cn
 DOMAIN-SUFFIX,bbs.kfmax.com
 DOMAIN-SUFFIX,xuandm.com
-DOMAIN-SUFFIX,ani.girigirilove.com
 DOMAIN-SUFFIX,agedm.org
 DOMAIN-SUFFIX,img.picbf.com
 DOMAIN-SUFFIX,megaplay.buzz
@@ -3188,7 +3198,6 @@ DOMAIN-SUFFIX,5dm.dev
 DOMAIN-SUFFIX,age.tv
 DOMAIN-SUFFIX,dilidili51.com
 DOMAIN-SUFFIX,img.lzipic.com
-DOMAIN-SUFFIX,next.xifanacg.com
 DOMAIN-SUFFIX,qudman.com.cn
 DOMAIN-SUFFIX,kimoitv.com
 DOMAIN-SUFFIX,kuroiru.co
@@ -3196,11 +3205,9 @@ DOMAIN-SUFFIX,yhdm.so
 DOMAIN-SUFFIX,yhpdm.net
 DOMAIN-SUFFIX,fcdmtv.cc
 DOMAIN-SUFFIX,agedm.vip
-DOMAIN-SUFFIX,dm.xifanacg.com
 DOMAIN-SUFFIX,fengchedm.com
 DOMAIN-SUFFIX,agedm.me
 DOMAIN-SUFFIX,dm530.org
-DOMAIN-SUFFIX,anime.girigirilove.com
 DOMAIN-SUFFIX,fengchedm.cc
 DOMAIN-SUFFIX,fantuantv.com
 DOMAIN-SUFFIX,cycity.pro
@@ -3346,6 +3353,85 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 | dm530w6.com | NXDOMAIN | — | 2.19 | → 剔除（§7） |
 | mobile.meinadi.cn | NXDOMAIN | — | 2.16 | → 剔除（§7） |
 
+> 注：上表是 2026-10-25 白天的单次采样。当晚 Animeko 源审计对其中 girigiri / xifanacg 系复测为直连更快或持平（见 §8.6），这 5 条已挪 `AnimeCN.list`，§8.1 / §8.2 / §8.3 的清单已相应更新。
+
+
+### 8.6 2026-10-25 Animeko 动画源审计（24 个源实例 / 视频 CDN）
+
+**背景**：Animeko（`open-ani/animeko`，本机装在 `D:\animeko\Ani`，用户数据在 `%APPDATA%\Him188\Ani`）
+的「动画源」默认直连各站自己的域名。用户反馈部分流量被「🎌 漫画动漫」组接走，要求核查哪些源真的需要节点。
+
+**方法**：
+
+- 从数据目录 `datastore\mediaSource*` 读出实际启用的 24 个源实例，加上源订阅 `sub.creamycake.org`
+  （css1 / bt1）里的源清单，逐个提取源站域名；
+- 用 mihomo core 日志（`mihomo-party\logs\core-2026-10-24/25.log`）统计这些 host 实际命中的规则与策略组；
+- 每个域名做「真实大陆直连 vs 经 127.0.0.1:7890 代理」测速（方法同 §8.5：TUN 开着时
+  `curl --noproxy "*" --interface <WLAN IP>` 绕开 TUN 从物理网卡发出），记 HTTP 状态与首字节 / 总耗时。
+
+**路由现状（core 日志，24 小时）**：「🎌 漫画动漫」组接走的大头是 **Animeko 自身基础设施**，不是动画源站——
+`static.myani.org`（封面图）145 次、`danmaku-global.myani.org`（弹幕 / 更新）121 次、`myani.org` 17 次、
+`d2.myani.org` 9 次、`danmaku-cn` 6 次、`auth` 2 次；另有 BT 站 `www.dmhy.org` 15 次、girigiri / xifanacg 合计十余次。
+动画源站大多**不在动漫清单里** → 落「🐟 漏网之鱼」（同样在节点上跑）；樱花视频 CDN（`player.mcue.cc` /
+`cdn.l-il.cn`）和稀饭部分 CDN（`apn.moedot.net` / `player.moedot.net`）本来就命中 `GeoSite(cn)` → 直连。
+
+**24 个源实例的判定**（TTFB / 总耗时，秒；直连为真实大陆网络，单次采样，数值只作量级参考）：
+
+| 源实例 | 源站域名 | 直连 | 代理 | 判定 |
+|---|---|---|---|---|
+| mikan-mikanime-tv | mikanime.tv | 200 1.79 / 10.2 | 200 4.22 / 12.5 | 已在 AnimeCN（直连） |
+| dmhy | www.dmhy.org | 200 3.27 / 5.55 | 200 3.11 / 4.02 | 留代理（略慢） |
+| nyaa.land（RSS） | nyaa.land | 403 CF 挑战 | 000 超时 | 两边都不通，保持 |
+| AnimeGarden（RSS） | garden.breadio.wiki | 301 0.78 | 301 5.00 | **改直连** |
+| 稀饭动漫 | dm1.xfdm.pro | 200 1.81 / 1.85 | 200 3.66 / 4.26 | **改直连** |
+| girigiri愛動漫 | ani. / bg. / m3u8.girigirilove.com | 200 1.41–1.50 | 200 1.78–3.87 | **改直连** |
+| 稀饭动漫 Next | api.xifanacg.com / next.xifanacg.com | 401 1.23 / 200 0.53 | 401 1.51 / 200 2.34 | **改直连** |
+| 2k动漫 | www.2kdm.com | 200 3.19 | 200 2.54 | 留代理（更慢） |
+| 嘀嗒影视 | www.didahd.pro | 200 4.29 / 4.30 | 200 4.36 / 4.42 | **改直连**（持平） |
+| 叽哔动漫 | www.jibi.cc | 200 6.18 | 200 2.15 | 留代理（明显更慢） |
+| E-ACG | www.eacg1.com / i.loli.net | 403 CF 挑战 | 403 CF 挑战 | 两边同阻，保持 |
+| 森之屋动漫 | senfun.in | 200 2.43 | 200 2.28 | 留代理（略慢） |
+| 风车影视 | www.dongmandaquan.vip | 000（无解析） | 000 超时 | 死站，保持 |
+| 去看吧 | 11kt.net | 000 超时 | 000 超时 | 死站，保持 |
+| 海星动漫 | www.haixingdmx.com | 200 0.67–2.49 | 000 超时 | **改直连**（否则不可用） |
+| 樱花动漫 | www.yinhuadm.cc（视频 CDN 已直连） | 200 3.31 | 200 2.90 | 留代理（略慢；视频不占节点） |
+| 嘀哩嘀哩 | dilidili.io | 200 1.63 / 2.24 | 200 2.81 / 3.04 | **改直连** |
+| 新优酷 | www.youknow.tv | 403 CF 挑战 | 403 CF 挑战 | 两边同阻，保持 |
+| 番茄动漫 | www.fqdm.cc | 200 3.60 | 200 3.82 | **改直连**（持平） |
+| hanime1_1080p / hanime1_720p | hanime1.me（+ gitee.com） | 200 1.59 / 2.12 | 403 CF 挑战 | 见下「不动」 |
+| wedm | www.vdm5.com | 200 1.48 / 1.79 | 403 CF 挑战 | **改直连** |
+| 影视森林 | www.hc34567.com | 200 2.44 | 403 CF 挑战 | **改直连** |
+| 热播之家 | www.rebozj.pro | 200 / 301 1.72–4.79 | 301 2.47 / 000 | **改直连** |
+
+**视频 CDN**（真正吃节点流量的部分；只审计到实际播放过的两家）：
+
+| CDN | 归属 | 直连 | 代理 | 判定 |
+|---|---|---|---|---|
+| cdn.yzzy30-play.com | 海星（m3u8 / 分片） | m3u8 200 2.63 / 3.04；分片 206，实测下载 294KB/s | m3u8 200，分片 403 CF 挑战 | **改直连**（必须） |
+| play.xfvod.pro | 稀饭（播放页 / 视频） | 401（需 token）1.92 | 401（需 token）1.73 | **改直连**（省节点带宽） |
+| cdn.wlcdn88.com | 海星备用 CDN | 000（本机 DNS 无解析） | 000（TLS 失败） | 备线已死，不处理 |
+| player.mcue.cc / cdn.l-il.cn | 樱花 | 200（≈0.2–0.3s，已 `GeoSite(cn)` 直连） | 200 | 无需改 |
+| apn.moedot.net / player.moedot.net | 稀饭 | 401 / 200（已 `GeoSite(cn)` 直连） | 401 / 200 | 无需改 |
+
+**改动**：15 条源站 / 视频 CDN 改直连，收进 `AnimeCN.list` 手工区：
+`api.xifanacg.com`、`dm.xifanacg.com`、`dm1.xfdm.pro`、`garden.breadio.wiki`、`girigirilove.com`、
+`next.xifanacg.com`、`www.didahd.pro`、`www.dilidili.io`、`www.fqdm.cc`、`www.haixingdmx.com`、
+`www.hc34567.com`、`www.rebozj.pro`、`www.vdm5.com`、`xfvod.pro`、`yzzy30-play.com`。
+`AnimeProxy.list`「代理·存疑」区里重复的 girigiri / xifanacg 5 条已删（`girigiri.cn` 未动）。
+
+**不动（有明确原因）**：
+
+- **Animeko 基础设施（`myani.org` 家族）仍留代理**：直连弹幕 / 更新 12.2–13.1s vs 代理 4.0s、
+  官网 1.72 / 2.34 vs 0.62s、`api.animeko.org` 2.49 vs 1.76。封面 `static.myani.org` 本次单测直连反而
+  更快（1.41 vs 4.69），但历史吞吐是直连约 70KB/s、代理约 474KB/s，单次采样波动大，维持代理。
+- **BT 站 / 直连更慢的源**（dmhy、2k、叽哔、森之屋、樱花页）留代理，与 §8.5 口径一致：「能直连」≠「该直连」。
+- **hanime1**：主页直连可用，但 `hanime1.me` 先命中漫画清单 `manga_proxy_no_eh_rest` 的
+  `DOMAIN-KEYWORD,hanime1`（配置里漫画规则在 `anime_cn` 之前），要改需同步漫画清单与 §5，暂留代理、待单独处理。
+- **CF 挑战 / 死站**（新优酷、E-ACG、nyaa.land、风车影视、去看吧）两边同为 403 / 超时，与节点无关，保持原样。
+
+**下次复查**：Animeko 换源 / 换域后，从数据目录读出源域名 → 抓 core 日志看 host 实际命中的组 → 按本节方法复测；
+日志里 host 的 `match` 与策略组一眼能看出流量落点。
+
 ## 9. 定期复查指南
 
 **复查节奏**：正版平台（国内 / 日系）域名稳定，**每季度抽查**；中文聚合站与海外聚合站高变动，建议**每月**。
@@ -3359,3 +3445,4 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 | hanime1 家族 | 域名与"日本节点"限制变化 | [Han1meViewer 仓库](https://github.com/misaka10032w/Han1meViewer)（官方域名数组在 Constants.kt） |
 | 全局 | 大陆可达性复核 | 上述站点的官方公告 + GreatFire 查询 |
 | 直连 / 代理取舍（存疑区） | 真实大陆直连实测 vs 代理 TTFB | 本机有 TUN/全局代理时，用 `curl --interface <物理网卡 IP>` 绕开 TUN 直连（方法见 §8.5），「能直连」不等于「该直连」 |
+| Animeko 实际使用的动画源 / 视频 CDN | 换源换域、host 实际命中的规则 / 组、直连 vs 代理 | Animeko 数据目录 `datastore\mediaSource*`；从 core 日志抓 host 后按 §8.6 方法复测 |

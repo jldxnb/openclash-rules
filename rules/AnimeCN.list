@@ -15,6 +15,7 @@
 #     按直连收；若你实测不畅，把它们挪到 AnimeProxy.list 手工区。
 #   - 中文动漫聚合站（樱花/风车/AGE/稀饭等）虽然面向大陆用户，但托管墙外、未验证直连，
 #     统一放 AnimeProxy.list 的「代理·存疑」区（实测直连可用再挪到本清单）。
+#   - Animeko（开源追番客户端）的动画源 / 视频 CDN：2026-10-25 审计后把直连不慢于代理（或代理被 403/超时）的 15 条收进本清单尾部（见 anime-sites.md §8.6）。
 # ===== 手工维护区开始（脚本原样保留，按行增删即可）=====
 # ---- 国内视频平台动漫区 / 国际版 / 工具（逐条来源见 anime-sites.md §1、§8.1）----
 DOMAIN-SUFFIX,2fp-cdnstatic.svc.litv.tv
@@ -96,6 +97,24 @@ DOMAIN-SUFFIX,www.youku.tv
 DOMAIN-SUFFIX,ykimg.alicdn.com
 DOMAIN-SUFFIX,youku.com
 DOMAIN-SUFFIX,youku.tv
+
+# ---- Animeko 动画源 / 视频 CDN（2026-10-25 实测：直连不慢于代理，或代理被 403/超时；判据见 anime-sites.md §8.6）----
+DOMAIN-SUFFIX,api.xifanacg.com
+DOMAIN-SUFFIX,dm.xifanacg.com
+DOMAIN-SUFFIX,dm1.xfdm.pro
+DOMAIN-SUFFIX,garden.breadio.wiki
+DOMAIN-SUFFIX,girigirilove.com
+DOMAIN-SUFFIX,next.xifanacg.com
+DOMAIN-SUFFIX,www.didahd.pro
+DOMAIN-SUFFIX,www.dilidili.io
+DOMAIN-SUFFIX,www.fqdm.cc
+DOMAIN-SUFFIX,www.haixingdmx.com
+DOMAIN-SUFFIX,www.hc34567.com
+DOMAIN-SUFFIX,www.rebozj.pro
+DOMAIN-SUFFIX,www.vdm5.com
+DOMAIN-SUFFIX,xfvod.pro
+DOMAIN-SUFFIX,yzzy30-play.com
+
 # ===== 手工维护区结束 =====
 
 # ===== 自动同步区开始（由 scripts/gen_*_rules.py 重写，勿手改）=====

@@ -69,6 +69,7 @@ HEADER_CN = """# AnimeCN.list —— 动漫站域名清单 · 国内直连
 #     按直连收；若你实测不畅，把它们挪到 AnimeProxy.list 手工区。
 #   - 中文动漫聚合站（樱花/风车/AGE/稀饭等）多数托管墙外，统一放 AnimeProxy.list 的「代理·存疑」区；
 #     2026-10-25 真实大陆直连复测后，只有直连不慢于代理的 5 条挪进本清单（见 anime-sites.md §8.5）。
+#   - Animeko（开源追番客户端）的动画源 / 视频 CDN：2026-10-25 审计后把直连不慢于代理（或代理被 403/超时）的 15 条收进本清单尾部（见 anime-sites.md §8.6）。
 """
 
 HEADER_PROXY = """# AnimeProxy.list —— 动漫站域名清单 · 海外代理
@@ -88,6 +89,8 @@ HEADER_PROXY = """# AnimeProxy.list —— 动漫站域名清单 · 海外代理
 #     2026-10-25 用真实大陆直连复测过 74 条：52 条能直连，但多数明显更慢（Cloudflare 绕远端边缘），
 #     只有 5 条直连不慢于代理（已挪 AnimeCN）、6 条已无解析（已剔除）——判据见 anime-sites.md §8.5。
 #     「能直连」不等于「该直连」：直连实测不慢于代理再挪，别只凭打开得了就改。
+#   - Animeko 动画源审计（2026-10-25）：24 个源里 15 条直连不慢于代理（或代理被 403/超时）已挪 AnimeCN.list，
+#     其余留代理（BT 站 / CF 挑战 / 直连更慢）；详见 anime-sites.md §8.6。
 #   - 屏蔽 / 限制日本 IP 的站（hanime1 家族、hanime.tv 系，证据见 anime-sites.md §5/§8.4）
 #     就收在本清单尾部：原 rules/AnimeNoJP.list（更早叫 NoJP.list）于 2026-10-06 删除、
 #     内容并入本清单。配置里 anime_proxy 排在漫画清单之前命中，它们仍落「🎌 漫画动漫」

@@ -15,6 +15,8 @@
 #     2026-10-25 用真实大陆直连复测过 74 条：52 条能直连，但多数明显更慢（Cloudflare 绕远端边缘），
 #     只有 5 条直连不慢于代理（已挪 AnimeCN）、6 条已无解析（已剔除）——判据见 anime-sites.md §8.5。
 #     「能直连」不等于「该直连」：直连实测不慢于代理再挪，别只凭打开得了就改。
+#   - Animeko 动画源审计（2026-10-25）：24 个源里 15 条直连不慢于代理（或代理被 403/超时）已挪 AnimeCN.list，
+#     其余留代理（BT 站 / CF 挑战 / 直连更慢）；详见 anime-sites.md §8.6。
 #   - 屏蔽 / 限制日本 IP 的站（hanime1 家族、hanime.tv 系，证据见 anime-sites.md §5/§8.4）
 #     就收在本清单尾部：原 rules/AnimeNoJP.list（更早叫 NoJP.list）于 2026-10-06 删除、
 #     内容并入本清单。配置里 anime_proxy 排在漫画清单之前命中，它们仍落「🎌 漫画动漫」
@@ -378,7 +380,8 @@ DOMAIN-SUFFIX,zzzfun.com
 DOMAIN-SUFFIX,zzzfun.org
 # ---- 代理·存疑：面向大陆但托管墙外，默认按代理放。2026-10-25 真实大陆直连复测 74 条：
 #      52 条可直连但多数明显更慢（Cloudflare 落远端边缘），直连不慢于代理的 5 条已挪 AnimeCN.list、
-#      6 条无解析已剔除；判据与逐条数据见 anime-sites.md §8.5 ----
+#      6 条无解析已剔除；判据与逐条数据见 anime-sites.md §8.5。
+#      另 2026-10-25 Animeko 源审计再挪 5 条（girigiri / xifanacg 系）→ AnimeCN.list（§8.6）----
 DOMAIN-SUFFIX,5dm.dev
 DOMAIN-SUFFIX,age.tv
 DOMAIN-SUFFIX,ageapp.app
@@ -389,9 +392,7 @@ DOMAIN-SUFFIX,agedm.org
 DOMAIN-SUFFIX,agedm.vip
 DOMAIN-SUFFIX,agefans.com
 DOMAIN-SUFFIX,agefans.la
-DOMAIN-SUFFIX,ani.girigirilove.com
 DOMAIN-SUFFIX,anibk.com
-DOMAIN-SUFFIX,anime.girigirilove.com
 DOMAIN-SUFFIX,animefenix2.tv
 DOMAIN-SUFFIX,animetake.tv
 DOMAIN-SUFFIX,anisnatch.site
@@ -408,7 +409,6 @@ DOMAIN-SUFFIX,cycdm01.top
 DOMAIN-SUFFIX,cycity.pro
 DOMAIN-SUFFIX,dilidili51.com
 DOMAIN-SUFFIX,dlidli.app
-DOMAIN-SUFFIX,dm.xifanacg.com
 DOMAIN-SUFFIX,dm530.in
 DOMAIN-SUFFIX,dm530.org
 DOMAIN-SUFFIX,fantuantv.com
@@ -417,7 +417,6 @@ DOMAIN-SUFFIX,fcdmtv.cc
 DOMAIN-SUFFIX,fengchedm.cc
 DOMAIN-SUFFIX,fengchedm.com
 DOMAIN-SUFFIX,girigiri.cn
-DOMAIN-SUFFIX,girigirilove.com
 DOMAIN-SUFFIX,gugu3.com
 DOMAIN-SUFFIX,img.lzipic.com
 DOMAIN-SUFFIX,img.picbf.com
@@ -429,7 +428,6 @@ DOMAIN-SUFFIX,kuroiru.co
 DOMAIN-SUFFIX,luffytv.online
 DOMAIN-SUFFIX,megaplay.buzz
 DOMAIN-SUFFIX,myani.org
-DOMAIN-SUFFIX,next.xifanacg.com
 DOMAIN-SUFFIX,p.bfvp26.com
 DOMAIN-SUFFIX,piratexplay.com
 DOMAIN-SUFFIX,qudman.com.cn
