@@ -114,7 +114,6 @@ DOMAIN-SUFFIX,www.rebozj.pro
 DOMAIN-SUFFIX,www.vdm5.com
 DOMAIN-SUFFIX,xfvod.pro
 DOMAIN-SUFFIX,yzzy30-play.com
-
 # ===== 手工维护区结束 =====
 
 # ===== 自动同步区开始（由 scripts/gen_*_rules.py 重写，勿手改）=====
