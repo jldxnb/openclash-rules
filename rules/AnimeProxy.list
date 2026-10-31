@@ -454,6 +454,7 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 # ===== 手工维护区结束 =====
 
 # ===== 自动同步区开始（由 scripts/gen_*_rules.py 重写，勿手改）=====
+DOMAIN-SUFFIX,ani.nz
 DOMAIN-SUFFIX,anibase.net
 DOMAIN-SUFFIX,aniclover.cc
 DOMAIN-SUFFIX,anidb.net
@@ -510,12 +511,14 @@ DOMAIN-SUFFIX,rivestream.ru
 DOMAIN-SUFFIX,seadex.pages.dev
 DOMAIN-SUFFIX,seanime.app
 DOMAIN-SUFFIX,shanaproject.com
+DOMAIN-SUFFIX,shonen.to
 DOMAIN-SUFFIX,taiga.moe
 DOMAIN-SUFFIX,theindex.moe
 DOMAIN-SUFFIX,thewiki.moe
 DOMAIN-SUFFIX,tokyoinsider.com
 DOMAIN-SUFFIX,tsukihime.org
 DOMAIN-SUFFIX,tsukuyomi.tv
+DOMAIN-SUFFIX,ume.to
 DOMAIN-SUFFIX,watchanimez.me
 DOMAIN-SUFFIX,weebtube.cc
 DOMAIN-SUFFIX,wotaku.wiki
