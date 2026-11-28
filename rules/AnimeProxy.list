@@ -456,6 +456,7 @@ DOMAIN-SUFFIX,vdownload.hembed.com
 # ===== 自动同步区开始（由 scripts/gen_*_rules.py 重写，勿手改）=====
 DOMAIN-SUFFIX,2dhive.com
 DOMAIN-SUFFIX,ani.nz
+DOMAIN-SUFFIX,ani.vg
 DOMAIN-SUFFIX,anibase.net
 DOMAIN-SUFFIX,aniclover.cc
 DOMAIN-SUFFIX,anidb.net
@@ -480,6 +481,8 @@ DOMAIN-SUFFIX,animevilla.org
 DOMAIN-SUFFIX,animexin.dev
 DOMAIN-SUFFIX,animey.to
 DOMAIN-SUFFIX,animotvslash.org
+DOMAIN-SUFFIX,anipm.pk
+DOMAIN-SUFFIX,anipm.tv
 DOMAIN-SUFFIX,anisearch.com
 DOMAIN-SUFFIX,anisnatch.cz
 DOMAIN-SUFFIX,anivault.tv
@@ -531,7 +534,6 @@ DOMAIN-SUFFIX,thewiki.moe
 DOMAIN-SUFFIX,tokyoinsider.com
 DOMAIN-SUFFIX,tsukihime.org
 DOMAIN-SUFFIX,tsukuyomi.tv
-DOMAIN-SUFFIX,ume.to
 DOMAIN-SUFFIX,watchanimez.me
 DOMAIN-SUFFIX,weebtube.cc
 DOMAIN-SUFFIX,wotaku.wiki
